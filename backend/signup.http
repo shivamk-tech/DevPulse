@@ -1,0 +1,11 @@
+
+POST http://127.0.0.1:8000/api/auth/signup/
+Content-Type: application/json
+
+{
+  "email": "another@example.com",
+  "first_name": "Test",
+  "last_name": "User",
+  "password": "StrongTestPass@9271",
+  "password_confirm": "DifferentPass@9271"
+}
