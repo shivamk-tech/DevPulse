@@ -1,18 +1,3 @@
-export interface SignupRequest {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  agreeToTerms: boolean;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-  rememberMe?: boolean;
-}
-
 export interface ForgotPasswordRequest {
   email: string;
 }
@@ -23,13 +8,20 @@ export interface ResetPasswordRequest {
   confirmPassword: string;
 }
 
-export interface User {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-}
-
 export interface AuthResponse {
   user: User;
 }
+
+export interface User {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_email_verified: boolean;
+}
+
+export interface SignupResponse {
+  message: string;
+  user: User;
+}
+

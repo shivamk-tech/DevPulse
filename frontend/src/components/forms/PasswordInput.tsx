@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 
-import { Button } from "@/components/ui";
 import { Input, type InputProps } from "@/components/ui";
 
 export function PasswordInput(props: InputProps) {
@@ -14,19 +13,18 @@ export function PasswordInput(props: InputProps) {
       {...props}
       type={showPassword ? "text" : "password"}
       rightSection={
-        <Button
+        <button
           type="button"
-          variant="ghost"
-          size="icon"
           tabIndex={-1}
           onClick={() => setShowPassword((prev) => !prev)}
+          className="flex h-full items-center justify-center leading-none text-muted-foreground transition-colors hover:text-foreground"
         >
           {showPassword ? (
-            <EyeOff className="size-4" />
+            <EyeOff className="size-4 shrink-0" />
           ) : (
-            <Eye className="size-4" />
+            <Eye className="size-4 shrink-0" />
           )}
-        </Button>
+        </button>
       }
     />
   );
