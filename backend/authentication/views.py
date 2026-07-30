@@ -42,8 +42,8 @@ class SignupView(APIView):
 
 class VerifyEmailView(APIView):
     def get(self, request):
-        uid = request.query_params_get("uid")
-        token = request.query_params_get("token")
+        uid = request.query_params.get("uid")
+        token = request.query_params.get("token")
 
         try:
             verify_email(uid,token)
