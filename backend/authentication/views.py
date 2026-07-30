@@ -7,7 +7,9 @@ from rest_framework.views import APIView
 
 from .serializers import SignupSerializer
 from .services import register_user
-
+from .services import verify_email
+from django.conf import settings
+from django.shortcuts import redirect
 
 class SignupView(APIView):
     def post(self, request):
@@ -37,3 +39,17 @@ class SignupView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+class VerifyEmailView(APIView):
+    def get(self, request):
+        uid = request.query_params_get("uid")
+        token = request.query_params_get("token")
+
+        try:
+            verify_email(uid,token)
+
+            return redirect(f"{settings.FRONTEND_URL}/login?verified=true")
+        except Exception:
+            return redirect(f"{settings.FRONTEND_URL}/login?verified=false")
+        
+            

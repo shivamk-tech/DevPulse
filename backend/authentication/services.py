@@ -33,7 +33,7 @@ def verify_email(uid: str, token: str):
                     "detail": "Invalid verification link."
                 })
 
-    if not is_verification_token_valid(uid, token):
+    if not is_verification_token_valid(user, token):
         raise ValidationError({
                     "detail": "Invalid verification link."
 })
@@ -43,4 +43,6 @@ def verify_email(uid: str, token: str):
 
     user.is_email_verified = True
     user.save(update_fields=["is_email_verified"])
+
+    return user
 
