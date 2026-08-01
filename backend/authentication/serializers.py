@@ -28,5 +28,9 @@ class SignupSerializer(serializers.Serializer):
         return attrs
     
 
-
-        
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(
+        write_only=True, 
+        trim_whitespace=False
+    )

@@ -6,8 +6,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .serializers import SignupSerializer
+from .serializers import LoginSerializer
 from .services import register_user
 from .services import verify_email
+from .services import login_user
 from django.conf import settings
 from django.shortcuts import redirect
 
@@ -52,4 +54,24 @@ class VerifyEmailView(APIView):
         except Exception:
             return redirect(f"{settings.FRONTEND_URL}/login?verified=false")
         
-            
+
+class LoginView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        result =  login_user(**serializer.validated_data)
+
+        return Response({
+            "access": result["access"],
+            "refresh": result["refresh"],
+            "user": {
+                "id": result["user"].id,
+                "email": result["user"].email,
+                "first_name": result["user"].first_name,
+                "last_name": result["user"].last_name,
+                "is_email_verified": result["user"].is_email_verified,
+        },
+        },
+        status=status.HTTP_200_OK
+        )
