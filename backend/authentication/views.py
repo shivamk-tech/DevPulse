@@ -12,6 +12,8 @@ from .services import verify_email
 from .services import login_user
 from django.conf import settings
 from django.shortcuts import redirect
+from .serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 class SignupView(APIView):
     def post(self, request):
@@ -31,13 +33,7 @@ class SignupView(APIView):
         return Response(
             {
                 "message":"account created successfully",
-                "user":{
-                    "id": user.id,
-                    "email": user.email,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
-                    "is_email_verified": user.is_email_verified
-                },
+                "user":UserSerializer(user).data,
             },
             status=status.HTTP_201_CREATED,
         )
@@ -65,13 +61,18 @@ class LoginView(APIView):
         return Response({
             "access": result["access"],
             "refresh": result["refresh"],
-            "user": {
-                "id": result["user"].id,
-                "email": result["user"].email,
-                "first_name": result["user"].first_name,
-                "last_name": result["user"].last_name,
-                "is_email_verified": result["user"].is_email_verified,
-        },
+            "user": UserSerializer(result['user']).data,
         },
         status=status.HTTP_200_OK
         )
+
+class CurrentUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+
+        return Response(
+            UserSerializer(request.user).data
+        )
+
+    

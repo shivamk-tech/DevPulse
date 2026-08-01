@@ -8,7 +8,9 @@ export interface ResetPasswordRequest {
   confirmPassword: string;
 }
 
-export interface AuthResponse {
+export interface LoginResponse {
+  access:string,
+  refresh:string,
   user: User;
 }
 

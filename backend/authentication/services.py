@@ -70,6 +70,6 @@ def login_user(*, email, password):
 
     return {
         "user":user,
-        "access":access,
-        "refresh":refresh,
+        "access":str(access),
+        "refresh":str(refresh),
     }
