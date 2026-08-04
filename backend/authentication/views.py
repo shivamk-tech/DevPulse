@@ -72,6 +72,7 @@ class LoginView(APIView):
             httponly=True,
             secure=False,
             samesite="Lax",
+            max_age=60 * 15,
         )
 
         response.set_cookie(
@@ -80,6 +81,7 @@ class LoginView(APIView):
             httponly=True,
             secure=False,
             samesite="Lax",
+            max_age=60 * 60 * 24 * 7,
         )
 
         return response
