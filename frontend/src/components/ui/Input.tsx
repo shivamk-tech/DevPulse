@@ -32,7 +32,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         )}
       >
         {leftSection && (
-          <div className="flex items-center pl-3 text-muted-foreground">
+          <div className="flex h-full shrink-0 items-center pl-3 text-muted-foreground">
             {leftSection}
           </div>
         )}
@@ -54,7 +54,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
 
         {rightSection && (
-          <div className="flex items-center pr-4 text-muted-foreground">
+          <div className="flex h-full shrink-0 items-center pr-3 text-muted-foreground">
             {rightSection}
           </div>
         )}

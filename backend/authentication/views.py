@@ -58,13 +58,31 @@ class LoginView(APIView):
 
         result =  login_user(**serializer.validated_data)
 
-        return Response({
+        response =  Response({
             "access": result["access"],
             "refresh": result["refresh"],
             "user": UserSerializer(result['user']).data,
         },
         status=status.HTTP_200_OK
         )
+
+        response.set_cookie(
+            key="access_token",
+            value=result["access"],
+            httponly=True,
+            secure=False,
+            samesite="Lax",
+        )
+
+        response.set_cookie(
+            key="refresh_token",
+            value=result["refresh"],
+            httponly=True,
+            secure=False,
+            samesite="Lax",
+        )
+
+        return response
 
 class CurrentUserView(APIView):
     permission_classes = [IsAuthenticated]

@@ -12,22 +12,34 @@ const buttonVariants = cva(
         "gap-2",
         "rounded-lg",
         "font-medium",
-        "transition-colors",
+        "transition-all",
         "duration-200",
+        "ease-[cubic-bezier(0.22,1,0.36,1)]",
         "cursor-pointer",
         "select-none",
         "whitespace-nowrap",
+        "active:scale-[0.98]",
         "focus-visible:outline-none",
         "focus-visible:ring-2",
         "focus-visible:ring-ring",
         "disabled:pointer-events-none",
         "disabled:opacity-50",
+        "motion-reduce:transition-none",
+        "motion-reduce:active:scale-100",
     ],
     {
         variants: {
             variant: {
                 default:
                     "bg-primary text-primary-foreground hover:opacity-90",
+
+                // Shiny indigo→violet gradient (matches auth + landing).
+                // Two stacked backgrounds: a white top sheen over the brand
+                // gradient — gives the glossy highlight without an overlay
+                // element, so it never covers the label. Paired with an inset
+                // ring for a bright edge and a soft glow shadow.
+                gradient:
+                    "text-white bg-[linear-gradient(180deg,rgba(255,255,255,0.22),transparent_45%),linear-gradient(180deg,#6366f1,#4f46e5)] ring-1 ring-inset ring-white/15 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:brightness-110",
 
                 secondary:
                     "bg-muted text-foreground hover:bg-muted/80",

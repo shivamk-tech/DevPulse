@@ -6,8 +6,12 @@ import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Mail } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+
 import { GoogleIcon } from "@/components/icons/GoogleIcons";
 import { PasswordInput } from "@/components/forms";
+import { fadeInUpSm, staggerContainer } from "@/lib/motion";
 
 import {
   Button,
@@ -28,6 +32,7 @@ import { authService } from "@/services/auth/auth.service";
 export default function LoginPage() {
 
   const router = useRouter()
+  const reduce = useReducedMotion()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -48,27 +53,31 @@ export default function LoginPage() {
 
 
   return (
-    <form
+    <motion.form
       className="space-y-4 sm:space-y-5"
       onSubmit={form.handleSubmit(onSubmit)}
+      variants={staggerContainer}
+      initial={reduce ? false : "hidden"}
+      animate="show"
     >
       {/* Email */}
-      <div className="space-y-2">
+      <motion.div variants={fadeInUpSm} className="space-y-2">
         <Label htmlFor="loginEmail" className="text-white/70">Email</Label>
         <Input
           id="loginEmail"
           type="email"
           placeholder="john@example.com"
+          leftSection={<Mail className="size-4" />}
           className="border-white/10 bg-white/5 text-white placeholder:text-white/30"
           {...form.register("email")}
         />
         <p className="h-4 text-xs leading-4 text-red-500">
           {form.formState.errors.email?.message}
         </p>
-      </div>
+      </motion.div>
 
       {/* Password */}
-      <div className="space-y-2">
+      <motion.div variants={fadeInUpSm} className="space-y-2">
         <Label htmlFor="loginPassword" className="text-white/70">Password</Label>
         <PasswordInput
           id="loginPassword"
@@ -80,10 +89,10 @@ export default function LoginPage() {
         <p className="h-4 text-xs leading-4 text-red-500">
           {form.formState.errors.password?.message}
         </p>
-      </div>
+      </motion.div>
 
       {/* Remember + Forgot */}
-      <div className="flex items-center justify-between">
+      <motion.div variants={fadeInUpSm} className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Controller
             name="rememberMe"
@@ -100,48 +109,54 @@ export default function LoginPage() {
             Remember me
           </Label>
         </div>
-        <Link href="/forgot-password" className="text-sm font-medium text-[#818cf8] hover:underline">
+        <Link href="/forgot-password" className="text-sm font-medium text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">
           Forgot password?
         </Link>
-      </div>
+      </motion.div>
 
       {/* Submit */}
-      <Button
-        type="submit"
-        disabled={form.formState.isSubmitting}
-        fullWidth
-        className="bg-[#4f46e5] text-white hover:bg-[#4338ca]"
-      >
-        {form.formState.isSubmitting
-          ? "Logging in..."
-          : "Log In"}
-      </Button>
+      <motion.div variants={fadeInUpSm}>
+        <Button
+          type="submit"
+          variant="gradient"
+          disabled={form.formState.isSubmitting}
+          loading={form.formState.isSubmitting}
+          fullWidth
+          className="h-11"
+        >
+          {form.formState.isSubmitting
+            ? "Logging in..."
+            : "Log In"}
+        </Button>
+      </motion.div>
 
       {/* Divider */}
-      <div className="flex items-center gap-4">
+      <motion.div variants={fadeInUpSm} className="flex items-center gap-4">
         <Separator className="bg-white/10" />
         <span className="whitespace-nowrap text-sm text-white/40">Or</span>
         <Separator className="bg-white/10" />
-      </div>
+      </motion.div>
 
       {/* Google */}
-      <Button
-        type="button"
-        variant="outline"
-        fullWidth
-        leftSection={<GoogleIcon className="size-4" />}
-        className="border-white/10 bg-white/5 text-white hover:bg-white/10"
-      >
-        Continue with Google
-      </Button>
+      <motion.div variants={fadeInUpSm}>
+        <Button
+          type="button"
+          variant="outline"
+          fullWidth
+          leftSection={<GoogleIcon className="size-4" />}
+          className="h-11 border-white/10 bg-white/5 text-white transition-colors hover:border-white/20 hover:bg-white/10"
+        >
+          Continue with Google
+        </Button>
+      </motion.div>
 
       {/* Footer — navigates to the signup route */}
-      <p className="text-center text-sm text-white/50">
+      <motion.p variants={fadeInUpSm} className="text-center text-sm text-white/50">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" replace className="font-medium text-[#818cf8] hover:underline">
+        <Link href="/signup" replace className="font-medium text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">
           Sign Up
         </Link>
-      </p>
-    </form>
+      </motion.p>
+    </motion.form>
   );
 }

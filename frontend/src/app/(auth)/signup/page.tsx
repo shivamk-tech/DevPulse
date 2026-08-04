@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { Mail, User } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
 import { GoogleIcon } from "@/components/icons/GoogleIcons";
+import { fadeInUpSm, staggerContainer } from "@/lib/motion";
 import {
   Button,
   Checkbox,
@@ -16,6 +19,8 @@ import { signupSchema, type SignupFormData } from "@/schemas/auth/auth.schema";
 import { authService } from '@/services/auth/auth.service'
 
 export default function SignupPage() {
+
+  const reduce = useReducedMotion()
 
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
@@ -35,14 +40,21 @@ export default function SignupPage() {
   }
 
   return (
-    <form className="w-full space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <motion.form
+      className="w-full space-y-4"
+      onSubmit={form.handleSubmit(onSubmit)}
+      variants={staggerContainer}
+      initial={reduce ? false : "hidden"}
+      animate="show"
+    >
       {/* Name */}
-      <div className="grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-2">
+      <motion.div variants={fadeInUpSm} className="grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="firstName" className="text-white/70">First Name</Label>
           <Input
             id="firstName"
             placeholder="John"
+            leftSection={<User className="size-4" />}
             className="border-white/10 bg-white/5 text-white placeholder:text-white/30"
             {...form.register("firstName")}
           />
@@ -55,6 +67,7 @@ export default function SignupPage() {
           <Input
             id="lastName"
             placeholder="Doe"
+            leftSection={<User className="size-4" />}
             className="border-white/10 bg-white/5 text-white placeholder:text-white/30"
             {...form.register("lastName")}
           />
@@ -62,25 +75,26 @@ export default function SignupPage() {
             {form.formState.errors.lastName?.message}
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Email */}
-      <div className="space-y-1.5">
+      <motion.div variants={fadeInUpSm} className="space-y-1.5">
         <Label htmlFor="email" className="text-white/70">Email</Label>
         <Input
           id="email"
           type="email"
           placeholder="john@example.com"
+          leftSection={<Mail className="size-4" />}
           className="border-white/10 bg-white/5 text-white placeholder:text-white/30"
           {...form.register("email")}
         />
         <p className="min-h-4 text-xs leading-4 text-red-500">
           {form.formState.errors.email?.message}
         </p>
-      </div>
+      </motion.div>
 
       {/* Password + Confirm Password — stacked on mobile, side by side on sm+ */}
-      <div className="grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-2">
+      <motion.div variants={fadeInUpSm} className="grid grid-cols-1 gap-x-3 gap-y-4 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="password" className="text-white/70">Password</Label>
           <PasswordInput
@@ -105,10 +119,10 @@ export default function SignupPage() {
             {form.formState.errors.confirmPassword?.message}
           </p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Terms — checkbox + label on one row, error underneath */}
-      <div className="space-y-1.5">
+      <motion.div variants={fadeInUpSm} className="space-y-1.5">
         <div className="flex items-center gap-3">
           <Controller
             name="agreeToTerms"
@@ -123,51 +137,57 @@ export default function SignupPage() {
           />
           <Label htmlFor="terms" className="text-sm font-normal leading-5 text-white/50">
             I agree to the{" "}
-            <Link href="/terms" className="text-[#818cf8] hover:underline">Terms of Service</Link>{" "}
+            <Link href="/terms" className="text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">Terms of Service</Link>{" "}
             and{" "}
-            <Link href="/privacy" className="text-[#818cf8] hover:underline">Privacy Policy</Link>
+            <Link href="/privacy" className="text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">Privacy Policy</Link>
           </Label>
         </div>
         <p className="min-h-4 text-xs leading-4 text-red-500">
           {form.formState.errors.agreeToTerms?.message}
         </p>
-      </div>
+      </motion.div>
 
       {/* Submit */}
-      <Button
-        type="submit"
-        disabled={form.formState.isSubmitting}
-        fullWidth
-        className="bg-[#4f46e5] text-white hover:bg-[#4338ca]"
-      >
-        {form.formState.isSubmitting ? "Creating account..." : "Create account"}
-      </Button>
+      <motion.div variants={fadeInUpSm}>
+        <Button
+          type="submit"
+          variant="gradient"
+          disabled={form.formState.isSubmitting}
+          loading={form.formState.isSubmitting}
+          fullWidth
+          className="h-11"
+        >
+          {form.formState.isSubmitting ? "Creating account..." : "Create account"}
+        </Button>
+      </motion.div>
 
       {/* Divider */}
-      <div className="flex items-center gap-4">
+      <motion.div variants={fadeInUpSm} className="flex items-center gap-4">
         <Separator className="bg-white/10" />
         <span className="whitespace-nowrap text-sm text-white/40">Or</span>
         <Separator className="bg-white/10" />
-      </div>
+      </motion.div>
 
       {/* Google */}
-      <Button
-        type="button"
-        variant="outline"
-        fullWidth
-        leftSection={<GoogleIcon className="size-4" />}
-        className="border-white/10 bg-white/5 text-white hover:bg-white/10"
-      >
-        Continue with Google
-      </Button>
+      <motion.div variants={fadeInUpSm}>
+        <Button
+          type="button"
+          variant="outline"
+          fullWidth
+          leftSection={<GoogleIcon className="size-4" />}
+          className="h-11 border-white/10 bg-white/5 text-white transition-colors hover:border-white/20 hover:bg-white/10"
+        >
+          Continue with Google
+        </Button>
+      </motion.div>
 
       {/* Footer — navigates to the login route */}
-      <p className="text-center text-sm text-white/50">
+      <motion.p variants={fadeInUpSm} className="text-center text-sm text-white/50">
         Already have an account?{" "}
-        <Link href="/login" replace className="font-medium text-[#818cf8] hover:underline">
+        <Link href="/login" replace className="font-medium text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">
           Sign In
         </Link>
-      </p>
-    </form>
+      </motion.p>
+    </motion.form>
   );
 }

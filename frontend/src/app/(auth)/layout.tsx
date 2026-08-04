@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Activity } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+
 import { Card, CardContent } from "@/components/ui";
+import { AuthShowcase } from "@/components/auth/AuthShowcase";
+import { EASE, swap } from "@/lib/motion";
 
 /**
  * Shared shell for /signup and /login. It stays mounted while you navigate
@@ -13,95 +18,124 @@ import { Card, CardContent } from "@/components/ui";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isSignup = pathname?.includes("signup") ?? false;
+  const reduce = useReducedMotion();
 
   return (
-    <Card className="mx-auto w-full max-w-5xl overflow-hidden rounded-2xl border-white/10 bg-[#0B0F14] p-0 shadow-2xl sm:rounded-3xl">
-      {/* Mobile-only brand header (image panel is hidden below lg) */}
-      <div className="flex items-center gap-2 border-b border-white/10 px-6 py-4 text-white lg:hidden">
-        <span className="text-sm font-semibold tracking-wide">DevPulse</span>
+    <div className="relative flex min-h-screen w-full items-start justify-center p-4 sm:items-center sm:p-6">
+      {/* Ambient page background — soft indigo glow behind the card */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-0 h-[32rem] w-[32rem] rounded-full bg-[#4f46e5]/20 blur-[120px]" />
+        <div className="absolute -right-40 bottom-0 h-[32rem] w-[32rem] rounded-full bg-[#7c3aed]/20 blur-[120px]" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        {/* Left panel — image. Always the same; stretches to the form's height. */}
-        <div className="relative hidden lg:block">
-          {/*
-            Drop your image in /public and swap the src below, e.g.
-            <Image src="/your-image.jpg" alt="" fill className="object-cover" />
-          */}
-          <div className="absolute inset-0 flex items-center justify-center border-r border-white/10 bg-gradient-to-br from-[#111826] to-[#0B0F14]">
-            <div className="flex h-40 w-40 items-center justify-center rounded-2xl border border-dashed border-white/20 text-xs text-white/40">
-              Your image here
-            </div>
-          </div>
-
-          {/* Bottom scrim + copy (changes with mode) */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-10 pt-24">
-            <h2 className="text-4xl font-semibold tracking-tight text-white">
-              {isSignup ? "Ship Faster, Together" : "Welcome Back"}
-            </h2>
-            <p className="mt-3 max-w-sm text-sm text-white/60">
-              {isSignup
-                ? "DevPulse keeps your whole team in sync, from first commit to production deploy."
-                : "Pick up right where you left off with your team's workflow."}
-            </p>
-          </div>
-
-          {/* Brand mark */}
-          <div className="absolute left-8 top-8 flex items-center gap-2 text-white">
+      <motion.div
+        initial={reduce ? false : { opacity: 0, y: 16, scale: 0.99 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.4, ease: EASE }}
+        className="relative w-full max-w-5xl"
+      >
+        <Card className="relative mx-auto w-full overflow-hidden rounded-3xl border-white/10 bg-[#0B0F14]/95 p-0 shadow-2xl backdrop-blur-xl ring-1 ring-white/5">
+          {/* Mobile-only brand header (image panel is hidden below lg) */}
+          <div className="flex items-center gap-2 border-b border-white/10 px-6 py-4 text-white lg:hidden">
+            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/30">
+              <Activity className="size-4" strokeWidth={2.5} />
+            </span>
             <span className="text-sm font-semibold tracking-wide">DevPulse</span>
           </div>
-        </div>
 
-        {/* Right panel — toggle + heading (shared) + form (children) */}
-        <CardContent className="flex flex-col justify-center px-5 py-4 sm:px-10 sm:py-8 lg:px-14">
-          {/* Mode toggle — real navigation between the two routes.
-             `replace` so hammering the toggle doesn't stack up history. */}
-          <div className="mx-auto mb-6 flex rounded-full border border-white/10 bg-white/5 p-1 sm:mb-8">
-            <Link
-              href="/signup"
-              replace
-              className={`rounded-full px-4 py-1.5 text-center text-sm font-medium transition-colors sm:px-5 ${
-                isSignup ? "bg-[#4f46e5] text-white" : "text-white/60 hover:text-white"
-              }`}
-            >
-              Sign Up
-            </Link>
-            <Link
-              href="/login"
-              replace
-              className={`rounded-full px-4 py-1.5 text-center text-sm font-medium transition-colors sm:px-5 ${
-                !isSignup ? "bg-[#4f46e5] text-white" : "text-white/60 hover:text-white"
-              }`}
-            >
-              Log In
-            </Link>
+          <div className="grid grid-cols-1 lg:grid-cols-2">
+            {/* Left panel — animated brand showcase (carousel). Self-contained;
+               swap in photographic slides via /public + the `image` field. */}
+            <AuthShowcase />
+
+            {/* Right panel — toggle + heading (shared) + form (children) */}
+            <CardContent className="flex flex-col justify-center px-5 py-6 sm:px-10 sm:py-10 lg:px-14">
+              {/* Mode toggle — real navigation between the two routes.
+                 `replace` so hammering the toggle doesn't stack up history.
+                 The active pill is a shared layout element, so it slides
+                 between the two tabs instead of hard-cutting. */}
+              <div className="mx-auto mb-6 flex rounded-full border border-white/10 bg-white/5 p-1 sm:mb-8">
+                <Link
+                  href="/signup"
+                  replace
+                  className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
+                >
+                  {isSignup && (
+                    <motion.span
+                      layoutId="authTogglePill"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
+                      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
+                    />
+                  )}
+                  <span
+                    className={`relative z-10 transition-colors ${
+                      isSignup ? "text-white" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    Sign Up
+                  </span>
+                </Link>
+                <Link
+                  href="/login"
+                  replace
+                  className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
+                >
+                  {!isSignup && (
+                    <motion.span
+                      layoutId="authTogglePill"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
+                      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
+                    />
+                  )}
+                  <span
+                    className={`relative z-10 transition-colors ${
+                      !isSignup ? "text-white" : "text-white/60 hover:text-white"
+                    }`}
+                  >
+                    Log In
+                  </span>
+                </Link>
+              </div>
+
+              <h1 className="text-center text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+                {isSignup ? "Create your account" : "Log in to DevPulse"}
+              </h1>
+              <p className="mt-2 text-center text-sm text-white/50">
+                {isSignup
+                  ? "Start managing your developer workflow with DevPulse."
+                  : "Enter your details to access your workspace."}
+              </p>
+
+              {/* Form slot. AnimatePresence swaps the old form out and the new
+                 one in on each route change.
+
+                 Keeping the card the same size across login/signup:
+                 - At `sm`+ (tablet/desktop) both forms fit in ~540px once the
+                   name/password rows go two-up, so `sm:min-h-[548px]` pins the
+                   slot and the card is pixel-identical between the two modes.
+                 - On mobile the fields stack, so signup is much taller than
+                   login. We let the slot take each form's natural height there
+                   (no big reserved void under login); the one height change on
+                   swap is hidden behind the fade-out/fade-in, so it reads as a
+                   smooth transition rather than a jump. */}
+              <div className="mt-6 flex flex-col justify-center sm:mt-8 sm:min-h-[548px]">
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.div
+                    key={pathname}
+                    className="w-full"
+                    variants={swap}
+                    initial={reduce ? false : "hidden"}
+                    animate="show"
+                    exit={reduce ? undefined : "exit"}
+                  >
+                    {children}
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </CardContent>
           </div>
-
-          <h1 className="text-center text-2xl font-semibold text-white sm:text-3xl">
-            {isSignup ? "Create Your Account" : "Log In to DevPulse"}
-          </h1>
-          <p className="mt-2 text-center text-sm text-white/50">
-            {isSignup
-              ? "Start managing your developer workflow with DevPulse."
-              : "Enter your details to access your workspace."}
-          </p>
-
-          {/* Form slot. key={pathname} re-fires the fade on each swap.
-             min-h reserves the taller (signup) form's height so the card
-             never resizes when toggling — tune the value to your forms. */}
-          <div key={pathname} className="auth-swap mt-6 min-h-[520px] sm:mt-8">
-            {children}
-          </div>
-        </CardContent>
-      </div>
-
-      <style>{`
-        @keyframes authSwap {
-          from { opacity: 0; transform: translateY(8px); }
-          to   { opacity: 1; transform: none; }
-        }
-        .auth-swap { animation: authSwap 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
-      `}</style>
-    </Card>
+        </Card>
+      </motion.div>
+    </div>
   );
 }
