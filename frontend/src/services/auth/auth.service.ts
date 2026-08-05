@@ -1,6 +1,6 @@
 import { api } from '@/lib/api'
 import type { SignupFormData, LoginFormData } from '@/schemas/auth/auth.schema'
-import type { SignupResponse, LoginResponse } from '@/types/auth'
+import { type SignupResponse, type LoginResponse, User } from '@/types/auth'
 
 export const authService = {
     signup(data: SignupFormData) {
@@ -18,6 +18,10 @@ export const authService = {
 
     login(data: LoginFormData){
         return api.post<LoginResponse>("/auth/login/", data)
+    },
+
+    me(){
+        return api.get<User>("/auth/me/");
     }
 
 }

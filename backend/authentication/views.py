@@ -13,10 +13,15 @@ from .services import login_user
 from django.conf import settings
 from django.shortcuts import redirect
 from .serializers import UserSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class SignupView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
     def post(self, request):
+
         serializers = SignupSerializer(data=request.data)
 
         serializers.is_valid(raise_exception=True)
@@ -39,6 +44,9 @@ class SignupView(APIView):
         )
 
 class VerifyEmailView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
     def get(self, request):
         uid = request.query_params.get("uid")
         token = request.query_params.get("token")
@@ -52,6 +60,10 @@ class VerifyEmailView(APIView):
         
 
 class LoginView(APIView):
+
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -59,8 +71,6 @@ class LoginView(APIView):
         result =  login_user(**serializer.validated_data)
 
         response =  Response({
-            "access": result["access"],
-            "refresh": result["refresh"],
             "user": UserSerializer(result['user']).data,
         },
         status=status.HTTP_200_OK

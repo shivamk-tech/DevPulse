@@ -46,8 +46,6 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await authService.login(data);
-    localStorage.setItem("access", response.data.access)
-    localStorage.setItem("refresh", response.data.refresh)
     router.push("dashboard")
   }
 
