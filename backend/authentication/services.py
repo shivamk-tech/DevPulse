@@ -7,7 +7,6 @@ from .utils import is_verification_token_valid
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
-
 def register_user(*, email, password, first_name, last_name):
     try:
         with transaction.atomic():
@@ -73,3 +72,12 @@ def login_user(*, email, password):
         "access":str(access),
         "refresh":str(refresh),
     }
+
+
+def refresh_access_token(refresh_token: str):
+    refresh = RefreshToken(refresh_token)
+
+    access = refresh.access_token
+
+    return str(access)
+

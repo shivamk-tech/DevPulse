@@ -1,2 +1,4 @@
 ### Current User
-GET http://localhost:8000/api/auth/me/
+
+POST http://localhost:8000/api/auth/refresh/
+

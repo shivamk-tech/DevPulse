@@ -14,6 +14,9 @@ from django.conf import settings
 from django.shortcuts import redirect
 from .serializers import UserSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from .serializers import RefreshTokenSerializer
+from .services import refresh_access_token
+from rest_framework_simplejwt.exceptions import TokenError
 
 class SignupView(APIView):
 
@@ -105,4 +108,50 @@ class CurrentUserView(APIView):
             UserSerializer(request.user).data
         )
 
-    
+
+class RefreshTokenView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post (self, request):
+        serializer = RefreshTokenSerializer(data= request.data)
+        serializer.is_valid(raise_exception=True)
+
+        refresh_token = request.COOKIES.get("refresh_token")
+
+        if refresh_token is None:
+            return Response(
+                {"details" : "Refresh token not found"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+
+            new_access_token = refresh_access_token(refresh_token)
+
+            response = Response(
+                {"message" : "Access token refreshed successfully."},
+                status=status.HTTP_200_OK
+            )
+        
+
+            response.set_cookie(
+                key="access_token",
+                value=new_access_token,
+                httponly=True,
+                secure=False,
+                samesite="Lax",
+                max_age=60 * 15,
+            )
+
+            return response
+        except TokenError:
+            return response(
+                {
+                    "details" : "Refresh token is invalid or expired. " 
+                },
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        
+

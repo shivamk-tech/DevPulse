@@ -46,3 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "is_email_verified",
         )
+
+class RefreshTokenSerializer(serializers.Serializer):
+    pass
