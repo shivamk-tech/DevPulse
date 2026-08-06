@@ -19,12 +19,25 @@ export const api = axios.create({
 
 let isRefreshing = false;
 
-type FaildRequest = {
+type FailedRequest = {
     resolve: () => void;
     reject: (error: unknown) => void; 
 };
 
-let failedRequest: FaildRequest[] = [];
+let failedQueue: FailedRequest[] = [];
+
+
+function processQueue(error?: unknown) {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve();
+    }
+  });
+
+  failedQueue = [];
+}
 
 api.interceptors.response.use(
     (response) => {
