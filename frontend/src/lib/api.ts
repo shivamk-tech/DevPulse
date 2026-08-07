@@ -1,8 +1,6 @@
-import axios from "axios";
+import axios, { InternalAxiosRequestConfig } from "axios";
 import { HOST } from '@/config/host'
-import { error } from "console";
-import { promise } from "zod";
-import { InternalAxiosRequestConfig } from "axios";
+
 
 if (!HOST.backend) {
     throw new Error("NEXT_PUBLIC_API_URL is not defined ")
@@ -18,10 +16,7 @@ export const api = axios.create({
     withCredentials: true
 })
 
-
-
-
-
+let isRedirecting = false
 let isRefreshing = false;
 
 type FailedRequest = {
@@ -29,12 +24,25 @@ type FailedRequest = {
     reject: (error: unknown) => void;
 };
 
-type RetryAxiosConfigRequest = InternalAxiosRequestConfig & {
-    _retry?: Boolean;
+type RetryAxiosRequestConfig = InternalAxiosRequestConfig & {
+    _retry?: boolean;
 }
 
 let failedQueue: FailedRequest[] = [];
 
+const AUTH_ENDPOINT = [
+    "/auth/refresh/",
+    "/auth/login",
+    "/auth/signup/"
+]
+
+function isAuthEndpoint(url?: string) {
+    if (!url) {
+        return false;
+    }
+
+    return AUTH_ENDPOINT.some((endpoint) => url.includes(endpoint))
+}
 
 function processQueue(error?: unknown) {
     failedQueue.forEach(({ resolve, reject }) => {
@@ -49,12 +57,16 @@ function processQueue(error?: unknown) {
 }
 
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+
+    (response) => response,
+
     async (error) => {
 
-        const originalRequest = error.config as RetryAxiosConfigRequest
+        if (!error.config) {
+            return Promise.reject(error);
+        }
+
+        const originalRequest = error.config as RetryAxiosRequestConfig
 
         if (error.response?.status !== 401) {
             return Promise.reject(error);
@@ -63,6 +75,12 @@ api.interceptors.response.use(
         if (originalRequest._retry) {
             return Promise.reject(error);
         }
+
+        if (isAuthEndpoint(originalRequest.url)) {
+            return Promise.reject(error);
+        }
+
+
 
         if (isRefreshing) {
             return new Promise<void>((resolve, reject) => {
@@ -91,18 +109,18 @@ api.interceptors.response.use(
 
             processQueue(refreshError);
 
-            window.location.href = "/login";
-
+            if (!isRedirecting) {
+                isRedirecting = true
+                window.location.href = "/login";
+            }
             return Promise.reject(refreshError);
 
         } finally {
 
             isRefreshing = false
+            isRedirecting = false
 
         }
-
-
-
     }
 );
 
