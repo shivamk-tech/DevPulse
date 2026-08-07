@@ -18,6 +18,10 @@ export const api = axios.create({
     withCredentials: true
 })
 
+
+
+
+
 let isRefreshing = false;
 
 type FailedRequest = {
@@ -25,8 +29,8 @@ type FailedRequest = {
     reject: (error: unknown) => void;
 };
 
-interface RetryAxiosConfigRequest extends InternalAxiosRequestConfig {
-    
+type RetryAxiosConfigRequest = InternalAxiosRequestConfig & {
+    _retry?: Boolean;
 }
 
 let failedQueue: FailedRequest[] = [];
@@ -50,14 +54,51 @@ api.interceptors.response.use(
     },
     async (error) => {
 
+        const originalRequest = error.config as RetryAxiosConfigRequest
+
         if (error.response?.status !== 401) {
             return Promise.reject(error);
         }
-        
-        const originalRequest = error.config
 
-        if(originalRequest._retry){
+        if (originalRequest._retry) {
             return Promise.reject(error);
+        }
+
+        if (isRefreshing) {
+            return new Promise<void>((resolve, reject) => {
+
+                failedQueue.push({
+                    resolve,
+                    reject
+                })
+
+            }).then(() => {
+                return api(originalRequest)
+            })
+        }
+
+        originalRequest._retry = true
+        isRefreshing = true
+
+        try {
+            await api.post("/auth/refresh/");
+
+            processQueue();
+
+            return api(originalRequest);
+
+        } catch (refreshError) {
+
+            processQueue(refreshError);
+
+            window.location.href = "/login";
+
+            return Promise.reject(refreshError);
+
+        } finally {
+
+            isRefreshing = false
+
         }
 
 
