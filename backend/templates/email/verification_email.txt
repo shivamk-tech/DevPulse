@@ -1,0 +1,11 @@
+Hello {{ user.first_name }},
+
+Welcome to Beacon!
+
+Please verify your email address by visiting the link below:
+
+{{ verification_link }}
+
+If you didn't create this account, you can safely ignore this email — your address won't be added.
+
+— The Beacon Team
