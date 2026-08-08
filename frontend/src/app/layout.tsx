@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Inter_Tight } from "next/font/google";
+import { Inter_Tight, Geist } from "next/font/google";
 import "./globals.css";
 import ThemeProviders from "@/components/providers/ThemeProviders"
+import { cn } from "@/lib/utils";
 
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const interTight = Inter_Tight({
   subsets: ["latin"],
@@ -22,7 +24,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`h-full antialiased`}
+      className={cn("h-full", "antialiased", "font-sans", geist.variable)}
       suppressHydrationWarning
     >
       <body className={` ${interTight.variable} min-h-full flex flex-col`}>

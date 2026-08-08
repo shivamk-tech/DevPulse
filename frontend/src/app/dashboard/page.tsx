@@ -1,14 +1,14 @@
 import { Sidebar } from "@/components/dashboard/layout/Sidebar";
-// import { TopNavbar } from "@/components/dashboard/layout/top-navbar";
+import { TopNavbar } from "@/components/dashboard/layout/Top-navbar";
 
-// import { WelcomeBanner } from "@/components/dashboard/sections/welcome-banner";
-// import { EmptyState } from "@/components/dashboard/sections/empty-state";
-// import { QuickStart } from "@/components/dashboard/sections/quick-start";
-// import { QuickActions } from "@/components/dashboard/sections/quick-actions";
-// import { RecentActivity } from "@/components/dashboard/sections/recent-activity";
+import { WelcomeBanner } from "@/components/dashboard/sections/Welcome-banner";
+import { EmptyState } from "@/components/dashboard/sections/Empty-state";
+import { QuickStart } from "@/components/dashboard/sections/Quick-start";
+import { QuickActions } from "@/components/dashboard/sections/Quick-actions";
+import { RecentActivity } from "@/components/dashboard/sections/Recent-activity";
 
-// import { WorkspaceSummary } from "@/components/dashboard/widgets/workspace-summary";
-// import { TipsCard } from "@/components/dashboard/widgets/tips-card";
+import { WorkspaceSummary } from "@/components/dashboard/widgets/Workspace-summary";
+import { TipsCard } from "@/components/dashboard/widgets/Tip-card";
 
 export default function DashboardPage() {
   return (
@@ -18,13 +18,13 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* <TopNavbar /> */}
+        <TopNavbar />
 
         <main className="flex-1 overflow-y-auto">
           <div className="mx-auto flex max-w-[1600px] gap-6 p-6">
             {/* Main Content */}
             <div className="flex-1 space-y-6">
-              {/* <WelcomeBanner />
+              <WelcomeBanner />
 
               <EmptyState />
 
@@ -32,14 +32,14 @@ export default function DashboardPage() {
 
               <QuickActions />
 
-              <RecentActivity /> */}
+              <RecentActivity />
             </div>
 
             {/* Right Sidebar */}
             <aside className="hidden w-[320px] shrink-0 space-y-6 xl:block">
-              {/* <WorkspaceSummary />
+              <WorkspaceSummary />
 
-              <TipsCard /> */}
+              <TipsCard />
             </aside>
           </div>
         </main>

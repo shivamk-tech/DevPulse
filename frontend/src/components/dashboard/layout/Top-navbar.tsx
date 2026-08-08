@@ -12,6 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/Button";
+import { authService } from "@/services/auth/auth.service";
+import { useRouter } from "next/navigation";
 
 interface TopNavbarProps {
   userName?: string;
@@ -24,32 +26,42 @@ export function TopNavbar({
 }: TopNavbarProps) {
   const [isDark, setIsDark] = useState(true);
 
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    try {
+        await authService.logout();
+
+        router.replace("/login");
+    }catch(error){
+        console.log("Logout failed : ",error);
+    }
+  }
+
   return (
-    <header className="flex h-[68px] items-center justify-between border-b border-white/10 bg-[#0B0B0F] px-6">
-      {/* Search */}
-      <div className="flex max-w-md flex-1 items-center">
+    <header className="flex h-12 shrink-0 items-center justify-between border-b border-white/10 bg-[#0B0B0F] px-4">
+      <div className="flex max-w-xs flex-1 items-center">
         <div className="relative w-full">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-500" />
           <input
             type="text"
             placeholder="Search monitors, incidents, docs..."
-            className="h-10 w-full rounded-lg border border-white/10 bg-white/[0.03] pl-9 pr-14 text-sm text-zinc-200 placeholder:text-zinc-500 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.05]"
+            className="h-[30px] w-full rounded-md border border-white/10 bg-white/[0.03] pl-8 pr-11 text-[12.5px] font-light text-zinc-200 placeholder:text-zinc-500 outline-none transition-colors focus:border-white/20 focus:bg-white/[0.05]"
           />
-          <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] font-medium text-zinc-500">
+          <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-white/10 bg-white/5 px-1 py-0.5 text-[10px] font-light text-zinc-500">
             ⌘K
           </kbd>
         </div>
       </div>
 
-      {/* Right actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1">
         <Button
           variant="ghost"
           size="icon"
           aria-label="Notifications"
-          className="text-zinc-400 hover:text-zinc-200"
+          className="h-[30px] w-[30px] text-zinc-400 hover:text-zinc-200"
         >
-          <Bell className="h-[18px] w-[18px]" />
+          <Bell className="h-4 w-4" />
         </Button>
 
         <Button
@@ -57,22 +69,18 @@ export function TopNavbar({
           size="icon"
           aria-label="Toggle theme"
           onClick={() => setIsDark((prev) => !prev)}
-          className="text-zinc-400 hover:text-zinc-200"
+          className="h-[30px] w-[30px] text-zinc-400 hover:text-zinc-200"
         >
-          {isDark ? (
-            <Sun className="h-[18px] w-[18px]" />
-          ) : (
-            <Moon className="h-[18px] w-[18px]" />
-          )}
+          {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+          <DropdownMenuTrigger>
             <button
               type="button"
-              className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 transition-colors hover:bg-white/5"
+              className="flex items-center gap-1.5 rounded-md py-1 pl-1 pr-1.5 transition-colors hover:bg-white/5"
             >
-              <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full bg-zinc-700">
+              <div className="relative h-6 w-6 shrink-0 overflow-hidden rounded-full bg-zinc-700">
                 {userAvatarUrl ? (
                   <Image
                     src={userAvatarUrl}
@@ -81,22 +89,24 @@ export function TopNavbar({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-xs font-semibold text-zinc-300">
+                  <div className="flex h-full w-full items-center justify-center text-[10px] font-normal text-zinc-300">
                     {userName.charAt(0)}
                   </div>
                 )}
               </div>
-              <span className="text-sm font-medium text-zinc-200">
+              <span className="text-[12.5px] font-light text-zinc-200">
                 {userName}
               </span>
-              <ChevronDown className="h-4 w-4 text-zinc-500" />
+              <ChevronDown className="h-3.5 w-3.5 text-zinc-500" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Workspace settings</DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuItem className="font-light">Profile</DropdownMenuItem>
+            <DropdownMenuItem className="font-light">
+              Workspace settings
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="font-light text-destructive" onClick={handleLogout}>
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>

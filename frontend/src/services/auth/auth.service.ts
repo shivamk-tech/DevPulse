@@ -13,15 +13,19 @@ export const authService = {
             password_confirm: data.confirmPassword,
         }
 
-        return api.post<SignupResponse>("/auth/signup/", payload)
+        return api.post<SignupResponse>("/auth/signup/", payload);
     },
 
     login(data: LoginFormData){
-        return api.post<LoginResponse>("/auth/login/", data)
+        return api.post<LoginResponse>("/auth/login/", data);
     },
 
     me(){
         return api.get<User>("/auth/me/");
+    },
+
+    logout(){
+        return api.post("/auth/logout/");
     }
 
 }
