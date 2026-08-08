@@ -6,6 +6,7 @@ from .views import LoginView
 from .views import CurrentUserView
 from .views import RefreshTokenView
 from .views import LogoutView
+from .views import ForgetPasswordView
 
 urlpatterns = [
     path("signup/", SignupView.as_view(), name="signup"),
@@ -14,4 +15,5 @@ urlpatterns = [
     path("me/", CurrentUserView.as_view(), name="current_user"),
     path("refresh/", RefreshTokenView.as_view(), name="refresh"),
     path("logout/", LogoutView.as_view(), name="logout"),
+    path("forget-password/", ForgetPasswordView.as_view(), name="forget-password")
 ]

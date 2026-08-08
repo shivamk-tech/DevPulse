@@ -1,6 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,6 +16,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import RefreshTokenSerializer
 from .services import refresh_access_token
 from rest_framework_simplejwt.exceptions import TokenError
+from .serializers import ForgotPasswordSerializer
+from .services import forget_password
 
 class SignupView(APIView):
 
@@ -171,4 +172,23 @@ class LogoutView(APIView):
         response.delete_cookie("refresh_token")
 
         return response
+
+class ForgetPasswordView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes = []
+
+    def post(self, request):
+        serializers = ForgotPasswordSerializer(data=request.data)
+
+        serializers.is_valid(raise_exception=True)
+
+        forget_password(serializers.validated_data["email"])
+
+        return Response(
+            {
+                "details" : "A password reset link has been sent on the given email address"
+            },
+            status=status.HTTP_200_OK
+        )
+
 

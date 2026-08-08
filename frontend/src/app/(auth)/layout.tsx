@@ -10,14 +10,15 @@ import { AuthShowcase } from "@/components/auth/AuthShowcase";
 import { EASE, swap } from "@/lib/motion";
 
 /**
- * Shared shell for /signup and /login. It stays mounted while you navigate
- * between the two sibling routes, so the image panel, brand, and toggle never
- * re-mount — only the form (children) swaps. Mode is derived from the URL, so
- * there's no useState: the pathname IS the state.
+ * Shared shell for /signup, /login, and /forgot-password. It stays mounted
+ * while you navigate between these sibling routes, so the image panel,
+ * brand, and toggle never re-mount — only the form (children) swaps. Mode is
+ * derived from the URL, so there's no useState: the pathname IS the state.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isSignup = pathname?.includes("signup") ?? false;
+  const isForgotPassword = pathname?.includes("forgot-password") ?? false;
   const reduce = useReducedMotion();
 
   return (
@@ -48,62 +49,72 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                swap in photographic slides via /public + the `image` field. */}
             <AuthShowcase />
 
-            {/* Right panel — toggle + heading (shared) + form (children) */}
+            {/* Right panel — toggle (hidden on forgot-password) + heading (shared) + form (children) */}
             <CardContent className="flex flex-col justify-center px-5 py-6 sm:px-10 sm:py-10 lg:px-14">
               {/* Mode toggle — real navigation between the two routes.
                  `replace` so hammering the toggle doesn't stack up history.
                  The active pill is a shared layout element, so it slides
-                 between the two tabs instead of hard-cutting. */}
-              <div className="mx-auto mb-6 flex rounded-full border border-white/10 bg-white/5 p-1 sm:mb-8">
-                <Link
-                  href="/signup"
-                  replace
-                  className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
-                >
-                  {isSignup && (
-                    <motion.span
-                      layoutId="authTogglePill"
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
-                      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
-                    />
-                  )}
-                  <span
-                    className={`relative z-10 transition-colors ${
-                      isSignup ? "text-white" : "text-white/60 hover:text-white"
-                    }`}
+                 between the two tabs instead of hard-cutting.
+                 Not relevant on forgot-password, so it's hidden there rather
+                 than rendered mid-transition with neither tab active. */}
+              {!isForgotPassword && (
+                <div className="mx-auto mb-6 flex rounded-full border border-white/10 bg-white/5 p-1 sm:mb-8">
+                  <Link
+                    href="/signup"
+                    replace
+                    className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
                   >
-                    Sign Up
-                  </span>
-                </Link>
-                <Link
-                  href="/login"
-                  replace
-                  className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
-                >
-                  {!isSignup && (
-                    <motion.span
-                      layoutId="authTogglePill"
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
-                      transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
-                    />
-                  )}
-                  <span
-                    className={`relative z-10 transition-colors ${
-                      !isSignup ? "text-white" : "text-white/60 hover:text-white"
-                    }`}
+                    {isSignup && (
+                      <motion.span
+                        layoutId="authTogglePill"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
+                        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <span
+                      className={`relative z-10 transition-colors ${
+                        isSignup ? "text-white" : "text-white/60 hover:text-white"
+                      }`}
+                    >
+                      Sign Up
+                    </span>
+                  </Link>
+                  <Link
+                    href="/login"
+                    replace
+                    className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
                   >
-                    Log In
-                  </span>
-                </Link>
-              </div>
+                    {!isSignup && (
+                      <motion.span
+                        layoutId="authTogglePill"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
+                        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <span
+                      className={`relative z-10 transition-colors ${
+                        !isSignup ? "text-white" : "text-white/60 hover:text-white"
+                      }`}
+                    >
+                      Log In
+                    </span>
+                  </Link>
+                </div>
+              )}
 
               <h1 className="text-center text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                {isSignup ? "Create your account" : "Log in to Beacon"}
+                {isForgotPassword
+                  ? "Forgot your password?"
+                  : isSignup
+                    ? "Create your account"
+                    : "Log in to Beacon"}
               </h1>
               <p className="mt-2 text-center text-sm text-white/50">
-                {isSignup
-                  ? "Start managing your developer workflow with Beacon."
-                  : "Enter your details to access your workspace."}
+                {isForgotPassword
+                  ? "Enter the email associated with your account and we'll send you a password reset link."
+                  : isSignup
+                    ? "Start managing your developer workflow with Beacon."
+                    : "Enter your details to access your workspace."}
               </p>
 
               {/* Form slot. AnimatePresence swaps the old form out and the new
