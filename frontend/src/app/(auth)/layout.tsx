@@ -40,7 +40,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/30">
               <Activity className="size-4" strokeWidth={2.5} />
             </span>
-            <span className="text-sm font-semibold tracking-wide">DevPulse</span>
+            <span className="text-sm font-semibold tracking-wide">Beacon</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2">
@@ -98,11 +98,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               </div>
 
               <h1 className="text-center text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                {isSignup ? "Create your account" : "Log in to DevPulse"}
+                {isSignup ? "Create your account" : "Log in to Beacon"}
               </h1>
               <p className="mt-2 text-center text-sm text-white/50">
                 {isSignup
-                  ? "Start managing your developer workflow with DevPulse."
+                  ? "Start managing your developer workflow with Beacon."
                   : "Enter your details to access your workspace."}
               </p>
 

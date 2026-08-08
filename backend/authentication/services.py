@@ -6,6 +6,10 @@ from .utils import get_user_uid
 from .utils import is_verification_token_valid
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.conf import settings
 
 def register_user(*, email, password, first_name, last_name):
     try:
@@ -81,3 +85,23 @@ def refresh_access_token(refresh_token: str):
 
     return str(access)
 
+def forget_password(email: str):
+
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        return
+
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+    token = PasswordResetTokenGenerator().make_token(user)
+
+    reset_link = (
+        f"{settings.FRONTEND_URL}"
+        f"/reset-passoword?uid={uid}&token={token}"
+    )
+
+    send_password_reset_email(
+        user=user,
+        reset_link=reset_link
+    )

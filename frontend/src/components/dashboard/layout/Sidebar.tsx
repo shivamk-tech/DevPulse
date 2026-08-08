@@ -76,7 +76,7 @@ export function Sidebar({ onCollapsedChange }: SidebarProps) {
             />
             {!collapsed && (
               <span className="truncate text-[15px] font-medium tracking-tight text-white">
-                DevPulse
+                Beacon
               </span>
             )}
           </Link>

@@ -58,7 +58,7 @@ export default function Navbar() {
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/40 ring-1 ring-white/15 transition-transform duration-200 group-hover:scale-105">
             <Activity className="size-[18px] text-white" strokeWidth={2.5} />
           </span>
-          DevPulse
+          Beacon
         </Link>
 
         {/* Desktop Navigation */}

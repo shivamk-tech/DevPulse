@@ -24,7 +24,7 @@ const HERO_POSTER = "/auth/slide-1.jpg";
 const HERO_CAPTION = {
   title: "Ship faster, together.",
   subtitle:
-    "From first commit to production deploy, DevPulse keeps your whole team in sync.",
+    "From first commit to production deploy, Beacon keeps your whole team in sync.",
 };
 
 type Slide = {
@@ -43,7 +43,7 @@ const SLIDES: Slide[] = [
       "radial-gradient(120% 120% at 18% 22%, #4338ca 0%, transparent 52%), radial-gradient(120% 120% at 82% 82%, #7c3aed 0%, transparent 55%), linear-gradient(135deg, #1a1440, #0B0F14)",
     title: "Ship faster, together.",
     subtitle:
-      "From first commit to production deploy, DevPulse keeps your whole team in sync.",
+      "From first commit to production deploy, Beacon keeps your whole team in sync.",
   },
   {
     image: "/auth/slide-2.jpg",
@@ -105,7 +105,7 @@ function Overlay({
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/40">
             <Activity className="size-5" strokeWidth={2.5} />
           </span>
-          <span className="text-base font-semibold tracking-wide">DevPulse</span>
+          <span className="text-base font-semibold tracking-wide">Beacon</span>
         </div>
 
         {children}

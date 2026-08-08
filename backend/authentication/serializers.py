@@ -49,3 +49,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class RefreshTokenSerializer(serializers.Serializer):
     pass
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+

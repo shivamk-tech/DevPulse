@@ -13,7 +13,7 @@ import { EASE } from "@/lib/motion";
 const LIGHTFALL_COLORS = ["#a5b4fc", "#6366f1", "#a855f7"];
 
 /**
- * Landing hero in the style of the Reflect redesign, tuned to the DevPulse auth
+ * Landing hero in the style of the Reflect redesign, tuned to the Beacon auth
  * palette: near-black canvas (#0B0F14), indigo-violet accents (#6366f1 →
  * #4f46e5, #818cf8), and a violet "event horizon" glowing up from behind a
  * product window that rises from the fold. Subtle glossy highlights throughout.
@@ -65,10 +65,9 @@ export function Hero() {
           animate="show"
           className="mx-auto max-w-2xl text-balance bg-gradient-to-b from-white via-white to-[#c7d2fe] bg-clip-text text-4xl font-semibold leading-[1.05] tracking-tight text-transparent sm:text-5xl md:text-6xl"
         >
-          Ship better with DevPulse
+          Ship better with Beacon
         </motion.h1>
 
-        {/* Subtitle */}
         <motion.p
           custom={1}
           variants={rise}
@@ -129,7 +128,7 @@ export function Hero() {
             <span className="h-3 w-3 rounded-full bg-white/15" />
             <div className="mx-auto flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/40">
               <Search className="size-3" />
-              Search DevPulse…
+              Search Beacon…
             </div>
           </div>
 
