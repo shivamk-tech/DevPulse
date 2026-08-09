@@ -39,7 +39,7 @@ def send_verification_email(user):
 
     _send_email(
         subject="Verify your DevPulse account",
-        template_name="verification",
+        template_name="verification_email",
         context={
             "user": user,
             "verification_link": verification_link,

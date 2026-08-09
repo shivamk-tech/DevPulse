@@ -183,6 +183,46 @@
   --text-2xl--line-height: 1.4;
 }
 
+/* ---------------------------------------------------------------------------
+   Lenis smooth scrolling
+
+   Lenis animates the scroll position itself, so the document must be free to
+   grow (height: auto) and native smooth-scroll must stand down — otherwise the
+   browser and Lenis animate the same offset and it stutters.
+
+   `[data-lenis-prevent]` marks an inner scroll container that keeps native
+   scrolling; `overscroll-behavior: contain` stops it handing the wheel back to
+   the page when it hits its own end.
+--------------------------------------------------------------------------- */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* Lenis can't drive an iframe's internal scroll, and letting the pointer enter
+   one mid-scroll stalls the page. */
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* One easing curve for the whole UI — the same one the motion vocabulary in
+   lib/motion.ts uses, so CSS transitions and Motion animations agree. */
+:root {
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 /* The project's base text style. Everything inherits from here; components
    override only the size (and, for headings, the color). Unlayered on purpose
    so it beats the @layer base rules below. */
@@ -205,5 +245,26 @@ body {
   }
   html {
     @apply font-sans;
+  }
+
+  /* Interactive elements share one easing and duration so hovers across the
+     app feel like one system rather than per-component guesses. */
+  a,
+  button,
+  [role="button"] {
+    transition-timing-function: var(--ease-out-soft);
+  }
+}
+
+/* Anyone who asks for less motion gets none of the above: Lenis never mounts
+   (see SmoothScroll), and CSS transitions collapse to instant. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

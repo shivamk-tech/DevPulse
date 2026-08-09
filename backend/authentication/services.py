@@ -100,7 +100,7 @@ def forget_password(email: str):
 
     reset_link = (
         f"{settings.FRONTEND_URL}"
-        f"/reset-passoword?uid={uid}&token={token}"
+        f"/reset-password?uid={uid}&token={token}"
     )
 
     send_password_reset_email(

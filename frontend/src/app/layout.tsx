@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProviders from "@/components/providers/ThemeProviders"
+import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { cn } from "@/lib/utils";
 
 // One typeface for the whole app. Geist and Inter Tight were both being
@@ -31,7 +32,7 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col">
         <ThemeProviders>
-          {children}
+          <SmoothScroll>{children}</SmoothScroll>
         </ThemeProviders>
       </body>
     </html>

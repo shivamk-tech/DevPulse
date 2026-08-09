@@ -127,7 +127,7 @@ export function Sidebar({
         )}
       </button>
 
-      <div className="min-w-0 overflow-y-auto">
+      <div data-lenis-prevent className="min-w-0 overflow-y-auto">
         {/* Profile */}
         <div
           className={cn(
