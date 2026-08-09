@@ -1,7 +1,5 @@
-import { Sidebar } from "@/components/dashboard/layout/Sidebar";
-import { TopNavbar } from "@/components/dashboard/layout/Top-navbar";
-
 import { WelcomeBanner } from "@/components/dashboard/sections/Welcome-banner";
+import { StatRow } from "@/components/dashboard/sections/Stat-row";
 import { EmptyState } from "@/components/dashboard/sections/Empty-state";
 import { QuickStart } from "@/components/dashboard/sections/Quick-start";
 import { QuickActions } from "@/components/dashboard/sections/Quick-actions";
@@ -10,39 +8,29 @@ import { RecentActivity } from "@/components/dashboard/sections/Recent-activity"
 import { WorkspaceSummary } from "@/components/dashboard/widgets/Workspace-summary";
 import { TipsCard } from "@/components/dashboard/widgets/Tip-card";
 
+// The shell (sidebar + top bar) lives in dashboard/layout.tsx so every route
+// under /dashboard shares it. This file is just the index route's content.
 export default function DashboardPage() {
   return (
-    <div className="flex h-screen bg-background">
-      {/* Sidebar */}
-      <Sidebar />
+    <div className="mx-auto max-w-350 space-y-6 p-6">
+      <WelcomeBanner />
 
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <TopNavbar />
+      {/* Metrics first: the reader's question is "is anything broken?"
+         and it gets answered above the fold, before any onboarding. */}
+      <StatRow />
 
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex max-w-[1600px] gap-6 p-6">
-            {/* Main Content */}
-            <div className="flex-1 space-y-6">
-              <WelcomeBanner />
+      <div className="flex flex-col gap-6 xl:flex-row">
+        <div className="min-w-0 flex-1 space-y-6">
+          <EmptyState />
+          <QuickStart />
+          <RecentActivity />
+        </div>
 
-              <EmptyState />
-
-              <QuickStart />
-
-              <QuickActions />
-
-              <RecentActivity />
-            </div>
-
-            {/* Right Sidebar */}
-            <aside className="hidden w-[320px] shrink-0 space-y-6 xl:block">
-              <WorkspaceSummary />
-
-              <TipsCard />
-            </aside>
-          </div>
-        </main>
+        <aside className="w-full shrink-0 space-y-6 xl:w-80">
+          <WorkspaceSummary />
+          <QuickActions />
+          <TipsCard />
+        </aside>
       </div>
     </div>
   );

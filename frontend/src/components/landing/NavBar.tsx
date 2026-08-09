@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Activity, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { buttonVariants } from "@/components/ui/Button";
@@ -40,8 +41,8 @@ export default function Navbar() {
         className={cn(
           "relative mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border px-3 py-2.5 backdrop-blur-xl transition-all duration-300",
           scrolled
-            ? "border-white/10 bg-[#0B0F14]/85 shadow-2xl shadow-black/40"
-            : "border-white/[0.08] bg-[#0B0F14]/55 shadow-xl shadow-black/20"
+            ? "border-white/10 bg-black/85 shadow-2xl shadow-black/60"
+            : "border-white/[0.08] bg-black/55 shadow-xl shadow-black/30"
         )}
       >
         {/* shiny top edge */}
@@ -50,15 +51,19 @@ export default function Navbar() {
           className="pointer-events-none absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-white/25 to-transparent"
         />
 
-        {/* Logo */}
-        <Link
-          href="/"
-          className="group flex items-center gap-2.5 pl-1 text-lg font-bold tracking-tight text-white"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/40 ring-1 ring-white/15 transition-transform duration-200 group-hover:scale-105">
-            <Activity className="size-[18px] text-white" strokeWidth={2.5} />
-          </span>
-          Beacon
+        {/* Logo — the lockup already contains the wordmark, so there's no text
+           beside it. The source PNG carries its own alpha, so it drops onto
+           the glass with no blend mode needed. `priority` because it's above
+           the fold. */}
+        <Link href="/" className="group flex items-center pl-1" aria-label="Beacon — home">
+          <Image
+            src="/brand/logo.png"
+            alt="Beacon"
+            width={755}
+            height={320}
+            priority
+            className="h-9 w-auto transition-transform duration-200 group-hover:scale-[1.03] sm:h-10"
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -114,7 +119,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduce ? undefined : { opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.2, ease: EASE }}
-            className="mx-auto mt-3 max-w-6xl rounded-3xl border border-white/10 bg-[#0B0F14]/90 p-4 shadow-2xl shadow-black/40 backdrop-blur-xl md:hidden"
+            className="mx-auto mt-3 max-w-6xl rounded-3xl border border-white/10 bg-black/90 p-4 shadow-2xl shadow-black/60 backdrop-blur-xl md:hidden"
           >
             <nav className="flex flex-col gap-1">
               {LINKS.map(([label, href]) => {

@@ -170,18 +170,38 @@
   --radius-3xl: calc(var(--radius) * 2.2);
 
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Every `text-*` utility ships a paired line-height that would otherwise
+     override the 1.4 set on `body`. Re-pair the sizes the UI actually uses so
+     the base rhythm survives. Display sizes (3xl and up) keep Tailwind's
+     tighter defaults — 1.4 reads as slack at heading scale. */
+  --text-xs--line-height: 1.4;
+  --text-sm--line-height: 1.4;
+  --text-base--line-height: 1.4;
+  --text-lg--line-height: 1.4;
+  --text-xl--line-height: 1.4;
+  --text-2xl--line-height: 1.4;
 }
 
+/* The project's base text style. Everything inherits from here; components
+   override only the size (and, for headings, the color). Unlayered on purpose
+   so it beats the @layer base rules below. */
 body {
-  font-family: var(--font-inter-tight), sans-serif;
+  font-family: var(--font-sans), sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: #999999;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  /* Text color comes from the `body` rule above — one source of truth. */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background;
   }
   html {
     @apply font-sans;

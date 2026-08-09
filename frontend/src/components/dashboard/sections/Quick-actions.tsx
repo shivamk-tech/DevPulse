@@ -1,11 +1,14 @@
 // components/dashboard/quick-actions.tsx
-import { Plus, FileText, Bell, Users, ChevronRight } from "lucide-react";
+"use client";
+
+import { Bell, ChevronRight, FileText, Plus, Users } from "lucide-react";
+
+import { Panel, PanelHeader } from "@/components/dashboard/ui/Panel";
 import { cn } from "@/lib/utils";
 
 interface QuickAction {
   id: string;
   title: string;
-  description: string;
   icon: React.ComponentType<{ className?: string }>;
   iconClassName: string;
   onClick?: () => void;
@@ -18,6 +21,16 @@ interface QuickActionsProps {
   onInviteTeam?: () => void;
 }
 
+/**
+ * Shortcuts rail.
+ *
+ * This was a second four-across card grid sitting directly under the setup
+ * checklist, repeating the same four tasks in the same shape — so the eye had
+ * two competing "start here" blocks. Demoted to a narrow list in the right
+ * rail: still one click away, no longer arguing with the checklist for
+ * attention. Descriptions dropped for the same reason — the checklist already
+ * explains each task.
+ */
 export function QuickActions({
   onAddMonitor,
   onCreateStatusPage,
@@ -27,79 +40,70 @@ export function QuickActions({
   const actions: QuickAction[] = [
     {
       id: "add-monitor",
-      title: "Add Monitor",
-      description: "Monitor a website or API",
+      title: "Add monitor",
       icon: Plus,
-      iconClassName: "bg-indigo-500/10 text-indigo-400",
+      iconClassName: "bg-indigo-500/10 text-indigo-300",
       onClick: onAddMonitor,
     },
     {
       id: "create-status-page",
-      title: "Create Status Page",
-      description: "Build a public status page",
+      title: "Create status page",
       icon: FileText,
-      iconClassName: "bg-sky-500/10 text-sky-400",
+      iconClassName: "bg-sky-500/10 text-sky-300",
       onClick: onCreateStatusPage,
     },
     {
       id: "configure-alerts",
-      title: "Configure Alerts",
-      description: "Set up notification channels",
+      title: "Configure alerts",
       icon: Bell,
-      iconClassName: "bg-emerald-500/10 text-emerald-400",
+      iconClassName: "bg-emerald-500/10 text-emerald-300",
       onClick: onConfigureAlerts,
     },
     {
       id: "invite-team",
-      title: "Invite Team",
-      description: "Add members to workspace",
+      title: "Invite team",
       icon: Users,
-      iconClassName: "bg-amber-500/10 text-amber-400",
+      iconClassName: "bg-amber-500/10 text-amber-300",
       onClick: onInviteTeam,
     },
   ];
 
   return (
-    <section className="rounded-lg border border-white/10 bg-[#0F0F14] p-3.5">
-      <h2 className="text-[13px] font-normal text-white">Quick Actions</h2>
+    <Panel className="p-5">
+      <PanelHeader title="Shortcuts" />
 
-      <div className="mt-2.5 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
+      <div className="mt-3 flex flex-col">
         {actions.map((action) => (
-          <QuickActionCard key={action.id} action={action} />
+          <ActionRow key={action.id} action={action} />
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }
 
-function QuickActionCard({ action }: { action: QuickAction }) {
+function ActionRow({ action }: { action: QuickAction }) {
   const Icon = action.icon;
 
   return (
     <button
       type="button"
       onClick={action.onClick}
-      className="flex items-center justify-between rounded-md border border-white/10 bg-white/[0.02] p-2.5 text-left transition-colors hover:bg-white/[0.04]"
+      className="group -mx-2 flex items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/4"
     >
-      <div className="flex items-center gap-2">
-        <div
-          className={cn(
-            "flex h-6 w-6 shrink-0 items-center justify-center rounded-md",
-            action.iconClassName
-          )}
-        >
-          <Icon className="h-3.5 w-3.5" />
-        </div>
-        <div>
-          <p className="text-[11px] font-normal text-white">
-            {action.title}
-          </p>
-          <p className="text-[10px] font-light text-zinc-400">
-            {action.description}
-          </p>
-        </div>
-      </div>
-      <ChevronRight className="h-3.5 w-3.5 shrink-0 text-zinc-600" />
+      <span
+        className={cn(
+          "flex size-7 shrink-0 items-center justify-center rounded-md",
+          action.iconClassName
+        )}
+      >
+        <Icon className="size-3.5" />
+      </span>
+
+      <span className="min-w-0 flex-1 truncate text-[13px] text-white/70 transition-colors group-hover:text-white">
+        {action.title}
+      </span>
+
+      <ChevronRight className="size-3.5 shrink-0 text-white/20 transition-all group-hover:translate-x-0.5 group-hover:text-white/40" />
     </button>
   );
 }

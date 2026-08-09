@@ -18,6 +18,8 @@ from .services import refresh_access_token
 from rest_framework_simplejwt.exceptions import TokenError
 from .serializers import ForgotPasswordSerializer
 from .services import forget_password
+from .serializers import ResetPasswordSerializer
+from .services import reset_password
 
 class SignupView(APIView):
 
@@ -173,7 +175,7 @@ class LogoutView(APIView):
 
         return response
 
-class ForgetPasswordView(APIView):
+class ForgotPasswordView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
 
@@ -191,4 +193,24 @@ class ForgetPasswordView(APIView):
             status=status.HTTP_200_OK
         )
 
+class ResetPasswordView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
 
+    def post(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+
+        serializer.is_valid(raise_exception=True)
+
+        reset_password(
+            uid=serializer.validated_data["uid"],
+            token=serializer.validated_data["token"],
+            password=serializer.validated_data["password"]
+        )
+
+        return Response({
+            "details" : "Password reset successfull"
+        },status=status.HTTP_200_OK)
+
+    
+        

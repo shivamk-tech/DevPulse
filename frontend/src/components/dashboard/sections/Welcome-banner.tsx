@@ -1,5 +1,8 @@
 // components/dashboard/welcome-banner.tsx
-import { ExternalLink, Plus } from "lucide-react";
+"use client";
+
+import { Plus } from "lucide-react";
+
 import { Button } from "@/components/ui/Button";
 
 interface WelcomeBannerProps {
@@ -7,43 +10,39 @@ interface WelcomeBannerProps {
   onCreateMonitor?: () => void;
 }
 
+/**
+ * The page header. This used to be a gradient card competing with the panels
+ * below it; a dashboard reads calmer when the header is just type on the shell
+ * and the cards are the only raised surfaces.
+ *
+ * It also owns the single primary "Create monitor" button for the whole view —
+ * the empty state and checklist below defer to it rather than each shipping
+ * their own filled button.
+ */
 export function WelcomeBanner({
   userName = "Shivam",
   onCreateMonitor,
 }: WelcomeBannerProps) {
   return (
-    <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/10 bg-[radial-gradient(ellipse_at_top_left,rgba(99,102,241,0.18),transparent_60%)] bg-[#0F0F14] px-4 py-3.5">
+    <header className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <h1 className="flex items-center gap-1.5 text-[17px] font-light tracking-tight text-white">
-          Welcome back, <span className="font-normal">{userName}</span>
-          <span aria-hidden className="text-[17px]">
-            👋
-          </span>
+        <h1 className="text-xl font-semibold tracking-tight text-white">
+          Welcome back, {userName}
         </h1>
-        <p className="mt-0.5 text-xs font-light text-zinc-400">
-          Start monitoring your infrastructure in minutes.
+        <p className="mt-1 text-sm text-white/45">
+          Here&apos;s the state of your infrastructure.
         </p>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          variant="gradient"
-          size="sm"
-          className="h-[30px] text-xs font-light"
-          leftSection={<Plus className="h-3.5 w-3.5" />}
-          onClick={onCreateMonitor}
-        >
-          Create Monitor
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-[30px] text-xs font-light"
-          rightSection={<ExternalLink className="h-3.5 w-3.5" />}
-        >
-          View Documentation
-        </Button>
-      </div>
-    </section>
+      <Button
+        variant="gradient"
+        size="sm"
+        leftSection={<Plus className="size-4" />}
+        onClick={onCreateMonitor}
+        className="h-9"
+      >
+        Create monitor
+      </Button>
+    </header>
   );
 }

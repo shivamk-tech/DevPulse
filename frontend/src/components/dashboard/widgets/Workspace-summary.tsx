@@ -1,4 +1,6 @@
 // components/dashboard/workspace-summary.tsx
+import { Panel, PanelHeader } from "@/components/dashboard/ui/Panel";
+
 interface WorkspaceSummaryProps {
   workspaceName?: string;
   plan?: string;
@@ -20,31 +22,23 @@ export function WorkspaceSummary({
   ];
 
   return (
-    <section className="rounded-lg border border-white/10 bg-[#0F0F14] p-3.5">
-      <h2 className="mb-2 text-[12px] font-normal text-white">
-        Workspace Summary
-      </h2>
+    <Panel className="p-5">
+      <PanelHeader title="Workspace" />
 
-      <dl className="flex flex-col">
-        {rows.map((row, index) => (
+      <dl className="mt-3 divide-y divide-white/6">
+        {rows.map((row) => (
           <div
             key={row.label}
-            className={
-              index > 0
-                ? "flex items-center justify-between border-t border-white/[0.06] py-1.5"
-                : "flex items-center justify-between py-1.5"
-            }
+            className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
           >
-            <dt className="text-[11px] font-light text-zinc-400">
-              {row.label}
-            </dt>
-            <dd>
+            <dt className="shrink-0 text-xs text-white/40">{row.label}</dt>
+            <dd className="min-w-0">
               {row.isPill ? (
-                <span className="rounded-md bg-white/[0.06] px-1.5 py-0.5 text-[9.5px] font-light text-zinc-200">
+                <span className="rounded-md bg-white/6 px-2 py-0.5 text-[11px] font-medium text-white/70">
                   {row.value}
                 </span>
               ) : (
-                <span className="text-[11px] font-light text-white">
+                <span className="block truncate text-right text-[13px] text-white/80">
                   {row.value}
                 </span>
               )}
@@ -52,6 +46,6 @@ export function WorkspaceSummary({
           </div>
         ))}
       </dl>
-    </section>
+    </Panel>
   );
 }

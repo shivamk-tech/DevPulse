@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Inter_Tight, Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import ThemeProviders from "@/components/providers/ThemeProviders"
 import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const interTight = Inter_Tight({
+// One typeface for the whole app. Geist and Inter Tight were both being
+// downloaded on every page while only Inter Tight actually rendered — the
+// `body` rule in globals.css overrode the `font-sans` class on <html>.
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-inter-tight"
-})
+  variable: "--font-sans",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,10 +26,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "font-sans", geist.variable)}
+      className={cn("h-full", "antialiased", "font-sans", inter.variable)}
       suppressHydrationWarning
     >
-      <body className={` ${interTight.variable} min-h-full flex flex-col`}>
+      <body className="flex min-h-full flex-col">
         <ThemeProviders>
           {children}
         </ThemeProviders>

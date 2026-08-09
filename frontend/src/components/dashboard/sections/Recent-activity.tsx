@@ -1,5 +1,7 @@
 // components/dashboard/recent-activity.tsx
-import { Clock } from "lucide-react";
+import { History } from "lucide-react";
+
+import { Panel, PanelHeader } from "@/components/dashboard/ui/Panel";
 
 interface ActivityItem {
   id: string;
@@ -13,38 +15,48 @@ interface RecentActivityProps {
 
 export function RecentActivity({ items = [] }: RecentActivityProps) {
   return (
-    <section className="rounded-lg border border-white/10 bg-[#0F0F14] p-3.5">
-      <h2 className="text-[13px] font-normal text-white">Recent Activity</h2>
+    <Panel className="p-5">
+      <PanelHeader
+        title="Recent activity"
+        action={
+          items.length > 0 ? (
+            <button
+              type="button"
+              className="text-xs text-white/40 transition-colors hover:text-white"
+            >
+              View all
+            </button>
+          ) : undefined
+        }
+      />
 
       {items.length === 0 ? (
-        <div className="flex flex-col items-center py-2 text-center">
-          <div className="mb-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white/5">
-            <Clock className="h-3.5 w-3.5 text-zinc-400" />
-          </div>
-          <p className="text-[11.5px] font-light text-zinc-200">
-            No activity yet.
-          </p>
-          <p className="mt-0.5 text-[10.5px] font-light text-zinc-500">
-            Activity will appear once monitoring begins.
+        // Quiet by design: a nested empty state shouldn't compete with the
+        // main canvas above it, so this is one line of text, no illustration.
+        <div className="mt-4 flex items-center gap-2.5 rounded-lg border border-dashed border-white/7 px-3.5 py-3">
+          <History className="size-4 shrink-0 text-white/25" />
+          <p className="text-xs text-white/40">
+            Checks, incidents, and alerts will appear here once monitoring begins.
           </p>
         </div>
       ) : (
-        <ul className="mt-2 flex flex-col gap-2">
+        <ul className="mt-2 divide-y divide-white/6">
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center justify-between border-b border-white/5 pb-2 last:border-0 last:pb-0"
+              className="flex items-center justify-between gap-4 py-2.5"
             >
-              <span className="text-[11.5px] font-light text-zinc-200">
+              <span className="min-w-0 truncate text-[13px] text-white/70">
                 {item.title}
               </span>
-              <span className="text-[10.5px] font-light text-zinc-500">
+              {/* Tabular figures here — these DO align in a column */}
+              <span className="shrink-0 text-xs tabular-nums text-white/35">
                 {item.timestamp}
               </span>
             </li>
           ))}
         </ul>
       )}
-    </section>
+    </Panel>
   );
 }

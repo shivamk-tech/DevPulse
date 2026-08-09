@@ -19,7 +19,35 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const isSignup = pathname?.includes("signup") ?? false;
   const isForgotPassword = pathname?.includes("forgot-password") ?? false;
+  const isResetPassword = pathname?.includes("reset-password") ?? false;
   const reduce = useReducedMotion();
+
+  // The Sign Up / Log In pill only makes sense on the two routes it switches
+  // between — the password-recovery steps are a linear flow, not a mode.
+  const showToggle = !isForgotPassword && !isResetPassword;
+
+  // Heading copy lives here rather than in each page so the text animates as
+  // part of the shared shell instead of swapping with the form.
+  const copy = isResetPassword
+    ? {
+        title: "Set a new password",
+        subtitle: "Choose a strong password you haven't used before. You'll use it to log in from now on.",
+      }
+    : isForgotPassword
+      ? {
+          title: "Forgot your password?",
+          subtitle:
+            "Enter the email associated with your account and we'll send you a password reset link.",
+        }
+      : isSignup
+        ? {
+            title: "Create your account",
+            subtitle: "Start managing your developer workflow with Beacon.",
+          }
+        : {
+            title: "Log in to Beacon",
+            subtitle: "Enter your details to access your workspace.",
+          };
 
   return (
     <div className="relative flex min-h-screen w-full items-start justify-center p-4 sm:items-center sm:p-6">
@@ -55,9 +83,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                  `replace` so hammering the toggle doesn't stack up history.
                  The active pill is a shared layout element, so it slides
                  between the two tabs instead of hard-cutting.
-                 Not relevant on forgot-password, so it's hidden there rather
-                 than rendered mid-transition with neither tab active. */}
-              {!isForgotPassword && (
+                 Not relevant on the password-recovery routes, so it's hidden
+                 there rather than rendered mid-transition with neither tab
+                 active. */}
+              {showToggle && (
                 <div className="mx-auto mb-6 flex rounded-full border border-white/10 bg-white/5 p-1 sm:mb-8">
                   <Link
                     href="/signup"
@@ -103,18 +132,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               )}
 
               <h1 className="text-center text-2xl font-semibold tracking-tight text-white sm:text-3xl">
-                {isForgotPassword
-                  ? "Forgot your password?"
-                  : isSignup
-                    ? "Create your account"
-                    : "Log in to Beacon"}
+                {copy.title}
               </h1>
               <p className="mt-2 text-center text-sm text-white/50">
-                {isForgotPassword
-                  ? "Enter the email associated with your account and we'll send you a password reset link."
-                  : isSignup
-                    ? "Start managing your developer workflow with Beacon."
-                    : "Enter your details to access your workspace."}
+                {copy.subtitle}
               </p>
 
               {/* Form slot. AnimatePresence swaps the old form out and the new

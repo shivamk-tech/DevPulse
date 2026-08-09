@@ -1,8 +1,10 @@
 // components/dashboard/quick-start.tsx
-import { Plus, Bell, Globe, ShieldCheck, Lock } from "lucide-react";
+import { Bell, Check, ChevronRight, Globe, Plus, ShieldCheck } from "lucide-react";
+
+import { Panel, PanelHeader } from "@/components/dashboard/ui/Panel";
 import { cn } from "@/lib/utils";
 
-type StepStatus = "current" | "pending" | "locked";
+type StepStatus = "done" | "current" | "pending";
 
 interface QuickStartStep {
   id: number;
@@ -15,124 +17,122 @@ interface QuickStartStep {
 const STEPS: QuickStartStep[] = [
   {
     id: 1,
-    title: "Create Monitor",
-    description: "Add your first website or API.",
+    title: "Create a monitor",
+    description: "Add your first website or API endpoint.",
     icon: Plus,
     status: "current",
   },
   {
     id: 2,
-    title: "Configure Alerts",
-    description: "Receive instant downtime notifications.",
+    title: "Configure alerts",
+    description: "Choose where downtime notifications land.",
     icon: Bell,
     status: "pending",
   },
   {
     id: 3,
-    title: "Publish Status Page",
-    description: "Share uptime publicly.",
+    title: "Publish a status page",
+    description: "Share uptime with your users.",
     icon: Globe,
     status: "pending",
   },
   {
     id: 4,
-    title: "You're Protected",
-    description: "Your monitoring setup is complete.",
+    title: "You're protected",
+    description: "Monitoring is live and alerting is on.",
     icon: ShieldCheck,
-    status: "locked",
+    status: "pending",
   },
 ];
 
 export function QuickStart() {
-  return (
-    <section className="rounded-lg border border-white/10 bg-[#0F0F14] p-3.5">
-      <h2 className="text-[13px] font-normal text-white">Quick Start</h2>
-      <p className="mt-0.5 text-[11.5px] font-light text-zinc-400">
-        Complete these steps to get your infrastructure protected.
-      </p>
-
-      <div className="mt-2.5 grid grid-cols-2 gap-2.5 lg:grid-cols-4">
-        {STEPS.map((step) => (
-          <QuickStartCard key={step.id} step={step} />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function QuickStartCard({ step }: { step: QuickStartStep }) {
-  const Icon = step.icon;
-  const isCurrent = step.status === "current";
+  const done = STEPS.filter((step) => step.status === "done").length;
 
   return (
-    <div
-      className={cn(
-        "relative rounded-md border p-2.5 transition-colors",
-        isCurrent
-          ? "border-indigo-400/30 bg-[radial-gradient(ellipse_at_top_left,rgba(99,102,241,0.12),transparent_65%)]"
-          : "border-white/10 bg-white/[0.02]"
-      )}
-    >
-      <div
-        className={cn(
-          "flex h-[22px] w-[22px] items-center justify-center rounded-full text-[10px] font-light",
-          isCurrent
-            ? "bg-[linear-gradient(180deg,rgba(255,255,255,0.22),transparent_45%),linear-gradient(180deg,#6366f1,#4f46e5)] text-white ring-1 ring-inset ring-white/15 shadow-sm shadow-indigo-500/40"
-            : "bg-white/5 text-zinc-500"
-        )}
-      >
-        {step.id}
-      </div>
+    <Panel className="p-5">
+      <PanelHeader
+        title="Finish setting up"
+        description="Four steps to a fully monitored stack."
+        action={
+          <span className="text-xs text-white/40">
+            {done} of {STEPS.length}
+          </span>
+        }
+      />
 
-      <div
-        className={cn(
-          "mt-2 flex h-7 w-7 items-center justify-center rounded-md border",
-          isCurrent
-            ? "border-indigo-400/30 bg-indigo-500/10"
-            : "border-white/10 bg-white/[0.03]"
-        )}
-      >
-        <Icon
-          className={cn(
-            "h-3 w-3",
-            isCurrent ? "text-indigo-400" : "text-zinc-300"
-          )}
+      {/* Progress track — one honest bar beats four "Pending" badges */}
+      <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/6">
+        <div
+          className="h-full rounded-full bg-linear-to-r from-[#6366f1] to-[#4f46e5] transition-[width] duration-500"
+          style={{ width: `${(done / STEPS.length) * 100}%` }}
         />
       </div>
 
-      <h3 className="mt-2 text-[11.5px] font-normal text-white">
-        {step.title}
-      </h3>
-      <p className="mt-0.5 text-[10.5px] font-light leading-snug text-zinc-400">
-        {step.description}
-      </p>
-
-      <StatusBadge status={step.status} />
-    </div>
+      {/* Rows, not a 4-up card grid: the steps are sequential, and a vertical
+         list makes that order obvious while taking half the vertical space. */}
+      <ol className="mt-4 divide-y divide-white/6">
+        {STEPS.map((step) => (
+          <StepRow key={step.id} step={step} />
+        ))}
+      </ol>
+    </Panel>
   );
 }
 
-function StatusBadge({ status }: { status: StepStatus }) {
-  if (status === "current") {
-    return (
-      <span className="mt-2 inline-flex items-center rounded-md bg-indigo-500/15 px-1.5 py-0.5 text-[9.5px] font-light text-indigo-400 ring-1 ring-inset ring-indigo-400/20">
-        Current Step
-      </span>
-    );
-  }
-
-  if (status === "locked") {
-    return (
-      <span className="mt-2 inline-flex items-center gap-1 rounded-md bg-white/5 px-1.5 py-0.5 text-[9.5px] font-light text-zinc-500">
-        <Lock className="h-2.5 w-2.5" />
-        Locked
-      </span>
-    );
-  }
+function StepRow({ step }: { step: QuickStartStep }) {
+  const Icon = step.icon;
+  const isCurrent = step.status === "current";
+  const isDone = step.status === "done";
 
   return (
-    <span className="mt-2 inline-flex items-center rounded-md bg-white/5 px-1.5 py-0.5 text-[9.5px] font-light text-zinc-500">
-      Pending
-    </span>
+    <li>
+      <button
+        type="button"
+        disabled={!isCurrent}
+        className={cn(
+          "group flex w-full items-center gap-3 py-3 text-left transition-colors",
+          isCurrent ? "cursor-pointer" : "cursor-default"
+        )}
+      >
+        <span
+          className={cn(
+            "flex size-8 shrink-0 items-center justify-center rounded-lg border transition-colors",
+            isDone && "border-emerald-400/25 bg-emerald-500/10",
+            isCurrent && "border-indigo-400/30 bg-indigo-500/12",
+            !isDone && !isCurrent && "border-white/7 bg-white/2"
+          )}
+        >
+          {isDone ? (
+            <Check className="size-4 text-emerald-400" strokeWidth={2.5} />
+          ) : (
+            <Icon
+              className={cn("size-4", isCurrent ? "text-indigo-300" : "text-white/30")}
+            />
+          )}
+        </span>
+
+        <span className="min-w-0 flex-1">
+          <span
+            className={cn(
+              "block text-[13px] font-medium",
+              isDone ? "text-white/45 line-through" : isCurrent ? "text-white" : "text-white/50"
+            )}
+          >
+            {step.title}
+          </span>
+          <span className="mt-0.5 block truncate text-xs text-white/35">
+            {step.description}
+          </span>
+        </span>
+
+        {/* Only the actionable step advertises itself */}
+        {isCurrent && (
+          <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-indigo-300">
+            Start
+            <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </span>
+        )}
+      </button>
+    </li>
   );
 }

@@ -7,9 +7,11 @@ from .utils import is_verification_token_valid
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-from django.utils.http import urlsafe_base64_encode
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.conf import settings
+from .email_service import send_password_reset_email
+from django.utils.encoding import force_str
  
 def register_user(*, email, password, first_name, last_name):
     try:
@@ -105,3 +107,33 @@ def forget_password(email: str):
         user=user,
         reset_link=reset_link
     )
+
+def reset_password(uid: str, token: str, password: str):
+
+    try: 
+        user_id = force_str(
+            urlsafe_base64_decode(
+                uid
+            )
+        )
+
+        user = User.objects.get(pk=user_id)
+    except(ValueError, TypeError, OverflowError, User.DoesNotExist):
+        raise ValidationError({
+            "token" : [
+                "invalid or expired password reset link"
+            ]
+        })
+
+    token_generator = PasswordResetTokenGenerator() 
+
+    if not token_generator.check_token(user, token):
+        raise ValidationError({
+            "token" : [
+                "invalid or expired password reset link"
+            ]
+        })
+
+    user.set_password(password)
+    user.save()
+

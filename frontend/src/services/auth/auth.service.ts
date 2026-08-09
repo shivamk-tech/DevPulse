@@ -26,6 +26,18 @@ export const authService = {
 
     logout(){
         return api.post("/auth/logout/");
-    }
+    },
 
+    forgotPassword(email:string){
+        return api.post("/auth/forgot-password/", {email});
+    },
+    
+    resetPassword(data: {
+        uid:string;
+        token: string;
+        password: string;
+        confirm_password: string;
+    }){
+        return api.post("/auth/reset-password/", data);
+    }
 }
