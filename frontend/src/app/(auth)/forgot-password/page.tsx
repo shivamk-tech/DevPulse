@@ -35,6 +35,22 @@ export default function ForgotPasswordPage() {
   // user edits the input afterwards.
   const [sentTo, setSentTo] = React.useState<string | null>(null);
   const [formError, setFormError] = React.useState<string | null>(null);
+  const [emailSent, setEmailSent] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    const handler = () => {
+        if (localStorage.getItem("password-reset-completed")) {
+            setEmailSent(false);
+            localStorage.removeItem("password-reset-completed");
+        }
+    };
+
+    window.addEventListener("storage", handler);
+
+    return () => {
+        window.removeEventListener("storage", handler);
+    };
+}, []);
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),

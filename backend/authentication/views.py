@@ -20,6 +20,8 @@ from .serializers import ForgotPasswordSerializer
 from .services import forget_password
 from .serializers import ResetPasswordSerializer
 from .services import reset_password
+from .serializers import ChangePasswordSerializer
+from .services import change_password
 
 class SignupView(APIView):
 
@@ -211,6 +213,25 @@ class ResetPasswordView(APIView):
         return Response({
             "details" : "Password reset successfull"
         },status=status.HTTP_200_OK)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        serializer = ChangePasswordSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        change_password(
+            user=request.user,
+            current_password=serializer.validated_data["current_password"],
+            password=serializer.validated_data["password"]
+        )
+
+        return Response({
+            "message" : "Password changed succesfully"
+        },status=status.HTTP_200_OK)
+
+
 
     
         

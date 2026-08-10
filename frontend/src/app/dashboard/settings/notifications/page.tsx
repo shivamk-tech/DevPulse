@@ -2,6 +2,7 @@
 
 import {
   Field,
+  PageHeader,
   SettingsSection,
   ToggleRow,
 } from "@/components/dashboard/settings/Settings-ui";
@@ -9,6 +10,11 @@ import {
 export default function SettingsNotificationsPage() {
   return (
     <>
+      <PageHeader
+        title="Notifications"
+        description="Choose what Beacon tells you about, and where."
+      />
+
       <SettingsSection
         title="Alerts"
         description="What Beacon tells you about, and how quickly."

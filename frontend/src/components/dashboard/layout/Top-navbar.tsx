@@ -59,23 +59,21 @@ export function TopNavbar({ userName = "Shivam", userAvatarUrl }: TopNavbarProps
         </button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <button
-              type="button"
-              className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 transition-colors hover:bg-white/5"
-            >
-              <div className="relative size-7 shrink-0 overflow-hidden rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] ring-1 ring-inset ring-white/15">
-                {userAvatarUrl ? (
-                  <Image src={userAvatarUrl} alt={userName} fill className="object-cover" />
-                ) : (
-                  <div className="flex size-full items-center justify-center text-[11px] font-semibold text-white">
-                    {userName.charAt(0).toUpperCase()}
-                  </div>
-                )}
-              </div>
-              <span className="text-[13px] font-medium text-white/80">{userName}</span>
-              <ChevronDown className="size-3.5 text-white/30" />
-            </button>
+          {/* No nested <button> here — MenuTrigger renders one itself, so
+             wrapping another inside produced invalid HTML and a hydration
+             mismatch. Style the trigger directly instead. */}
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 transition-colors hover:bg-white/5">
+            <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] ring-1 ring-inset ring-white/15">
+              {userAvatarUrl ? (
+                <Image src={userAvatarUrl} alt={userName} fill className="object-cover" />
+              ) : (
+                <span className="flex size-full items-center justify-center text-[11px] font-semibold text-white">
+                  {userName.charAt(0).toUpperCase()}
+                </span>
+              )}
+            </span>
+            <span className="text-[13px] font-medium text-white/80">{userName}</span>
+            <ChevronDown className="size-3.5 text-white/30" />
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end" className="w-48">

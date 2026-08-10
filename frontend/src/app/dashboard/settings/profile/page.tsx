@@ -1,10 +1,19 @@
 "use client";
 
-import { Field, SettingsSection } from "@/components/dashboard/settings/Settings-ui";
+import {
+  Field,
+  PageHeader,
+  SettingsSection,
+} from "@/components/dashboard/settings/Settings-ui";
 
 export default function SettingsProfilePage() {
   return (
     <>
+      <PageHeader
+        title="Profile"
+        description="How you appear to the rest of your workspace."
+      />
+
       <SettingsSection
         title="Your details"
         description="This is what teammates see on incidents you acknowledge."

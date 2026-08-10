@@ -137,3 +137,26 @@ def reset_password(uid: str, token: str, password: str):
     user.set_password(password)
     user.save()
 
+def change_password(
+        user: User,
+        current_password: str,
+        password: str
+):
+    if not user.check_password(current_password):
+        raise ValidationError({
+            "current_password" : [
+                "Current Password is incorrect"
+                ]
+        })
+
+    if user.check_password(password):
+        raise ValidationError(
+            {
+                "password": [
+                    "New password must be different from your current password."
+                ]
+            }
+        )
+
+    user.set_password(password)
+    user.save()

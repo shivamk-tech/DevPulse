@@ -122,10 +122,13 @@ function VideoHero({ reduce }: { reduce: boolean }) {
   // last frame back to the first — reads as a "restart"), we start the second
   // copy from the top just before the first ends and dissolve between them, so
   // the seam is always hidden behind a short crossfade.
-  const refs = [
-    useRef<HTMLVideoElement>(null),
-    useRef<HTMLVideoElement>(null),
-  ];
+  // Two named refs rather than an array of them. `[useRef(), useRef()]` builds
+  // a fresh local array on every render, and reaching through it from an effect
+  // or handler counts as mutating a local after render — which the React
+  // Compiler rejects. Individual refs are stable, so it's happy.
+  const refA = useRef<HTMLVideoElement>(null);
+  const refB = useRef<HTMLVideoElement>(null);
+
   const [top, setTop] = useState(0); // which copy is visible (opacity 100)
   const topRef = useRef(0);
   const lockRef = useRef(false); // guards against re-triggering during a fade
@@ -136,8 +139,8 @@ function VideoHero({ reduce }: { reduce: boolean }) {
 
   // Kick off / honor reduced-motion (still poster frame, no playback).
   useEffect(() => {
-    const a = refs[0].current;
-    const b = refs[1].current;
+    const a = refA.current;
+    const b = refB.current;
     if (reduce) {
       a?.pause();
       b?.pause();
@@ -147,16 +150,15 @@ function VideoHero({ reduce }: { reduce: boolean }) {
       a.currentTime = 0;
       a.play().catch(() => {});
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduce]);
 
   const handleTime = (i: number) => () => {
     if (reduce || lockRef.current || i !== topRef.current) return;
-    const cur = refs[i].current;
+    const cur = (i === 0 ? refA : refB).current;
     if (!cur || !cur.duration) return;
     if (cur.currentTime >= cur.duration - LOOP_FADE) {
       lockRef.current = true;
-      const other = refs[1 - i].current;
+      const other = (i === 0 ? refB : refA).current;
       if (other) {
         other.currentTime = 0;
         other.play().catch(() => {});
@@ -181,7 +183,7 @@ function VideoHero({ reduce }: { reduce: boolean }) {
       {[0, 1].map((i) => (
         <video
           key={i}
-          ref={refs[i]}
+          ref={i === 0 ? refA : refB}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity ease-linear ${
             top === i ? "opacity-100" : "opacity-0"
           }`}

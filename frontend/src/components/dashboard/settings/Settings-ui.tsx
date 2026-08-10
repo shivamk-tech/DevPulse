@@ -13,28 +13,79 @@ import { cn } from "@/lib/utils";
  * Pass a handler down from the page once the endpoint exists.
  */
 
+/** Page title + subtitle. Each settings route owns its own. */
+export function PageHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <header>
+      <h1 className="text-xl font-semibold tracking-tight text-white">{title}</h1>
+      <p className="mt-1 text-sm text-white/45">{description}</p>
+    </header>
+  );
+}
+
 export function SettingsSection({
   title,
   description,
+  icon: Icon,
+  badge,
   footer,
+  muted = false,
   children,
 }: {
   title: string;
   description?: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  /** Status pill beside the title — e.g. <StatusPill /> or <ComingSoonPill />. */
+  badge?: React.ReactNode;
   /** Defaults to a Save row; pass `null` for a section that has nothing to save. */
   footer?: React.ReactNode | null;
-  children: React.ReactNode;
+  /** Recedes the whole panel — used for features that aren't built yet. */
+  muted?: boolean;
+  children?: React.ReactNode;
 }) {
   return (
-    <Panel className="overflow-hidden">
+    <Panel className={cn("overflow-hidden", muted && "bg-[#0D0D11]")}>
       <div className="p-5">
-        <h2 className="text-sm font-medium text-white">{title}</h2>
+        <div className="flex items-start gap-3">
+          {Icon && (
+            <span
+              className={cn(
+                "flex size-8 shrink-0 items-center justify-center rounded-lg",
+                muted ? "bg-white/3 text-white/25" : "bg-white/5 text-white/60"
+              )}
+            >
+              <Icon className="size-4" />
+            </span>
+          )}
 
-        {description && (
-          <p className="mt-1 text-xs leading-relaxed text-white/45">{description}</p>
-        )}
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2
+                className={cn(
+                  "text-sm font-medium",
+                  muted ? "text-white/60" : "text-white"
+                )}
+              >
+                {title}
+              </h2>
+              {badge}
+            </div>
 
-        <div className="mt-5 space-y-4">{children}</div>
+            {description && (
+              <p className="mt-1 text-xs leading-relaxed text-white/45">
+                {description}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {children && <div className="mt-5 space-y-4">{children}</div>}
       </div>
 
       {footer === null ? null : (
@@ -113,6 +164,43 @@ export function ToggleRow({
         />
       </button>
     </div>
+  );
+}
+
+/**
+ * Bare status dot, from the reserved status palette.
+ *
+ * The dot is the only *visible* cue, so `label` is carried in the accessible
+ * name instead — a screen reader announces "Verified" and a hover tooltip
+ * spells it out, rather than the state existing only as a color.
+ */
+export function StatusDot({
+  label,
+  tone = "good",
+}: {
+  label: string;
+  tone?: "good" | "warning";
+}) {
+  return (
+    <span
+      role="img"
+      aria-label={label}
+      title={label}
+      className={cn(
+        "size-2 shrink-0 rounded-full",
+        tone === "good"
+          ? "bg-[#0ca30c] shadow-[0_0_0_3px_rgba(12,163,12,0.15)]"
+          : "bg-[#fab219] shadow-[0_0_0_3px_rgba(250,178,25,0.15)]"
+      )}
+    />
+  );
+}
+
+export function ComingSoonPill() {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/35 ring-1 ring-inset ring-white/8">
+      Coming soon
+    </span>
   );
 }
 

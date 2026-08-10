@@ -1,6 +1,7 @@
 import { Sidebar } from "@/components/dashboard/layout/Sidebar";
 import { TopNavbar } from "@/components/dashboard/layout/Top-navbar";
 
+
 /**
  * Shell for every /dashboard/* route.
  *
@@ -22,12 +23,7 @@ export default function DashboardLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopNavbar />
 
-        {/* The dashboard scrolls inside this panel, not the window. Without
-           data-lenis-prevent, Lenis swallows the wheel event for the page and
-           this area stops scrolling entirely. */}
-        <main data-lenis-prevent className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

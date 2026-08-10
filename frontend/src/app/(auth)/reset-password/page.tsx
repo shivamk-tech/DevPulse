@@ -131,6 +131,7 @@ function ResetPasswordForm() {
       });
 
       setStatus("success");
+      localStorage.setItem("password-reset", "true");
     } catch (error) {
       // A 400 here almost always means the token is spent or expired — that's
       // not something retyping the password fixes, so send them back to the

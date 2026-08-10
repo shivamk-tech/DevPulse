@@ -1,25 +1,18 @@
 /**
  * Shared frame for /dashboard/settings/*.
  *
- * Navigation between the sub-pages lives in the sidebar's Settings dropdown,
- * so this only supplies the page header and a reading-width column — settings
- * forms get unusable when they stretch across a wide screen.
+ * Only a reading-width column — settings forms get unusable stretched across a
+ * wide screen. Navigation lives in the sidebar's Settings dropdown, and each
+ * page renders its own <PageHeader>, so a route's title says where you are
+ * rather than repeating the section name.
  */
+
 export default function SettingsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      <header className="mb-6">
-        <h1 className="text-xl font-semibold tracking-tight text-white">Settings</h1>
-        <p className="mt-1 text-sm text-white/45">
-          Manage your workspace, profile, and how Beacon reaches you.
-        </p>
-      </header>
-
-      <div className="space-y-6">{children}</div>
-    </div>
+    <div className="mx-auto max-w-3xl space-y-6 p-6">{children}</div>
   );
 }

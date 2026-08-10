@@ -2,8 +2,9 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-export interface LabelProps
-  extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+// A plain alias, not an empty `interface … extends` — that form is flagged as
+// equivalent to its supertype. Widen this to an interface if props get added.
+export type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement>;
 
 const Label = React.forwardRef<HTMLLabelElement, LabelProps>(
   ({ className, ...props }, ref) => {

@@ -4,7 +4,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Bell,
   ChevronDown,
@@ -85,7 +85,6 @@ export function Sidebar({
 }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
-  const [openItem, setOpenItem] = useState<string | null>(null);
 
   const toggle = () => {
     setCollapsed((prev) => {
@@ -97,13 +96,29 @@ export function Sidebar({
 
   // Landing on /dashboard/settings/security should arrive with Settings already
   // unfolded — otherwise the active child is hidden behind a closed parent.
-  useEffect(() => {
+  // Derived from the URL rather than pushed into state by an effect, which
+  // would render once with the group shut and then again with it open.
+  const routeOpenItem = useMemo(() => {
     const match = NAV_GROUPS.flatMap((group) => group.items).find(
       (item) => item.children && pathname.startsWith(item.href)
     );
 
-    if (match) setOpenItem(match.label);
+    return match?.label ?? null;
   }, [pathname]);
+
+  // `undefined` means "follow the route"; any other value is a deliberate
+  // open/close by the user, which outranks the route until they navigate.
+  const [override, setOverride] = useState<string | null | undefined>(undefined);
+  const [lastPath, setLastPath] = useState(pathname);
+
+  // Navigating hands control back to the route. Adjusting state during render
+  // is the supported pattern for this — an effect would need an extra pass.
+  if (lastPath !== pathname) {
+    setLastPath(pathname);
+    setOverride(undefined);
+  }
+
+  const openItem = override === undefined ? routeOpenItem : override;
 
   return (
     <aside
@@ -177,7 +192,7 @@ export function Sidebar({
                   pathname={pathname}
                   isOpen={openItem === item.label}
                   onToggleOpen={() =>
-                    setOpenItem((prev) => (prev === item.label ? null : item.label))
+                    setOverride(openItem === item.label ? null : item.label)
                   }
                 />
               ))}

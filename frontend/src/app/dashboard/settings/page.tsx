@@ -3,6 +3,7 @@
 import {
   DangerRow,
   Field,
+  PageHeader,
   SettingsSection,
 } from "@/components/dashboard/settings/Settings-ui";
 
@@ -11,6 +12,11 @@ import {
 export default function SettingsGeneralPage() {
   return (
     <>
+      <PageHeader
+        title="General"
+        description="Workspace name, URL, and regional defaults."
+      />
+
       <SettingsSection
         title="Workspace"
         description="How this workspace appears across Beacon and on public status pages."
