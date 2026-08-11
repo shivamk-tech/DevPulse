@@ -19,17 +19,40 @@ export function AuthProvider({
 
     const refreshUser = useCallback(async () => {
 
-        const response = await authService.me()
+        try {
+            const response = await authService.me()
+
+            setUser(response.data);
+        } catch (error) {
+            setUser(null);
+        }
 
     }, []);
 
     const logout = useCallback(async () => {
 
+        try {
+            await authService.logout()
+        } finally {
+            setUser(null)
+        }
+
     }, []);
 
     useEffect(() => {
 
-    }, []);
+        const initializeAuth = async () => {
+
+            setLoading(true)
+
+            await refreshUser();
+
+            setLoading(false)
+
+        }
+        initializeAuth();
+
+    }, [refreshUser]);
 
     return (
         <AuthContext.Provider

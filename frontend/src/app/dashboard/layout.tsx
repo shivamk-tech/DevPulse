@@ -23,7 +23,13 @@ export default function DashboardLayout({
       <div className="flex flex-1 flex-col overflow-hidden">
         <TopNavbar />
 
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        {/* data-lenis-prevent is load-bearing, not decorative: the dashboard
+           scrolls inside this panel rather than the window, and Lenis
+           otherwise swallows the wheel event for the page — leaving this area
+           frozen. Removing it makes the whole dashboard unscrollable. */}
+        <main data-lenis-prevent className="flex-1 overflow-y-auto">
+          {children}
+        </main>
       </div>
     </div>
   );
