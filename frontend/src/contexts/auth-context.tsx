@@ -1,23 +1,42 @@
-"use client"
+"use client";
 
-import { createContext } from "react"
-import { User } from "@/types/auth"
+import { createContext } from "react";
 
-import React from 'react'
+import type { User } from "@/types/auth";
 
-export interface AuthContextType {
-    user: User | null
+/**
+ * Auth is a three-state machine, not two booleans.
+ *
+ * `loading` + `isAuthenticated` gives four combinations, one of which is
+ * nonsense (loading && authenticated) and one of which is the source of nearly
+ * every auth bug: on the first render, before /auth/me answers, a logged-in
+ * user is indistinguishable from a logged-out one. A guard reading
+ * `!isAuthenticated` there redirects someone who is perfectly well signed in.
+ *
+ * One union makes that state unrepresentable — you cannot check "not
+ * authenticated" without deciding what to do about "don't know yet".
+ */
+export type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 
-    loading: boolean;
+export interface AuthContextValue {
+  /** The signed-in user, or null when unauthenticated / still loading. */
+  user: User | null;
 
-    isAuthenticated: boolean;
+  status: AuthStatus;
 
-    refreshUser: () => Promise<void>;
+  /**
+   * Re-reads the session from the server and returns the user (or null).
+   * Call after login/signup so state reflects the new session without a
+   * full page reload.
+   */
+  refreshUser: () => Promise<User | null>;
 
-    logout: () => Promise<void>;
+  /** Clears the server session and local state. Navigation is the guards' job. */
+  logout: () => Promise<void>;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-    undefined
+// `undefined` (not a default object) so `useAuth` can tell "no provider above
+// me" apart from "provider present, nobody signed in".
+export const AuthContext = createContext<AuthContextValue | undefined>(
+  undefined
 );
-

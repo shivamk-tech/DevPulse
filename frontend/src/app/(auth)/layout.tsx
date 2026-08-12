@@ -7,6 +7,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import { Card, CardContent } from "@/components/ui";
 import { AuthShowcase } from "@/components/auth/AuthShowcase";
+import { GuestGuard } from "@/components/auth/GuestGuard";
 import { EASE, swap } from "@/lib/motion";
 
 /**
@@ -50,6 +51,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           };
 
   return (
+    <GuestGuard>
     <div className="relative flex min-h-screen w-full items-start justify-center p-4 sm:items-center sm:p-6">
       {/* Ambient page background — soft indigo glow behind the card */}
       <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -169,5 +171,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </Card>
       </motion.div>
     </div>
+    </GuestGuard>
   );
 }

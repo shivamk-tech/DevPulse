@@ -16,8 +16,26 @@ export const api = axios.create({
     withCredentials: true
 })
 
-let isRedirecting = false
 let isRefreshing = false;
+
+/**
+ * Called when a session is unrecoverable — the access token was rejected and
+ * refreshing it also failed.
+ *
+ * This layer reports the fact; it does not act on it. Previously this file did
+ * `window.location.href = "/login"`, which meant the HTTP client owned a
+ * routing rule: any 401 anywhere hard-navigated to /login, full page reload,
+ * even for an anonymous visitor reading the public landing page. AuthProvider
+ * registers a handler here, flips its status, and the mounted guard decides
+ * what that means for the route the user is actually on.
+ */
+type UnauthorizedHandler = () => void;
+
+let onUnauthorized: UnauthorizedHandler | null = null;
+
+export function setUnauthorizedHandler(handler: UnauthorizedHandler | null) {
+  onUnauthorized = handler;
+}
 
 type FailedRequest = {
     resolve: () => void;
@@ -109,16 +127,15 @@ api.interceptors.response.use(
 
             processQueue(refreshError);
 
-            if (!isRedirecting) {
-                isRedirecting = true
-                window.location.href = "/login";
-            }
+            // Report, don't navigate. The provider marks the session dead and
+            // the active guard redirects if the current route requires auth.
+            onUnauthorized?.();
+
             return Promise.reject(refreshError);
 
         } finally {
 
             isRefreshing = false
-            isRedirecting = false
 
         }
     }

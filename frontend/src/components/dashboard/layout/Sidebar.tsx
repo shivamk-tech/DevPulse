@@ -19,6 +19,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
 interface NavChild {
@@ -72,19 +73,26 @@ interface SidebarProps {
   userRole?: string;
   userAvatarUrl?: string;
   onCollapsedChange?: (collapsed: boolean) => void;
-  /** Wire this up to your logout service — the sidebar deliberately doesn't. */
+  /** Overrides the context logout — mainly for tests/storybook. */
   onLogout?: () => void;
 }
 
 export function Sidebar({
-  userName = "Shivam",
-  userRole = "Owner",
+  userName,
+  userRole = "Workspace",
   userAvatarUrl,
   onCollapsedChange,
   onLogout,
 }: SidebarProps) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+
+  const fullName = [user?.first_name, user?.last_name].filter(Boolean).join(" ");
+  const displayName = userName ?? (fullName || "there");
+
+  // Falls back to the shared logout; no navigation here — AuthGuard owns it.
+  const handleLogout = onLogout ?? (() => void logout());
 
   const toggle = () => {
     setCollapsed((prev) => {
@@ -152,10 +160,10 @@ export function Sidebar({
         >
           <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] ring-2 ring-indigo-400/30">
             {userAvatarUrl ? (
-              <Image src={userAvatarUrl} alt={userName} fill className="object-cover" />
+              <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
             ) : (
               <div className="flex size-full items-center justify-center text-sm font-semibold text-white">
-                {userName.charAt(0).toUpperCase()}
+                {displayName.charAt(0).toUpperCase()}
               </div>
             )}
           </div>
@@ -165,7 +173,7 @@ export function Sidebar({
               <p className="truncate text-[10px] font-medium uppercase tracking-wider text-white/35">
                 {userRole}
               </p>
-              <p className="truncate text-sm font-medium text-white">{userName}</p>
+              <p className="truncate text-sm font-medium text-white">{displayName}</p>
             </div>
           )}
         </div>
@@ -212,7 +220,7 @@ export function Sidebar({
 
         <button
           type="button"
-          onClick={onLogout}
+          onClick={handleLogout}
           className={cn(
             "group relative flex w-full items-center gap-3 rounded-lg py-2 text-[13px] text-rose-400/80 transition-colors hover:bg-rose-500/10 hover:text-rose-300",
             collapsed ? "justify-center px-0" : "px-2.5"

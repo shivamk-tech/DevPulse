@@ -2,7 +2,6 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, Search } from "lucide-react";
 
 import {
@@ -12,24 +11,27 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { authService } from "@/services/auth/auth.service";
+import { useAuth } from "@/hooks/useAuth";
 
 interface TopNavbarProps {
+  /** Overrides the signed-in user's name; defaults to whoever is in session. */
   userName?: string;
   userAvatarUrl?: string;
 }
 
-export function TopNavbar({ userName = "Shivam", userAvatarUrl }: TopNavbarProps) {
-  const router = useRouter();
+export function TopNavbar({ userName, userAvatarUrl }: TopNavbarProps) {
+  const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    try {
-      await authService.logout();
+  // Real identity, not a hardcoded placeholder. AuthGuard guarantees a user
+  // exists by the time this renders, but the fallback keeps the component
+  // usable in isolation.
+  const displayName = userName ?? user?.first_name ?? "there";
 
-      router.replace("/login");
-    } catch (error) {
-      console.log("Logout failed : ", error);
-    }
+  // No router.replace here. logout() flips status to "unauthenticated" and
+  // AuthGuard — which already owns the redirect rule — does the navigating.
+  // Two places deciding where a logged-out user goes is how they drift apart.
+  const handleLogout = () => {
+    void logout();
   };
 
   return (
@@ -65,14 +67,14 @@ export function TopNavbar({ userName = "Shivam", userAvatarUrl }: TopNavbarProps
           <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 transition-colors hover:bg-white/5">
             <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] ring-1 ring-inset ring-white/15">
               {userAvatarUrl ? (
-                <Image src={userAvatarUrl} alt={userName} fill className="object-cover" />
+                <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
               ) : (
                 <span className="flex size-full items-center justify-center text-[11px] font-semibold text-white">
-                  {userName.charAt(0).toUpperCase()}
+                  {displayName.charAt(0).toUpperCase()}
                 </span>
               )}
             </span>
-            <span className="text-[13px] font-medium text-white/80">{userName}</span>
+            <span className="text-[13px] font-medium text-white/80">{displayName}</span>
             <ChevronDown className="size-3.5 text-white/30" />
           </DropdownMenuTrigger>
 

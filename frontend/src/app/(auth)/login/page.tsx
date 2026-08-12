@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,12 +26,15 @@ import {
 } from "@/schemas/auth/auth.schema";
 
 import { authService } from "@/services/auth/auth.service";
-
+import { useAuth } from "@/hooks/useAuth";
+import { Router } from "next/navigation";
+import { useRouter } from "next/router";
 
 export default function LoginPage() {
 
-  const router = useRouter()
   const reduce = useReducedMotion()
+  const { refreshUser } = useAuth()
+  const router = useRouter()
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -45,8 +47,14 @@ export default function LoginPage() {
   })
 
   const onSubmit = async (data: LoginFormData) => {
-    const response = await authService.login(data);
-    router.push("dashboard")
+    await authService.login(data);
+
+    // Load the session the cookies just established, then stop. Flipping status
+    // to "authenticated" is enough — GuestGuard is watching and sends the user
+    // to ?next= or /dashboard. No router call here, so the destination rule
+    // lives in exactly one file.
+    await refreshUser();
+    router.push("/dashboard")
   }
 
 
