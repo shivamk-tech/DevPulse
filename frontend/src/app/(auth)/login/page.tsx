@@ -27,8 +27,7 @@ import {
 
 import { authService } from "@/services/auth/auth.service";
 import { useAuth } from "@/hooks/useAuth";
-import { Router } from "next/navigation";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
 
