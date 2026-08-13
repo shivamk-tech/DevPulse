@@ -9,4 +9,5 @@ from rest_framework.permissions import IsAuthenticated
 class MoniterListCreateView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def 
+    def get(self, request):
+        
