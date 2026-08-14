@@ -38,13 +38,16 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
         {/* Brand */}
         <Link href="/" className="group flex items-center gap-2.5">
+          {/* The source PNG is matted on black rather than transparent, so
+             `mix-blend-screen` drops the matte out — screen over a dark
+             backdrop is a no-op, and only the white geometry survives. */}
           <Image
-            src="/brand/mark.png"
+            src="/brand/beacon-mark.png"
             alt=""
-            width={128}
-            height={128}
+            width={256}
+            height={256}
             priority
-            className="size-7 w-auto transition-transform duration-300 group-hover:scale-105"
+            className="size-7 w-auto mix-blend-screen transition-transform duration-300 group-hover:scale-105"
           />
           <span className="font-mono text-[13px] font-medium uppercase tracking-[0.2em] text-white">
             Beacon
@@ -52,10 +55,10 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <nav className="hidden items-center gap-1.5 md:flex">
+        <nav className="hidden items-center gap-1.5 lg:flex">
           {LINKS.map(([label, href]) => {
             const className =
-              "rounded-md border border-white/10 bg-white/8 px-4 py-2 font-mono text-[12px] tracking-tight text-white/80 backdrop-blur-md transition-colors duration-200 hover:bg-white/15 hover:text-white";
+              "rounded-md border border-white/10 bg-white/8 px-3 py-2 font-mono text-[12px] tracking-tight text-white/80 backdrop-blur-md transition-colors duration-200 hover:bg-white/15 hover:text-white xl:px-4";
 
             return href.startsWith("#") ? (
               <a key={label} href={href} className={className}>
@@ -70,7 +73,7 @@ export default function Navbar() {
         </nav>
 
         {/* Actions */}
-        <div className="hidden items-center gap-1.5 md:flex">
+        <div className="hidden items-center gap-1.5 lg:flex">
           <Link
             href="/signup"
             className="group flex items-center gap-1.5 rounded-md bg-white px-4 py-2 font-mono text-[12px] font-medium tracking-tight text-black transition-all duration-200 hover:bg-white/90"
@@ -93,7 +96,7 @@ export default function Navbar() {
           onClick={() => setMobileMenuOpen((open) => !open)}
           aria-label="Toggle menu"
           aria-expanded={mobileMenuOpen}
-          className="flex size-9 items-center justify-center rounded-md border border-white/10 bg-white/8 text-white backdrop-blur-md transition-colors hover:bg-white/15 md:hidden"
+          className="flex size-9 items-center justify-center rounded-md border border-white/10 bg-white/8 text-white backdrop-blur-md transition-colors hover:bg-white/15 lg:hidden"
         >
           {mobileMenuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
         </button>
@@ -106,7 +109,7 @@ export default function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={reduce ? undefined : { opacity: 0, y: -8 }}
             transition={{ duration: 0.2, ease: EASE }}
-            className="mx-auto mt-3 max-w-7xl rounded-xl border border-white/10 bg-black/80 p-2 backdrop-blur-xl md:hidden"
+            className="mx-auto mt-3 max-w-7xl rounded-xl border border-white/10 bg-black/80 p-2 backdrop-blur-xl lg:hidden"
           >
             <nav className="flex flex-col">
               {LINKS.map(([label, href]) => {

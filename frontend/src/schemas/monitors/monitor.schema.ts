@@ -60,7 +60,6 @@ export const createMonitorSchema = z
       .min(MIN_TIMEOUT, `Timeout must be at least ${MIN_TIMEOUT} second.`)
       .max(MAX_TIMEOUT, `Timeout cannot exceed ${MAX_TIMEOUT} seconds.`),
 
-    isActive: z.boolean(),
   })
   // A timeout longer than the interval means a check is still waiting when the
   // next one is due — checks pile up. Cross-field, so it lives here rather than
@@ -79,5 +78,18 @@ export const CREATE_MONITOR_DEFAULTS: CreateMonitorFormData = {
   method: "GET",
   interval: 60,
   timeout: 10,
-  isActive: true,
 };
+
+/** Human phrasing for an interval in seconds — "60" reads worse than "1 minute". */
+export function formatInterval(seconds: number) {
+  if (!Number.isFinite(seconds)) return "—";
+  if (seconds < 60) return `${seconds} seconds`;
+
+  const minutes = Math.round(seconds / 60);
+
+  if (minutes < 60) return minutes === 1 ? "minute" : `${minutes} minutes`;
+
+  const hours = Math.round(minutes / 60);
+
+  return hours === 1 ? "hour" : `${hours} hours`;
+}

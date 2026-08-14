@@ -259,6 +259,24 @@ body {
   }
 }
 
+/* Chrome paints autofilled fields with its own pale blue background and blue
+   text, ignoring every background rule you write. It cannot be overridden
+   directly — the trick is an inset box-shadow large enough to cover the field,
+   plus text-fill-color for the value. Without this, every remembered email and
+   password turns a dark form bright blue. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0d0d10 inset !important;
+  box-shadow: 0 0 0 1000px #0d0d10 inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff;
+  /* Long delay rather than `none`: Chrome re-applies its own styling on a
+     timer, and a slow transition outlasts it. */
+  transition: background-color 100000s ease-in-out 0s;
+}
+
 /* Anyone who asks for less motion gets none of the above: Lenis never mounts
    (see SmoothScroll), and CSS transitions collapse to instant. */
 @media (prefers-reduced-motion: reduce) {

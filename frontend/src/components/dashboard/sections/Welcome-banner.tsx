@@ -35,7 +35,7 @@ export function WelcomeBanner({
       </div>
 
       <Button
-        variant="gradient"
+        variant="white"
         size="sm"
         leftSection={<Plus className="size-4" />}
         onClick={onCreateMonitor}

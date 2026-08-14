@@ -30,7 +30,7 @@ export function TipsCard({
 
             <Link
                 href={linkHref}
-                className="group mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-indigo-300 transition-colors hover:text-indigo-200"
+                className="group mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/80 transition-colors hover:text-white"
             >
                 {linkLabel}
                 <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />

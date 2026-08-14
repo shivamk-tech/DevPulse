@@ -63,7 +63,7 @@ export function QuickStart() {
       {/* Progress track — one honest bar beats four "Pending" badges */}
       <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/6">
         <div
-          className="h-full rounded-full bg-linear-to-r from-[#6366f1] to-[#4f46e5] transition-[width] duration-500"
+          className="h-full rounded-full bg-white transition-[width] duration-500"
           style={{ width: `${(done / STEPS.length) * 100}%` }}
         />
       </div>
@@ -98,7 +98,7 @@ function StepRow({ step }: { step: QuickStartStep }) {
           className={cn(
             "flex size-8 shrink-0 items-center justify-center rounded-lg border transition-colors",
             isDone && "border-emerald-400/25 bg-emerald-500/10",
-            isCurrent && "border-indigo-400/30 bg-indigo-500/12",
+            isCurrent && "border-white/25 bg-white/8",
             !isDone && !isCurrent && "border-white/7 bg-white/2"
           )}
         >
@@ -106,7 +106,7 @@ function StepRow({ step }: { step: QuickStartStep }) {
             <Check className="size-4 text-emerald-400" strokeWidth={2.5} />
           ) : (
             <Icon
-              className={cn("size-4", isCurrent ? "text-indigo-300" : "text-white/30")}
+              className={cn("size-4", isCurrent ? "text-white/80" : "text-white/30")}
             />
           )}
         </span>
@@ -127,7 +127,7 @@ function StepRow({ step }: { step: QuickStartStep }) {
 
         {/* Only the actionable step advertises itself */}
         {isCurrent && (
-          <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-indigo-300">
+          <span className="flex shrink-0 items-center gap-1 text-xs font-medium text-white/80">
             Start
             <ChevronRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
           </span>

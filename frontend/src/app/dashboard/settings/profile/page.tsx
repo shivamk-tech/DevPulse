@@ -37,7 +37,7 @@ export default function SettingsProfilePage() {
         description="A square image works best — at least 128×128."
       >
         <div className="flex items-center gap-4">
-          <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] text-xl font-semibold text-white ring-2 ring-indigo-400/30">
+          <div className="flex size-16 shrink-0 items-center justify-center rounded-full bg-white/10 text-xl font-semibold text-white ring-2 ring-white/20">
             S
           </div>
 

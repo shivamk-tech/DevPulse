@@ -312,12 +312,12 @@ function ResetPasswordForm() {
       <motion.div variants={fadeInUpSm}>
         <Button
           type="submit"
-          variant="gradient"
+          variant="white"
           size="lg"
           fullWidth
           loading={form.formState.isSubmitting}
           leftSection={<KeyRound className="size-4" />}
-          className="h-11"
+          className="h-10"
         >
           {form.formState.isSubmitting ? "Updating password..." : "Reset Password"}
         </Button>
@@ -362,7 +362,7 @@ function InvalidLinkState({
       </p>
 
       <Link href="/forgot-password" className="mt-6 w-full">
-        <Button variant="gradient" size="lg" fullWidth className="h-11">
+        <Button variant="white" size="lg" fullWidth className="h-10">
           Request a new link
         </Button>
       </Link>
@@ -441,7 +441,7 @@ function SuccessState({
       </p>
 
       <Link href="/login?reset=true" className="mt-6 w-full">
-        <Button variant="gradient" size="lg" fullWidth className="h-11">
+        <Button variant="white" size="lg" fullWidth className="h-10">
           Continue to Login
         </Button>
       </Link>

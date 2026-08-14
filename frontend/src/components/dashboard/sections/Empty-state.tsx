@@ -19,10 +19,10 @@ interface EmptyStateProps {
 export function EmptyState({ onCreateMonitor }: EmptyStateProps) {
   return (
     <Panel className="relative overflow-hidden px-6 py-14 text-center">
-      {/* Soft indigo wash from the top, same ambient treatment as the auth card */}
+      {/* Soft neutral wash from the top — the only lift on an otherwise flat panel */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.14),transparent_70%)]"
+        className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]"
       />
 
       <div className="relative flex flex-col items-center">
@@ -30,14 +30,14 @@ export function EmptyState({ onCreateMonitor }: EmptyStateProps) {
         <div className="relative flex size-14 items-center justify-center">
           <span
             aria-hidden
-            className="absolute inset-0 rounded-2xl border border-indigo-400/15"
+            className="absolute inset-0 rounded-2xl border border-white/10"
           />
           <span
             aria-hidden
-            className="absolute inset-1.5 rounded-xl border border-indigo-400/25"
+            className="absolute inset-1.5 rounded-xl border border-white/20"
           />
-          <span className="relative flex size-9 items-center justify-center rounded-lg bg-linear-to-b from-indigo-500/25 to-indigo-500/5 ring-1 ring-inset ring-indigo-400/30">
-            <Radio className="size-4 text-indigo-300" />
+          <span className="relative flex size-9 items-center justify-center rounded-lg bg-white/8 ring-1 ring-inset ring-white/20">
+            <Radio className="size-4 text-white/80" />
           </span>
         </div>
 
@@ -49,7 +49,7 @@ export function EmptyState({ onCreateMonitor }: EmptyStateProps) {
         </p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Button variant="gradient" size="sm" onClick={onCreateMonitor} className="h-9">
+          <Button variant="white" size="sm" onClick={onCreateMonitor} className="h-9">
             Create your first monitor
           </Button>
 

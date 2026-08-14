@@ -41,6 +41,13 @@ const buttonVariants = cva(
                 gradient:
                     "text-white bg-[linear-gradient(180deg,rgba(255,255,255,0.22),transparent_45%),linear-gradient(180deg,#6366f1,#4f46e5)] ring-1 ring-inset ring-white/15 shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:brightness-110",
 
+                // Primary action in the monochrome theme. On a near-black UI
+                // white *is* the loudest colour available, so it needs no glow
+                // or gradient to read as primary — flat white on black already
+                // has more contrast than any accent could.
+                white:
+                    "bg-white text-black hover:bg-white/90 disabled:hover:bg-white",
+
                 secondary:
                     "bg-muted text-foreground hover:bg-muted/80",
 

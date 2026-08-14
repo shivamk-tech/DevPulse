@@ -29,7 +29,7 @@ export default function MonitorsPage() {
         </div>
 
         <Button
-          variant="gradient"
+          variant="white"
           size="sm"
           leftSection={<Plus className="size-4" />}
           onClick={() => setCreateOpen(true)}
@@ -42,12 +42,12 @@ export default function MonitorsPage() {
       <Panel className="relative overflow-hidden px-6 py-14 text-center">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.14),transparent_70%)]"
+          className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]"
         />
 
         <div className="relative flex flex-col items-center">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-linear-to-b from-indigo-500/25 to-indigo-500/5 ring-1 ring-inset ring-indigo-400/30">
-            <Radio className="size-4 text-indigo-300" />
+          <span className="flex size-9 items-center justify-center rounded-lg bg-white/8 ring-1 ring-inset ring-white/20">
+            <Radio className="size-4 text-white/80" />
           </span>
 
           <h2 className="mt-5 text-base font-medium text-white">No monitors yet</h2>
@@ -57,7 +57,7 @@ export default function MonitorsPage() {
           </p>
 
           <Button
-            variant="gradient"
+            variant="white"
             size="sm"
             onClick={() => setCreateOpen(true)}
             className="mt-6 h-9"

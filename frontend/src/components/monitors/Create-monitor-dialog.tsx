@@ -137,8 +137,8 @@ export function CreateMonitorDialog({
             >
               <DialogHeader>
                 <div className="flex items-start gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-linear-to-b from-indigo-500/25 to-indigo-500/5 ring-1 ring-inset ring-indigo-400/30">
-                    <Radio className="size-4 text-indigo-300" />
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/8 ring-1 ring-inset ring-white/20">
+                    <Radio className="size-4 text-white/80" />
                   </span>
 
                   <div className="min-w-0">
@@ -221,7 +221,7 @@ export function CreateMonitorDialog({
                               {selected && (
                                 <motion.span
                                   layoutId="methodPill"
-                                  className="absolute inset-0 rounded-md bg-linear-to-b from-[#6366f1] to-[#4f46e5] shadow-sm shadow-indigo-500/30"
+                                  className="absolute inset-0 rounded-md bg-white/10 shadow-sm shadow-black/40"
                                   transition={
                                     reduce
                                       ? { duration: 0 }
@@ -260,7 +260,7 @@ export function CreateMonitorDialog({
                             className={cn(
                               "rounded-lg border px-3 py-1.5 text-[13px] font-medium transition-colors",
                               field.value === preset.value
-                                ? "border-indigo-400/40 bg-indigo-500/15 text-indigo-200"
+                                ? "border-white/30 bg-white/10 text-white"
                                 : "border-white/10 bg-white/3 text-white/50 hover:border-white/20 hover:text-white/80"
                             )}
                           >
@@ -387,7 +387,7 @@ export function CreateMonitorDialog({
 
                 <Button
                   type="submit"
-                  variant="gradient"
+                  variant="white"
                   size="sm"
                   loading={form.formState.isSubmitting}
                   className="h-9"

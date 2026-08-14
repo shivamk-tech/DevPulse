@@ -78,6 +78,8 @@ export const changePasswordSchema = z
     }
   );
 
+
+  
 export type SignupFormData = z.infer<typeof signupSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;

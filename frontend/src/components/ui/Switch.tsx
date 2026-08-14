@@ -40,17 +40,18 @@ export function Switch({
       onClick={() => onCheckedChange(!checked)}
       className={cn(
         "relative h-5 w-9 shrink-0 rounded-full transition-colors duration-200",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101015]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
         "disabled:cursor-not-allowed disabled:opacity-50",
-        checked ? "bg-indigo-500" : "bg-white/10",
+        checked ? "bg-white" : "bg-white/10",
         className
       )}
       {...props}
     >
       <span
         className={cn(
-          "absolute top-0.5 size-4 rounded-full bg-white shadow-sm transition-transform duration-200",
-          checked ? "translate-x-4.5" : "translate-x-0.5"
+          "absolute top-0.5 size-4 rounded-full shadow-sm transition-all duration-200",
+          // Knob inverts when the track turns white, or it disappears into it.
+          checked ? "translate-x-4.5 bg-black" : "translate-x-0.5 bg-white"
         )}
       />
     </button>

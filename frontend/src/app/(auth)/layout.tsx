@@ -1,162 +1,138 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
-import { Card, CardContent } from "@/components/ui";
-import { AuthShowcase } from "@/components/auth/AuthShowcase";
 import { GuestGuard } from "@/components/auth/GuestGuard";
-import { EASE, swap } from "@/lib/motion";
+import { swap } from "@/lib/motion";
 
 /**
- * Shared shell for /signup, /login, and /forgot-password. It stays mounted
- * while you navigate between these sibling routes, so the image panel,
- * brand, and toggle never re-mount — only the form (children) swaps. Mode is
- * derived from the URL, so there's no useState: the pathname IS the state.
+ * Brand panel backdrop. Point this at an image in /public/auth to replace the
+ * CSS halftone below — the overlay and centred content stay as they are.
+ */
+const PANEL_IMAGE: string | null = "/auth/loginPage.png";
+
+/**
+ * Shared shell for /signup, /login, /forgot-password, /reset-password.
+ *
+ * A full-bleed split rather than a floating card: the form gets the whole right
+ * half, so fields can breathe instead of being squeezed into a fixed box, and
+ * the brand panel is free to bleed to the edges. The shell stays mounted across
+ * these sibling routes — only the form swaps.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const reduce = useReducedMotion();
+
   const isSignup = pathname?.includes("signup") ?? false;
   const isForgotPassword = pathname?.includes("forgot-password") ?? false;
   const isResetPassword = pathname?.includes("reset-password") ?? false;
-  const reduce = useReducedMotion();
 
-  // The Sign Up / Log In pill only makes sense on the two routes it switches
-  // between — the password-recovery steps are a linear flow, not a mode.
-  const showToggle = !isForgotPassword && !isResetPassword;
-
-  // Heading copy lives here rather than in each page so the text animates as
-  // part of the shared shell instead of swapping with the form.
   const copy = isResetPassword
     ? {
         title: "Set a new password",
-        subtitle: "Choose a strong password you haven't used before. You'll use it to log in from now on.",
+        subtitle: "Choose a strong password you haven't used before.",
       }
     : isForgotPassword
       ? {
-          title: "Forgot your password?",
-          subtitle:
-            "Enter the email associated with your account and we'll send you a password reset link.",
+          title: "Reset your password",
+          subtitle: "We'll email you a link to set a new one.",
         }
       : isSignup
-        ? {
-            title: "Create your account",
-            subtitle: "Start managing your developer workflow with Beacon.",
-          }
-        : {
-            title: "Log in to Beacon",
-            subtitle: "Enter your details to access your workspace.",
-          };
+        ? { title: "Create your Beacon account", subtitle: "Sign up with:" }
+        : { title: "Log in to Beacon", subtitle: "Connect to Beacon with:" };
 
   return (
     <GuestGuard>
-    <div className="relative flex min-h-screen w-full items-start justify-center p-4 sm:items-center sm:p-6">
-      {/* Ambient page background — soft indigo glow behind the card */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -left-40 top-0 h-[32rem] w-[32rem] rounded-full bg-[#4f46e5]/20 blur-[120px]" />
-        <div className="absolute -right-40 bottom-0 h-[32rem] w-[32rem] rounded-full bg-[#7c3aed]/20 blur-[120px]" />
-      </div>
+      <div className="flex min-h-svh bg-black">
+        {/* ---- Brand panel ---- */}
+        {/* Content is bottom-anchored, not centred: the photograph's beam and
+           lamp fill the middle of the frame, and type over the brightest part
+           of an image is the one place it can't be made to read. The lower
+           third is rock and fog — dark, quiet, and exactly where copy belongs. */}
+        <aside className="relative hidden w-1/2 overflow-hidden border-r border-white/8 lg:flex lg:items-end lg:justify-center">
+          {PANEL_IMAGE ? (
+            <Image
+              src={PANEL_IMAGE}
+              alt=""
+              fill
+              priority
+              sizes="50vw"
+              quality={90}
+              // Pulled toward neutral to sit with the monochrome theme — the
+              // beam is strongly golden at source and would be the only warm
+              // thing left in the product.
+              className="object-cover saturate-[0.55]"
+            />
+          ) : (
+            /* Halftone: a dot grid whose density is faked by masking a single
+               uniform pattern with a diagonal gradient. Cheaper and sharper at
+               any DPI than shipping an image of dots. */
+            <div
+              aria-hidden
+              className="absolute inset-0"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at center, rgba(255,255,255,0.16) 1px, transparent 1.2px)",
+                backgroundSize: "10px 10px",
+                maskImage:
+                  "radial-gradient(130% 110% at 15% 40%, black 0%, transparent 68%)",
+                WebkitMaskImage:
+                  "radial-gradient(130% 110% at 15% 40%, black 0%, transparent 68%)",
+              }}
+            />
+          )}
 
-      <motion.div
-        initial={reduce ? false : { opacity: 0, y: 16, scale: 0.99 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.4, ease: EASE }}
-        className="relative w-full max-w-5xl"
-      >
-        <Card className="relative mx-auto w-full overflow-hidden rounded-3xl border-white/10 bg-[#0B0F14]/95 p-0 shadow-2xl backdrop-blur-xl ring-1 ring-white/5">
-          {/* Mobile-only brand header (image panel is hidden below lg) */}
-          <div className="flex items-center gap-2 border-b border-white/10 px-6 py-4 text-white lg:hidden">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/30">
-              <Activity className="size-4" strokeWidth={2.5} />
-            </span>
-            <span className="text-sm font-semibold tracking-wide">Beacon</span>
+          {/* Heavier at the foot than the hero's, since the copy sits right on
+             it rather than over empty water. */}
+          <div className="absolute inset-0 bg-linear-to-t from-black via-black/45 to-black/25" />
+
+          <div className="relative flex flex-col items-center px-12 pb-16 text-center">
+            <Image
+              src="/brand/beacon-mark.png"
+              alt=""
+              width={256}
+              height={256}
+              priority
+              className="size-12 w-auto mix-blend-screen"
+            />
+
+            <p className="mt-6 max-w-sm text-[26px] font-normal leading-tight tracking-[-0.03em] text-white">
+              Know it&apos;s down
+              <br />
+              before your users do.
+            </p>
+          </div>
+        </aside>
+
+        {/* ---- Form column ---- */}
+        <div className="relative flex w-full flex-col lg:w-1/2">
+          <div className="px-6 pt-6 sm:px-10 sm:pt-8">
+            <Link
+              href="/"
+              className="group inline-flex items-center gap-2 text-sm text-white/60 transition-colors hover:text-white"
+            >
+              <ArrowLeft className="size-4 transition-transform duration-200 group-hover:-translate-x-0.5" />
+              Home
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2">
-            {/* Left panel — animated brand showcase (carousel). Self-contained;
-               swap in photographic slides via /public + the `image` field. */}
-            <AuthShowcase />
-
-            {/* Right panel — toggle (hidden on forgot-password) + heading (shared) + form (children) */}
-            <CardContent className="flex flex-col justify-center px-5 py-6 sm:px-10 sm:py-10 lg:px-14">
-              {/* Mode toggle — real navigation between the two routes.
-                 `replace` so hammering the toggle doesn't stack up history.
-                 The active pill is a shared layout element, so it slides
-                 between the two tabs instead of hard-cutting.
-                 Not relevant on the password-recovery routes, so it's hidden
-                 there rather than rendered mid-transition with neither tab
-                 active. */}
-              {showToggle && (
-                <div className="mx-auto mb-6 flex rounded-full border border-white/10 bg-white/5 p-1 sm:mb-8">
-                  <Link
-                    href="/signup"
-                    replace
-                    className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
-                  >
-                    {isSignup && (
-                      <motion.span
-                        layoutId="authTogglePill"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
-                        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
-                      />
-                    )}
-                    <span
-                      className={`relative z-10 transition-colors ${
-                        isSignup ? "text-white" : "text-white/60 hover:text-white"
-                      }`}
-                    >
-                      Sign Up
-                    </span>
-                  </Link>
-                  <Link
-                    href="/login"
-                    replace
-                    className="relative rounded-full px-4 py-1.5 text-center text-sm font-medium sm:px-5"
-                  >
-                    {!isSignup && (
-                      <motion.span
-                        layoutId="authTogglePill"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-md shadow-indigo-500/30"
-                        transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 32 }}
-                      />
-                    )}
-                    <span
-                      className={`relative z-10 transition-colors ${
-                        !isSignup ? "text-white" : "text-white/60 hover:text-white"
-                      }`}
-                    >
-                      Log In
-                    </span>
-                  </Link>
-                </div>
-              )}
-
-              <h1 className="text-center text-2xl font-semibold tracking-tight text-white sm:text-3xl">
+          <div className="flex flex-1 items-center justify-center px-6 py-12 sm:px-10">
+            <div className="w-full max-w-sm">
+              <h1 className="text-center text-[26px] font-medium tracking-[-0.02em] text-white">
                 {copy.title}
               </h1>
-              <p className="mt-2 text-center text-sm text-white/50">
+              <p className="mt-2.5 text-center text-sm text-white/45">
                 {copy.subtitle}
               </p>
 
-              {/* Form slot. AnimatePresence swaps the old form out and the new
-                 one in on each route change.
-
-                 Keeping the card the same size across login/signup:
-                 - At `sm`+ (tablet/desktop) both forms fit in ~540px once the
-                   name/password rows go two-up, so `sm:min-h-[548px]` pins the
-                   slot and the card is pixel-identical between the two modes.
-                 - On mobile the fields stack, so signup is much taller than
-                   login. We let the slot take each form's natural height there
-                   (no big reserved void under login); the one height change on
-                   swap is hidden behind the fade-out/fade-in, so it reads as a
-                   smooth transition rather than a jump. */}
-              <div className="mt-6 flex flex-col justify-center sm:mt-8 sm:min-h-[548px]">
+              <div className="mt-8">
                 <AnimatePresence mode="wait" initial={false}>
                   <motion.div
                     key={pathname}
-                    className="w-full"
                     variants={swap}
                     initial={reduce ? false : "hidden"}
                     animate="show"
@@ -166,11 +142,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                   </motion.div>
                 </AnimatePresence>
               </div>
-            </CardContent>
+            </div>
           </div>
-        </Card>
-      </motion.div>
-    </div>
+        </div>
+      </div>
     </GuestGuard>
   );
 }

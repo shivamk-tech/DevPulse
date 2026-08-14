@@ -102,7 +102,7 @@ function Overlay({
       <div className="relative flex h-full flex-col justify-between p-10">
         {/* Brand mark */}
         <div className="flex items-center gap-2.5 text-white">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#6366f1] to-[#4f46e5] shadow-lg shadow-indigo-500/40">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 ring-1 ring-inset ring-white/15">
             <Activity className="size-5" strokeWidth={2.5} />
           </span>
           <span className="text-base font-semibold tracking-wide">Beacon</span>

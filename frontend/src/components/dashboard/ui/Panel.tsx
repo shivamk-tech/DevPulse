@@ -21,7 +21,7 @@ export function Panel({
   return (
     <section
       className={cn(
-        "rounded-xl border border-white/7 bg-[#101015]",
+        "rounded-xl border border-white/7 bg-black",
         className
       )}
     >

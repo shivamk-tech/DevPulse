@@ -50,7 +50,7 @@ export function SettingsSection({
   children?: React.ReactNode;
 }) {
   return (
-    <Panel className={cn("overflow-hidden", muted && "bg-[#0D0D11]")}>
+    <Panel className={cn("overflow-hidden", muted && "bg-black")}>
       <div className="p-5">
         <div className="flex items-start gap-3">
           {Icon && (
@@ -89,9 +89,9 @@ export function SettingsSection({
       </div>
 
       {footer === null ? null : (
-        <div className="flex items-center justify-end gap-3 border-t border-white/7 bg-white/2 px-5 py-3">
+        <div className="flex items-center justify-end gap-3 border-t border-white/7 px-5 py-3">
           {footer ?? (
-            <Button type="button" variant="gradient" size="sm" className="h-9">
+            <Button type="button" variant="white" size="sm" className="h-9">
               Save changes
             </Button>
           )}
@@ -153,7 +153,7 @@ export function ToggleRow({
         onClick={() => setChecked((prev) => !prev)}
         className={cn(
           "relative mt-0.5 h-5 w-9 shrink-0 rounded-full transition-colors duration-200",
-          checked ? "bg-indigo-500" : "bg-white/10"
+          checked ? "bg-white" : "bg-white/10"
         )}
       >
         <span

@@ -35,7 +35,7 @@ export function TopNavbar({ userName, userAvatarUrl }: TopNavbarProps) {
   };
 
   return (
-    <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-white/7 bg-[#0B0B0F] px-5">
+    <header className="flex h-14 shrink-0 items-center justify-between gap-4 border-b border-white/7 bg-black px-5">
       {/* Search — wider than the old 320px cap so the placeholder isn't clipped */}
       <div className="max-w-md flex-1">
         <div className="relative">
@@ -65,7 +65,7 @@ export function TopNavbar({ userName, userAvatarUrl }: TopNavbarProps) {
              wrapping another inside produced invalid HTML and a hydration
              mismatch. Style the trigger directly instead. */}
           <DropdownMenuTrigger className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 transition-colors hover:bg-white/5">
-            <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] ring-1 ring-inset ring-white/15">
+            <span className="relative size-7 shrink-0 overflow-hidden rounded-full bg-white/10 ring-1 ring-inset ring-white/15">
               {userAvatarUrl ? (
                 <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
               ) : (

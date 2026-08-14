@@ -131,7 +131,7 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "relative flex h-screen shrink-0 flex-col justify-between border-r border-white/7 bg-[#0B0B0F] transition-[width] duration-200 ease-in-out",
+        "relative flex h-screen shrink-0 flex-col justify-between border-r border-white/7 bg-black transition-[width] duration-200 ease-in-out",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -141,7 +141,7 @@ export function Sidebar({
         type="button"
         onClick={toggle}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="absolute -right-3.5 top-6 z-20 flex size-7 items-center justify-center rounded-full border border-white/10 bg-[#16161c] text-white/50 shadow-lg shadow-black/40 transition-colors hover:border-white/20 hover:text-white"
+        className="absolute -right-3.5 top-6 z-20 flex size-7 items-center justify-center rounded-full border border-white/10 bg-black text-white/50 shadow-lg shadow-black/40 transition-colors hover:border-white/20 hover:text-white"
       >
         {collapsed ? (
           <ChevronRight className="size-4" />
@@ -158,7 +158,7 @@ export function Sidebar({
             collapsed && "justify-center px-0"
           )}
         >
-          <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-linear-to-b from-[#6366f1] to-[#4f46e5] ring-2 ring-indigo-400/30">
+          <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-white/10 ring-2 ring-white/20">
             {userAvatarUrl ? (
               <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
             ) : (
@@ -222,7 +222,7 @@ export function Sidebar({
           type="button"
           onClick={handleLogout}
           className={cn(
-            "group relative flex w-full items-center gap-3 rounded-lg py-2 text-[13px] text-rose-400/80 transition-colors hover:bg-rose-500/10 hover:text-rose-300",
+            "group relative flex w-full items-center gap-3 rounded-lg py-2 text-[13px] text-white/50 transition-colors hover:bg-white/5 hover:text-white",
             collapsed ? "justify-center px-0" : "px-2.5"
           )}
         >
@@ -266,7 +266,7 @@ function NavRow({
 
   const iconEl = (
     <Icon
-      className={cn("size-4.5 shrink-0", isActive && "text-indigo-300")}
+      className={cn("size-4.5 shrink-0", isActive && "text-white/80")}
     />
   );
 
@@ -280,7 +280,7 @@ function NavRow({
         </Link>
 
         <Flyout>
-          <div className="min-w-44 rounded-xl border border-white/10 bg-[#16161c] p-1.5 shadow-xl shadow-black/50">
+          <div className="min-w-44 rounded-xl border border-white/10 bg-black p-1.5 shadow-xl shadow-black/50">
             {item.children!.map((child) => (
               <ChildLink key={child.href} child={child} pathname={pathname} />
             ))}
@@ -376,7 +376,7 @@ function Tooltip({ label }: { label: string }) {
   return (
     <span
       role="tooltip"
-      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-[#16161c] px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-xl shadow-black/50 transition-opacity duration-150 group-hover:opacity-100"
+      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-xl shadow-black/50 transition-opacity duration-150 group-hover:opacity-100"
     >
       {label}
     </span>

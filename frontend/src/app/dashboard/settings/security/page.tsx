@@ -196,7 +196,7 @@ function ChangePasswordSection() {
             </Button>
             <Button
               type="submit"
-              variant="gradient"
+              variant="white"
               size="sm"
               loading={form.formState.isSubmitting}
               className="h-9"

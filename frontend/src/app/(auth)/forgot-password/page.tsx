@@ -133,11 +133,11 @@ export default function ForgotPasswordPage() {
       <motion.div variants={fadeInUpSm}>
         <Button
           type="submit"
-          variant="gradient"
+          variant="white"
           size="lg"
           fullWidth
           loading={form.formState.isSubmitting}
-          className="h-11"
+          className="h-10"
         >
           {form.formState.isSubmitting ? "Sending link..." : "Send reset link"}
         </Button>
@@ -147,7 +147,7 @@ export default function ForgotPasswordPage() {
         Remembered it?{" "}
         <Link
           href="/login"
-          className="font-medium text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline"
+          className="font-medium text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline"
         >
           Back to login
         </Link>
@@ -204,7 +204,7 @@ function SentState({
       aria-live="polite"
     >
       <motion.div
-        className="relative flex size-16 items-center justify-center rounded-2xl bg-indigo-500/10 ring-1 ring-indigo-400/20"
+        className="relative flex size-16 items-center justify-center rounded-2xl bg-white/8 ring-1 ring-white/15"
         initial={reduce ? false : { scale: 0.85 }}
         animate={{ scale: 1 }}
         transition={reduce ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 20 }}
@@ -212,14 +212,14 @@ function SentState({
         {!reduce && (
           <motion.span
             aria-hidden
-            className="absolute inset-0 rounded-2xl ring-2 ring-indigo-400/30"
+            className="absolute inset-0 rounded-2xl ring-2 ring-white/25"
             initial={{ scale: 1, opacity: 0.8 }}
             animate={{ scale: 1.4, opacity: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
           />
         )}
 
-        <MailCheck className="size-7 text-indigo-300" strokeWidth={2} />
+        <MailCheck className="size-7 text-white/80" strokeWidth={2} />
       </motion.div>
 
       <h2 className="mt-5 text-lg font-semibold text-white">Check your inbox</h2>
@@ -239,7 +239,7 @@ function SentState({
           loading={resending}
           disabled={secondsLeft > 0}
           onClick={handleResend}
-          className="h-11"
+          className="h-10"
         >
           {secondsLeft > 0 ? `Resend in ${secondsLeft}s` : "Resend email"}
         </Button>

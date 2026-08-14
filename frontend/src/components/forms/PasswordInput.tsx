@@ -17,7 +17,12 @@ export function PasswordInput(props: InputProps) {
           type="button"
           tabIndex={-1}
           onClick={() => setShowPassword((prev) => !prev)}
-          className="flex h-full items-center justify-center leading-none text-muted-foreground transition-colors hover:text-foreground"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+          // `text-muted-foreground` resolves to a fairly bright grey, which put
+          // the toggle brighter than the placeholder beside it and made it the
+          // loudest thing in a resting field. Matched to the placeholder at
+          // rest, lifting to near-white on hover so it's clearly interactive.
+          className="flex h-full items-center justify-center leading-none text-white/30 transition-colors hover:text-white/80"
         >
           {showPassword ? (
             <EyeOff className="size-4 shrink-0" />

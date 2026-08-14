@@ -137,9 +137,9 @@ export default function SignupPage() {
           />
           <Label htmlFor="terms" className="text-sm font-normal leading-5 text-white/50">
             I agree to the{" "}
-            <Link href="/terms" className="text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">Terms of Service</Link>{" "}
+            <Link href="/terms" className="text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline">Terms of Service</Link>{" "}
             and{" "}
-            <Link href="/privacy" className="text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">Privacy Policy</Link>
+            <Link href="/privacy" className="text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline">Privacy Policy</Link>
           </Label>
         </div>
         <p className="min-h-4 text-xs leading-4 text-red-500">
@@ -151,11 +151,11 @@ export default function SignupPage() {
       <motion.div variants={fadeInUpSm}>
         <Button
           type="submit"
-          variant="gradient"
+          variant="white"
           disabled={form.formState.isSubmitting}
           loading={form.formState.isSubmitting}
           fullWidth
-          className="h-11"
+          className="h-10"
         >
           {form.formState.isSubmitting ? "Creating account..." : "Create account"}
         </Button>
@@ -175,7 +175,7 @@ export default function SignupPage() {
           variant="outline"
           fullWidth
           leftSection={<GoogleIcon className="size-4" />}
-          className="h-11 border-white/10 bg-white/5 text-white transition-colors hover:border-white/20 hover:bg-white/10"
+          className="h-10 border-white/10 bg-white/5 text-white transition-colors hover:border-white/20 hover:bg-white/10"
         >
           Continue with Google
         </Button>
@@ -184,7 +184,7 @@ export default function SignupPage() {
       {/* Footer — navigates to the login route */}
       <motion.p variants={fadeInUpSm} className="text-center text-sm text-white/50">
         Already have an account?{" "}
-        <Link href="/login" replace className="font-medium text-[#818cf8] transition-colors hover:text-[#a5b4fc] hover:underline">
+        <Link href="/login" replace className="font-medium text-white/70 underline-offset-4 transition-colors hover:text-white hover:underline">
           Sign In
         </Link>
       </motion.p>
