@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ThemeProviders from "@/components/providers/ThemeProviders"
 import { SmoothScroll } from "@/components/providers/SmoothScroll";
@@ -12,6 +12,14 @@ import { AuthProvider } from "@/components/providers/AuthProvider";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
+  display: "swap",
+});
+
+// Monospace, used only for the landing page's nav chips, eyebrows, and small
+// caps labels. Inter remains the app's body face everywhere else.
+const geistMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -28,7 +36,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "font-sans", inter.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        "font-sans",
+        inter.variable,
+        geistMono.variable
+      )}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">

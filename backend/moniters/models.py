@@ -14,7 +14,7 @@ class Moniters(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_names="moniters"
+        related_name="moniters"
     )
 
     name = models.CharField(

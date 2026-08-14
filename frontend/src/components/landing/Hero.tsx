@@ -1,184 +1,182 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, GitBranch, Search } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
 
-import { buttonVariants } from "@/components/ui/Button";
-import Lightfall from "@/components/backgrounds/Lightfall";
-import { cn } from "@/lib/utils";
 import { EASE } from "@/lib/motion";
+import { cn } from "@/lib/utils";
 
-// Stable reference so the Lightfall effect doesn't re-init on every render.
-const LIGHTFALL_COLORS = ["#a5b4fc", "#6366f1", "#a855f7"];
+/** Background clip. Swap the path (or set to null to fall back to the CSS scene). */
+const HERO_VIDEO = "/auth/heroBg4.mp4";
 
 /**
- * Landing hero in the style of the Reflect redesign, tuned to the Beacon auth
- * palette: near-black canvas (#0B0F14), indigo-violet accents (#6366f1 →
- * #4f46e5, #818cf8), and a violet "event horizon" glowing up from behind a
- * product window that rises from the fold. Subtle glossy highlights throughout.
+ * Full-bleed cinematic hero. Type is anchored bottom-left over the image, which
+ * is what gives the layout its editorial feel — a centered headline on a photo
+ * reads as a stock template, an anchored one reads as art direction.
  */
 export function Hero() {
   const reduce = useReducedMotion();
+  const [videoReady, setVideoReady] = useState(false);
 
   const rise = {
-    hidden: { opacity: 0, y: 24 },
+    hidden: { opacity: 0, y: 20 },
     show: (i: number) => ({
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: EASE, delay: reduce ? 0 : 0.08 * i },
+      transition: { duration: 0.7, ease: EASE, delay: reduce ? 0 : 0.12 * i },
     }),
   };
 
   return (
-    <section className="relative isolate overflow-hidden bg-[#0B0F14] pt-28 sm:pt-32">
-      {/* Animated Lightfall background */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
-        <Lightfall
-          colors={LIGHTFALL_COLORS}
-          backgroundColor="#0B0F14"
-          opacity={0.6}
-          speed={0.5}
-          streakCount={3}
-          density={0.6}
-          glow={1}
-          backgroundGlow={0.4}
-          twinkle={1}
-          mouseInteraction={false}
-          mixBlendMode="screen"
-        />
-        {/* fade the streaks out toward the bottom so the product window stays clean */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#0B0F14]" />
+    <section className="relative isolate flex min-h-svh flex-col justify-end overflow-hidden bg-[#05070A]">
+      {/* ---- Backdrop ---- */}
+      <div aria-hidden className="absolute inset-0 -z-10">
+        {/* The CSS scene always renders underneath and doubles as the poster:
+           it's on screen instantly while the clip downloads, so the hero never
+           starts as a black rectangle. No poster JPEG to generate or ship. */}
+        <CssScene reduce={Boolean(reduce)} />
+
+        {/* Skipped entirely under reduced-motion — a full-screen moving
+           backdrop is precisely what that setting exists to turn off, and
+           skipping it also spares those users the download. */}
+        {HERO_VIDEO && !reduce && (
+          <video
+            className={cn(
+              "absolute inset-0 size-full object-cover transition-opacity duration-1000 ease-out",
+              videoReady ? "opacity-100" : "opacity-0"
+            )}
+            src={HERO_VIDEO}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            // Fade in only once it can actually play through, so the swap from
+            // CSS scene to footage is a dissolve rather than a pop.
+            onCanPlay={() => setVideoReady(true)}
+          />
+        )}
+
+        {/* Legibility stack. Two gradients rather than one flat scrim: the
+           bottom one carries the text, the top one keeps the nav readable,
+           and the middle of the image stays untouched. */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-40 bg-linear-to-b from-black/60 to-transparent" />
       </div>
 
-      {/* Ambient background: violet top vignette */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_0%,rgba(99,102,241,0.2),transparent_70%)]" />
-      </div>
-
-      <div className="relative z-10 mx-auto max-w-6xl px-6 text-center">
-        {/* Headline — subtle glossy white → indigo sheen */}
-        <motion.h1
+      {/* ---- Content ---- */}
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 sm:px-8 sm:pb-24">
+        <motion.p
           custom={0}
           variants={rise}
           initial={reduce ? false : "hidden"}
           animate="show"
-          className="mx-auto max-w-2xl text-balance bg-gradient-to-b from-white via-white to-[#c7d2fe] bg-clip-text text-4xl font-semibold leading-[1.05] tracking-tight text-transparent sm:text-5xl md:text-6xl"
+          className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/45"
         >
-          Ship better with Beacon
-        </motion.h1>
+          Uptime monitoring
+        </motion.p>
 
-        <motion.p
+        {/* Tracking is pulled in hard (-0.04em) — at display size the default
+           spacing looks loose, and tight tracking is most of what reads as
+           "premium" in this style of type. */}
+        <motion.h1
           custom={1}
           variants={rise}
           initial={reduce ? false : "hidden"}
           animate="show"
-          className="mx-auto mt-4 max-w-lg text-base text-white/50"
+          className="mt-5 max-w-4xl text-balance text-[clamp(2.5rem,7vw,5.5rem)] font-medium leading-[0.98] tracking-[-0.04em] text-white"
         >
-          Never miss a commit, deploy, or signal. One calm home for your whole
-          team&apos;s engineering pulse.
-        </motion.p>
+          Know it&apos;s down before your users do
+        </motion.h1>
 
-        {/* CTAs */}
-        <motion.div
+        <motion.p
           custom={2}
           variants={rise}
           initial={reduce ? false : "hidden"}
           animate="show"
-          className="mt-7 flex items-center justify-center gap-3"
+          className="mt-6 max-w-xl text-[15px] leading-relaxed text-white/55 sm:text-base"
+        >
+          Beacon checks your sites and APIs every minute, from everywhere, and
+          tells you the moment something breaks.
+        </motion.p>
+
+        <motion.div
+          custom={3}
+          variants={rise}
+          initial={reduce ? false : "hidden"}
+          animate="show"
+          className="mt-9 flex flex-wrap items-center gap-3"
         >
           <Link
             href="/signup"
-            className={cn(
-              buttonVariants({ variant: "gradient", size: "lg" }),
-              "group rounded-full px-6 text-sm"
-            )}
+            className="group flex items-center gap-2 rounded-md bg-white px-6 py-3 font-mono text-[13px] font-medium tracking-tight text-black transition-all duration-200 hover:bg-white/90"
           >
-            Start free trial
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+            Start monitoring
+            <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" />
           </Link>
+
           <Link
-            href="#features"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white/80 ring-1 ring-white/5 transition-colors hover:bg-white/10"
+            href="#overview"
+            className="rounded-md border border-white/15 bg-white/5 px-6 py-3 font-mono text-[13px] tracking-tight text-white/80 backdrop-blur-md transition-colors duration-200 hover:bg-white/12 hover:text-white"
           >
             See how it works
           </Link>
         </motion.div>
       </div>
-
-      {/* Product window mockup */}
-      <motion.div
-        custom={3}
-        variants={rise}
-        initial={reduce ? false : "hidden"}
-        animate="show"
-        className="relative z-10 mx-auto mt-16 max-w-4xl px-6"
-      >
-        <div className="relative overflow-hidden rounded-t-2xl border border-white/10 bg-[#0d1017] shadow-[0_-20px_80px_-20px_rgba(99,102,241,0.5)] ring-1 ring-white/10">
-          {/* subtle top sheen on the window */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent"
-          />
-
-          {/* window chrome */}
-          <div className="relative flex items-center gap-2 border-b border-white/[0.06] px-4 py-3">
-            <span className="h-3 w-3 rounded-full bg-white/15" />
-            <span className="h-3 w-3 rounded-full bg-white/15" />
-            <span className="h-3 w-3 rounded-full bg-white/15" />
-            <div className="mx-auto flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/40">
-              <Search className="size-3" />
-              Search Beacon…
-            </div>
-          </div>
-
-          {/* faux dashboard body */}
-          <div className="grid grid-cols-[180px_1fr] gap-px bg-white/[0.04]">
-            {/* sidebar */}
-            <div className="space-y-2 bg-[#0d1017] p-4">
-              {["Overview", "Repositories", "Deploys", "Insights", "Team"].map(
-                (label, idx) => (
-                  <div
-                    key={label}
-                    className={`flex items-center gap-2 rounded-md px-2 py-1.5 text-xs ${
-                      idx === 0
-                        ? "bg-white/[0.06] text-white ring-1 ring-white/10"
-                        : "text-white/45"
-                    }`}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#818cf8]" />
-                    {label}
-                  </div>
-                )
-              )}
-            </div>
-
-            {/* main content */}
-            <div className="space-y-3 bg-[#0d1017] p-5">
-              <div className="flex items-center justify-between">
-                <div className="h-3 w-40 rounded bg-white/10" />
-                <div className="h-6 w-24 rounded-md bg-white/[0.06]" />
-              </div>
-              {[0, 1, 2, 3, 4].map((r) => (
-                <div
-                  key={r}
-                  className="flex items-center gap-3 rounded-lg border border-white/[0.05] bg-white/[0.02] px-3 py-3"
-                >
-                  <GitBranch className="size-4 shrink-0 text-[#818cf8]" />
-                  <div className="h-2.5 rounded bg-white/10" style={{ width: `${70 - r * 8}%` }} />
-                  <div className="ml-auto h-2.5 w-10 rounded bg-white/[0.06]" />
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* fade the bottom into the page */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#0B0F14] to-transparent" />
-        </div>
-      </motion.div>
-
-      {/* page bottom fade */}
-      <div className="h-24 bg-gradient-to-b from-transparent to-[#0B0F14]" />
     </section>
+  );
+}
+
+/**
+ * The backdrop, drawn in CSS — no image asset required.
+ *
+ * Layers, back to front: a night sky wash, a low horizon glow, two drifting
+ * haze banks, a slow lighthouse beam, and a grain overlay. The grain matters
+ * more than it sounds: large flat gradients band visibly on 8-bit displays, and
+ * a little noise breaks the bands up the way film does.
+ */
+function CssScene({ reduce }: { reduce: boolean }) {
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      {/* Night sky → deep sea */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,#070A12_0%,#0A1020_35%,#070A10_70%,#05070A_100%)]" />
+
+      {/* Horizon glow, low and off-centre */}
+      <div className="absolute inset-x-0 bottom-0 h-[60%] bg-[radial-gradient(80%_100%_at_35%_100%,rgba(99,102,241,0.22),transparent_70%)]" />
+      <div className="absolute inset-x-0 top-0 h-[55%] bg-[radial-gradient(70%_90%_at_70%_0%,rgba(124,58,237,0.16),transparent_70%)]" />
+
+      {/* Haze banks. Two, at different sizes and speeds, so the drift never
+         resolves into an obvious loop. */}
+      <motion.div
+        className="absolute -left-1/4 top-[45%] h-152 w-280 rounded-full bg-indigo-500/10 blur-[130px]"
+        animate={reduce ? undefined : { x: [0, 80, 0], opacity: [0.5, 0.75, 0.5] }}
+        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        className="absolute -right-1/4 top-[30%] h-120 w-220 rounded-full bg-violet-500/10 blur-[120px]"
+        animate={reduce ? undefined : { x: [0, -60, 0], opacity: [0.4, 0.65, 0.4] }}
+        transition={{ duration: 34, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* The beam — a soft wedge sweeping the sky, echoing the mark */}
+      {!reduce && (
+        <motion.div
+          className="absolute left-1/2 top-[18%] h-168 w-104 origin-top -translate-x-1/2 bg-[conic-gradient(from_180deg_at_50%_0%,transparent_0deg,rgba(165,180,252,0.10)_14deg,transparent_28deg)] blur-2xl"
+          animate={{ rotate: [-14, 14, -14] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+
+      {/* Grain — kills gradient banding */}
+      <div
+        className="absolute inset-0 opacity-[0.16] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        }}
+      />
+    </div>
   );
 }
