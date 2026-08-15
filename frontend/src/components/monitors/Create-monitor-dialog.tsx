@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, Clock, Globe, Radio, Timer, TriangleAlert } from "lucide-react";
+import { Check, Clock, Link2, TriangleAlert } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 
 import {
@@ -16,14 +17,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Input,
-  Switch,
 } from "@/components/ui";
 import {
   CREATE_MONITOR_DEFAULTS,
   createMonitorSchema,
+  formatInterval,
   HTTP_METHODS,
-  INTERVAL_PRESETS,
   type CreateMonitorFormData,
 } from "@/schemas/monitors/monitor.schema";
 import { transition } from "@/lib/motion";
@@ -33,9 +32,9 @@ interface CreateMonitorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /**
-   * Submission hook for later. Leave it unset and the form runs a local
-   * no-op that exercises the loading and success visuals without any network
-   * call — there is deliberately no API wiring in this component.
+   * Submission hook for later. Leave it unset and the form runs a local no-op
+   * that exercises the loading and success visuals without any network call —
+   * there is deliberately no API wiring in this component.
    */
   onSubmit?: (values: CreateMonitorFormData) => Promise<void>;
 }
@@ -58,11 +57,9 @@ export function CreateMonitorDialog({
   });
 
   const interval = form.watch("interval");
-  const isActive = form.watch("isActive");
 
-  // Reset on close so reopening is a clean empty state rather than the last
-  // attempt's values and errors. Runs on close, not open, so the fields don't
-  // visibly clear while the dialog is still animating out.
+  // Reset on close, not open, so fields don't visibly clear while the dialog is
+  // still animating out.
   useEffect(() => {
     if (open) return;
 
@@ -78,8 +75,7 @@ export function CreateMonitorDialog({
     if (onSubmit) {
       await onSubmit(values);
     } else {
-      // NO API CALL. A short local delay so the submitting state is visible
-      // and reviewable. Replace by passing `onSubmit` — nothing else changes.
+      // NO API CALL. A short local delay so the submitting state is visible.
       await new Promise((resolve) => setTimeout(resolve, 900));
     }
 
@@ -98,12 +94,12 @@ export function CreateMonitorDialog({
               initial={reduce ? false : { opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={transition}
-              className="flex flex-col items-center px-6 py-14 text-center"
+              className="flex flex-col items-center px-6 py-10 text-center"
               role="status"
               aria-live="polite"
             >
               <motion.span
-                className="relative flex size-14 items-center justify-center rounded-2xl bg-emerald-500/10 ring-1 ring-emerald-400/25"
+                className="relative flex size-14 items-center justify-center rounded-md bg-white/8 ring-1 ring-white/20"
                 initial={reduce ? false : { scale: 0.85 }}
                 animate={{ scale: 1 }}
                 transition={
@@ -113,17 +109,17 @@ export function CreateMonitorDialog({
                 {!reduce && (
                   <motion.span
                     aria-hidden
-                    className="absolute inset-0 rounded-2xl ring-2 ring-emerald-400/30"
+                    className="absolute inset-0 rounded-md ring-2 ring-white/25"
                     initial={{ scale: 1, opacity: 0.8 }}
                     animate={{ scale: 1.4, opacity: 0 }}
                     transition={{ duration: 0.9, ease: "easeOut" }}
                   />
                 )}
-                <Check className="size-7 text-emerald-400" strokeWidth={2.5} />
+                <Check className="size-7 text-white" strokeWidth={2.5} />
               </motion.span>
 
-              <p className="mt-5 text-base font-semibold text-white">Monitor ready</p>
-              <p className="mt-2 max-w-xs text-sm leading-relaxed text-white/45">
+              <p className="mt-5 text-sm font-semibold text-white">Monitor ready</p>
+              <p className="mt-2 max-w-xs text-[13px] leading-relaxed text-white/45">
                 Everything checks out. Connect the API to start recording checks.
               </p>
             </motion.div>
@@ -136,58 +132,58 @@ export function CreateMonitorDialog({
               initial={false}
             >
               <DialogHeader>
-                <div className="flex items-start gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-white/8 ring-1 ring-inset ring-white/20">
-                    <Radio className="size-4 text-white/80" />
-                  </span>
-
-                  <div className="min-w-0">
-                    <DialogTitle>Create monitor</DialogTitle>
-                    <DialogDescription>
-                      Beacon will check this endpoint on a schedule and alert you when
-                      it stops responding.
-                    </DialogDescription>
-                  </div>
-                </div>
+                <DialogTitle className="text-base">Create a new monitor</DialogTitle>
+                <DialogDescription className="text-xs">
+                  Add a website or API endpoint to start monitoring.
+                </DialogDescription>
               </DialogHeader>
 
-              <DialogBody className="space-y-5">
-                {/* Name */}
+              <DialogBody className="space-y-4">
                 <Field
                   id="monitor-name"
                   label="Monitor name"
+                  description="A friendly name to identify this monitor."
                   error={form.formState.errors.name?.message}
                 >
-                  <Input
+                  <input
                     id="monitor-name"
                     autoFocus
-                    placeholder="Marketing site"
-                    error={Boolean(form.formState.errors.name)}
-                    className="border-white/10 bg-white/5 text-white placeholder:text-white/25"
+                    placeholder="e.g. Production API"
+                    className={fieldClass(Boolean(form.formState.errors.name))}
                     {...form.register("name")}
                   />
                 </Field>
 
-                {/* URL */}
                 <Field
                   id="monitor-url"
                   label="URL"
-                  hint="The endpoint to request. HTTP and HTTPS only."
+                  description="The website or API endpoint you want to monitor."
                   error={form.formState.errors.url?.message}
                 >
-                  <Input
-                    id="monitor-url"
-                    inputMode="url"
-                    placeholder="https://example.com/health"
-                    leftSection={<Globe className="size-4" />}
-                    error={Boolean(form.formState.errors.url)}
-                    className="border-white/10 bg-white/5 text-white placeholder:text-white/25"
-                    {...form.register("url")}
-                  />
+                  {/* Icon lives in its own bordered cell rather than floating
+                     inside the field — it reads as a fixed affordance instead
+                     of decoration sitting on the text. */}
+                  <div
+                    className={cn(
+                      "flex items-stretch overflow-hidden rounded-sm border transition-colors",
+                      form.formState.errors.url
+                        ? "border-red-500/50"
+                        : "border-white/12 focus-within:border-white/35"
+                    )}
+                  >
+                    <span className="flex w-9 shrink-0 items-center justify-center border-r border-white/12 text-white/35">
+                      <Link2 className="size-4" />
+                    </span>
+                    <input
+                      id="monitor-url"
+                      inputMode="url"
+                      placeholder="https://example.com/api/health"
+                      className="min-w-0 flex-1 bg-transparent px-3 py-2 text-xs text-white outline-none placeholder:text-white/25"
+                      {...form.register("url")}
+                    />
+                  </div>
                 </Field>
 
-                {/* Method — two options, so a segmented control beats a select:
-                   both choices stay visible and it's one click, not two. */}
                 <Controller
                   name="method"
                   control={form.control}
@@ -195,13 +191,15 @@ export function CreateMonitorDialog({
                     <Field
                       id="monitor-method"
                       label="HTTP method"
-                      hint="HEAD skips the response body — lighter on the target server."
+                      description="The method Beacon will use to check your endpoint."
                       error={form.formState.errors.method?.message}
                     >
+                      {/* Segmented rather than a select: with two options both
+                         stay visible and it is one click instead of two. */}
                       <div
                         role="radiogroup"
                         aria-label="HTTP method"
-                        className="inline-flex rounded-lg border border-white/10 bg-white/3 p-1"
+                        className="inline-flex rounded-sm border border-white/12 p-1"
                       >
                         {HTTP_METHODS.map((method) => {
                           const selected = field.value === method;
@@ -214,14 +212,14 @@ export function CreateMonitorDialog({
                               aria-checked={selected}
                               onClick={() => field.onChange(method)}
                               className={cn(
-                                "relative rounded-md px-4 py-1.5 text-[13px] font-medium transition-colors",
-                                selected ? "text-white" : "text-white/45 hover:text-white/80"
+                                "relative rounded-[3px] px-4 py-1 text-[11px] font-medium transition-colors",
+                                selected ? "text-black" : "text-white/45 hover:text-white/80"
                               )}
                             >
                               {selected && (
                                 <motion.span
-                                  layoutId="methodPill"
-                                  className="absolute inset-0 rounded-md bg-white/10 shadow-sm shadow-black/40"
+                                  layoutId="monitorMethodPill"
+                                  className="absolute inset-0 rounded-[3px] bg-white"
                                   transition={
                                     reduce
                                       ? { duration: 0 }
@@ -238,126 +236,68 @@ export function CreateMonitorDialog({
                   )}
                 />
 
-                {/* Interval — presets cover the realistic choices; the custom
-                   field stays available for anything else. */}
-                <Controller
-                  name="interval"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Field
-                      id="monitor-interval"
-                      label="Check interval"
-                      hint="How often Beacon requests the URL."
-                      error={form.formState.errors.interval?.message}
-                    >
-                      <div className="flex flex-wrap gap-2">
-                        {INTERVAL_PRESETS.map((preset) => (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            aria-pressed={field.value === preset.value}
-                            onClick={() => field.onChange(preset.value)}
-                            className={cn(
-                              "rounded-lg border px-3 py-1.5 text-[13px] font-medium transition-colors",
-                              field.value === preset.value
-                                ? "border-white/30 bg-white/10 text-white"
-                                : "border-white/10 bg-white/3 text-white/50 hover:border-white/20 hover:text-white/80"
-                            )}
-                          >
-                            {preset.label}
-                          </button>
-                        ))}
-                      </div>
-
-                      <div className="mt-2 flex items-center gap-2">
-                        <Input
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <Controller
+                    name="interval"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Field
+                        id="monitor-interval"
+                        label="Check interval"
+                        description="How often we should check this endpoint."
+                        error={form.formState.errors.interval?.message}
+                      >
+                        <NumberField
                           id="monitor-interval"
-                          type="number"
+                          field={field}
                           min={30}
-                          inputMode="numeric"
-                          leftSection={<Clock className="size-4" />}
-                          error={Boolean(form.formState.errors.interval)}
-                          className="border-white/10 bg-white/5 text-white"
-                          value={Number.isNaN(field.value) ? "" : field.value}
-                          onChange={(event) =>
-                            field.onChange(
-                              event.target.value === "" ? NaN : event.target.valueAsNumber
-                            )
-                          }
-                          onBlur={field.onBlur}
+                          invalid={Boolean(form.formState.errors.interval)}
                         />
-                        <span className="shrink-0 text-xs text-white/35">seconds</span>
-                      </div>
-                    </Field>
-                  )}
-                />
+                      </Field>
+                    )}
+                  />
 
-                {/* Timeout */}
-                <Controller
-                  name="timeout"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Field
-                      id="monitor-timeout"
-                      label="Timeout"
-                      hint="How long to wait before the check counts as failed."
-                      error={form.formState.errors.timeout?.message}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Input
+                  <Controller
+                    name="timeout"
+                    control={form.control}
+                    render={({ field }) => (
+                      <Field
+                        id="monitor-timeout"
+                        label="Timeout"
+                        description="How long to wait for a response."
+                        error={form.formState.errors.timeout?.message}
+                      >
+                        <NumberField
                           id="monitor-timeout"
-                          type="number"
+                          field={field}
                           min={1}
-                          inputMode="numeric"
-                          leftSection={<Timer className="size-4" />}
-                          error={Boolean(form.formState.errors.timeout)}
-                          className="border-white/10 bg-white/5 text-white"
-                          value={Number.isNaN(field.value) ? "" : field.value}
-                          onChange={(event) =>
-                            field.onChange(
-                              event.target.value === "" ? NaN : event.target.valueAsNumber
-                            )
-                          }
-                          onBlur={field.onBlur}
+                          invalid={Boolean(form.formState.errors.timeout)}
                         />
-                        <span className="shrink-0 text-xs text-white/35">seconds</span>
-                      </div>
-                    </Field>
-                  )}
-                />
+                      </Field>
+                    )}
+                  />
+                </div>
 
-                {/* Active / Paused */}
-                <Controller
-                  name="isActive"
-                  control={form.control}
-                  render={({ field }) => (
-                    <div className="flex items-start justify-between gap-6 rounded-lg border border-white/7 bg-white/2 p-4">
-                      <div className="min-w-0">
-                        <label
-                          htmlFor="monitor-active"
-                          className="text-[13px] font-medium text-white/80"
-                        >
-                          Start checking immediately
-                        </label>
-                        <p className="mt-0.5 text-xs leading-relaxed text-white/40">
-                          {isActive
-                            ? `Runs every ${formatInterval(interval)} as soon as it's created.`
-                            : "Created in a paused state — you can start it whenever you're ready."}
-                        </p>
-                      </div>
+                {/* Restates the form in one sentence. Five controls are hard to
+                   hold in your head at once; reading the result back catches a
+                   bad combination before the server has to. */}
+                <div className="flex items-start gap-3 rounded-sm border border-white/10 bg-white/2 px-3.5 py-3">
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-full border border-white/12">
+                    <Image
+                      src="/brand/beacon-mark.png"
+                      alt=""
+                      width={256}
+                      height={256}
+                      className="size-4 w-auto mix-blend-screen"
+                    />
+                  </span>
+                  <p className="text-[11px] leading-relaxed text-white/55">
+                    Beacon will check this endpoint every{" "}
+                    <span className="text-white">{formatInterval(interval)}</span> and
+                    alert you if it goes down.
+                  </p>
+                </div>
 
-                      <Switch
-                        id="monitor-active"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        aria-label="Start checking immediately"
-                      />
-                    </div>
-                  )}
-                />
-
-                {/* Root-level failure slot. Nothing populates it today; it's the
-                   landing spot for a server error once this is wired up. */}
                 <AnimatePresence initial={false}>
                   {form.formState.errors.root && (
                     <motion.div
@@ -366,10 +306,10 @@ export function CreateMonitorDialog({
                       exit={reduce ? undefined : { opacity: 0, y: -4 }}
                       transition={transition}
                       role="alert"
-                      className="flex items-start gap-2.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3.5 py-3"
+                      className="flex items-start gap-2.5 rounded-sm border border-red-500/20 bg-red-500/10 px-3.5 py-3"
                     >
                       <TriangleAlert className="mt-px size-4 shrink-0 text-red-400" />
-                      <p className="text-[13px] leading-relaxed text-red-300">
+                      <p className="text-xs leading-relaxed text-red-300">
                         {form.formState.errors.root.message}
                       </p>
                     </motion.div>
@@ -380,7 +320,7 @@ export function CreateMonitorDialog({
               <DialogFooter>
                 <DialogClose
                   disabled={form.formState.isSubmitting}
-                  className="inline-flex h-9 items-center justify-center rounded-lg px-4 text-sm font-medium text-white/50 transition-colors hover:bg-white/5 hover:text-white disabled:pointer-events-none disabled:opacity-50"
+                  className="inline-flex h-9 items-center justify-center rounded-sm border border-white/12 px-5 text-[13px] font-medium text-white/80 transition-colors hover:bg-white/5 hover:text-white disabled:pointer-events-none disabled:opacity-50"
                 >
                   Cancel
                 </DialogClose>
@@ -388,9 +328,8 @@ export function CreateMonitorDialog({
                 <Button
                   type="submit"
                   variant="white"
-                  size="sm"
                   loading={form.formState.isSubmitting}
-                  className="h-9"
+                  className="h-9 rounded-sm px-5"
                 >
                   {form.formState.isSubmitting ? "Creating..." : "Create monitor"}
                 </Button>
@@ -403,47 +342,94 @@ export function CreateMonitorDialog({
   );
 }
 
-/** Label + control + reserved error slot, so the layout never shifts. */
+/* -------------------------------------------------------------------------- */
+
+/** Shared input surface, so every control in the dialog matches exactly. */
+function fieldClass(invalid: boolean) {
+  return cn(
+    "w-full rounded-sm border bg-transparent px-3 py-2 text-xs text-white outline-none transition-colors placeholder:text-white/25",
+    invalid ? "border-red-500/50" : "border-white/12 focus:border-white/35"
+  );
+}
+
+/** Number input with a leading icon cell and a trailing unit. */
+function NumberField({
+  id,
+  field,
+  min,
+  invalid,
+}: {
+  id: string;
+  min: number;
+  invalid: boolean;
+  field: {
+    value: number;
+    onChange: (value: number) => void;
+    onBlur: () => void;
+  };
+}) {
+  return (
+    <div
+      className={cn(
+        "flex items-stretch overflow-hidden rounded-sm border transition-colors",
+        invalid ? "border-red-500/50" : "border-white/12 focus-within:border-white/35"
+      )}
+    >
+      <span className="flex w-9 shrink-0 items-center justify-center border-r border-white/12 text-white/35">
+        <Clock className="size-4" />
+      </span>
+
+      <input
+        id={id}
+        type="number"
+        min={min}
+        inputMode="numeric"
+        // `appearance-none` kills the spinner arrows — they crowd the unit
+        // label and nobody nudges an interval one second at a time.
+        className="min-w-0 flex-1 appearance-none bg-transparent px-3 py-2 text-xs text-white outline-none [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        value={Number.isNaN(field.value) ? "" : field.value}
+        onChange={(event) =>
+          field.onChange(
+            event.target.value === "" ? NaN : event.target.valueAsNumber
+          )
+        }
+        onBlur={field.onBlur}
+      />
+
+      <span className="flex shrink-0 items-center pr-3.5 font-mono text-[11px] text-white/35">
+        seconds
+      </span>
+    </div>
+  );
+}
+
+/** Label, description, control, and a reserved error slot. */
 function Field({
   id,
   label,
-  hint,
+  description,
   error,
   children,
 }: {
   id: string;
   label: string;
-  hint?: string;
+  description?: string;
   error?: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <label htmlFor={id} className="block text-[13px] font-medium text-white/70">
+    <div>
+      <label htmlFor={id} className="block font-mono text-xs font-medium tracking-tight text-white">
         {label}
       </label>
 
-      {children}
+      {description && (
+        <p className="mt-0.5 text-[11px] leading-relaxed text-white/40">{description}</p>
+      )}
 
-      {/* One slot for hint or error, same height either way — swapping between
-         them can't nudge the fields below. */}
-      <p
-        className={cn(
-          "min-h-4 text-xs leading-4",
-          error ? "text-red-400" : "text-white/35"
-        )}
-      >
-        {error ?? hint}
-      </p>
+      <div className="mt-2">{children}</div>
+
+      <p className="min-h-3 pt-1 text-[10px] leading-3 text-red-400">{error}</p>
     </div>
   );
-}
-
-function formatInterval(seconds: number) {
-  if (!Number.isFinite(seconds)) return "the chosen interval";
-  if (seconds < 60) return `${seconds} seconds`;
-
-  const minutes = Math.round(seconds / 60);
-
-  return minutes === 1 ? "minute" : `${minutes} minutes`;
 }

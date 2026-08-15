@@ -23,8 +23,8 @@ export function PageHeader({
 }) {
   return (
     <header>
-      <h1 className="text-xl font-semibold tracking-tight text-white">{title}</h1>
-      <p className="mt-1 text-sm text-white/45">{description}</p>
+      <h1 className="text-lg font-semibold tracking-tight text-white">{title}</h1>
+      <p className="mt-1 text-[13px] text-white/45">{description}</p>
     </header>
   );
 }
@@ -68,7 +68,7 @@ export function SettingsSection({
             <div className="flex flex-wrap items-center gap-2">
               <h2
                 className={cn(
-                  "text-sm font-medium",
+                  "font-mono text-[13px] font-medium tracking-tight",
                   muted ? "text-white/60" : "text-white"
                 )}
               >
@@ -78,7 +78,7 @@ export function SettingsSection({
             </div>
 
             {description && (
-              <p className="mt-1 text-xs leading-relaxed text-white/45">
+              <p className="mt-1 text-[11px] leading-relaxed text-white/45">
                 {description}
               </p>
             )}
@@ -91,7 +91,7 @@ export function SettingsSection({
       {footer === null ? null : (
         <div className="flex items-center justify-end gap-3 border-t border-white/7 px-5 py-3">
           {footer ?? (
-            <Button type="button" variant="white" size="sm" className="h-9">
+            <Button type="button" variant="white" size="sm" className="h-8">
               Save changes
             </Button>
           )}
@@ -109,7 +109,7 @@ export function Field({
 }: InputProps & { label: string; hint?: string; id: string }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="block text-[13px] font-medium text-white/70">
+      <label htmlFor={id} className="block text-xs font-medium text-white/70">
         {label}
       </label>
 
@@ -119,7 +119,7 @@ export function Field({
         {...props}
       />
 
-      {hint && <p className="text-xs text-white/35">{hint}</p>}
+      {hint && <p className="text-[11px] text-white/35">{hint}</p>}
     </div>
   );
 }
@@ -139,9 +139,9 @@ export function ToggleRow({
   return (
     <div className="flex items-start justify-between gap-6 border-b border-white/6 pb-4 last:border-0 last:pb-0">
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-white/80">{label}</p>
+        <p className="text-xs font-medium text-white/80">{label}</p>
         {description && (
-          <p className="mt-0.5 text-xs leading-relaxed text-white/40">{description}</p>
+          <p className="mt-0.5 text-[11px] leading-relaxed text-white/40">{description}</p>
         )}
       </div>
 
@@ -198,7 +198,7 @@ export function StatusDot({
 
 export function ComingSoonPill() {
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2 py-0.5 text-[11px] font-medium text-white/35 ring-1 ring-inset ring-white/8">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2 py-0.5 text-[10px] font-medium text-white/35 ring-1 ring-inset ring-white/8">
       Coming soon
     </span>
   );
@@ -217,13 +217,13 @@ export function DangerRow({
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border border-rose-500/20 bg-rose-500/5 p-4">
       <div className="min-w-0">
-        <p className="text-[13px] font-medium text-rose-200">{title}</p>
-        <p className="mt-0.5 text-xs leading-relaxed text-white/40">{description}</p>
+        <p className="text-xs font-medium text-rose-200">{title}</p>
+        <p className="mt-0.5 text-[11px] leading-relaxed text-white/40">{description}</p>
       </div>
 
       <button
         type="button"
-        className="shrink-0 rounded-lg border border-rose-500/30 px-3 py-1.5 text-xs font-medium text-rose-300 transition-colors hover:bg-rose-500/15 hover:text-rose-200"
+        className="shrink-0 rounded-lg border border-rose-500/30 px-3 py-1.5 text-[11px] font-medium text-rose-300 transition-colors hover:bg-rose-500/15 hover:text-rose-200"
       >
         {actionLabel}
       </button>

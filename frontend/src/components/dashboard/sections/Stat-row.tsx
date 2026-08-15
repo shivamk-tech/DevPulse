@@ -83,7 +83,7 @@ function StatTile({ stat }: { stat: Stat }) {
   return (
     <Panel className="p-4">
       <div className="flex items-center justify-between gap-2">
-        <span className="truncate text-xs font-medium text-white/45">{stat.label}</span>
+        <span className="truncate font-mono text-[11px] font-medium tracking-tight text-white/45">{stat.label}</span>
         <Icon className="size-3.5 shrink-0 text-white/25" />
       </div>
 
@@ -91,7 +91,7 @@ function StatTile({ stat }: { stat: Stat }) {
          standing alone, and tabular would space `121` out awkwardly. */}
       <p
         className={cn(
-          "mt-3 text-2xl font-semibold leading-none tracking-tight",
+          "mt-3 font-mono text-xl font-semibold leading-none tracking-tight",
           isEmpty ? "text-white/25" : "text-white"
         )}
       >
@@ -100,7 +100,7 @@ function StatTile({ stat }: { stat: Stat }) {
 
       {/* Status is never carried by color alone — the dot always travels with
          this label. */}
-      <p className="mt-2 flex items-center gap-1.5 text-[11px] text-white/40">
+      <p className="mt-2 flex items-center gap-1.5 text-[10px] text-white/40">
         {stat.tone && stat.tone !== "neutral" && (
           <span
             aria-hidden

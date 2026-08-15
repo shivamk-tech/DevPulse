@@ -25,13 +25,21 @@ export function WelcomeBanner({
 }: WelcomeBannerProps) {
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
+      {/* Set like a landing section rather than a dashboard title bar: mono
+         eyebrow with a dot, then a two-tone line where the greeting is white
+         and the context drops to grey. That split is the landing page's
+         signature move, and it makes the eye land on the name instead of
+         reading a flat sentence. */}
       <div>
-        <h1 className="text-xl font-semibold tracking-tight text-white">
-          Welcome back, {userName}
-        </h1>
-        <p className="mt-1 text-sm text-white/45">
-          Here&apos;s the state of your infrastructure.
+        <p className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">
+          <span aria-hidden className="size-1 rounded-full bg-white/45" />
+          Overview
         </p>
+
+        <h1 className="mt-3 text-xl font-normal leading-tight tracking-[-0.02em] text-white sm:text-2xl">
+          Welcome back, {userName}.{" "}
+          <span className="text-white/30">Here&apos;s where things stand.</span>
+        </h1>
       </div>
 
       <Button
@@ -39,7 +47,7 @@ export function WelcomeBanner({
         size="sm"
         leftSection={<Plus className="size-4" />}
         onClick={onCreateMonitor}
-        className="h-9"
+        className="h-8"
       >
         Create monitor
       </Button>

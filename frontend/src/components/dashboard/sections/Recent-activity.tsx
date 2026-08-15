@@ -22,7 +22,7 @@ export function RecentActivity({ items = [] }: RecentActivityProps) {
           items.length > 0 ? (
             <button
               type="button"
-              className="text-xs text-white/40 transition-colors hover:text-white"
+              className="text-[11px] text-white/40 transition-colors hover:text-white"
             >
               View all
             </button>
@@ -35,7 +35,7 @@ export function RecentActivity({ items = [] }: RecentActivityProps) {
         // main canvas above it, so this is one line of text, no illustration.
         <div className="mt-4 flex items-center gap-2.5 rounded-lg border border-dashed border-white/7 px-3.5 py-3">
           <History className="size-4 shrink-0 text-white/25" />
-          <p className="text-xs text-white/40">
+          <p className="text-[11px] text-white/40">
             Checks, incidents, and alerts will appear here once monitoring begins.
           </p>
         </div>
@@ -46,11 +46,11 @@ export function RecentActivity({ items = [] }: RecentActivityProps) {
               key={item.id}
               className="flex items-center justify-between gap-4 py-2.5"
             >
-              <span className="min-w-0 truncate text-[13px] text-white/70">
+              <span className="min-w-0 truncate text-xs text-white/70">
                 {item.title}
               </span>
               {/* Tabular figures here — these DO align in a column */}
-              <span className="shrink-0 text-xs tabular-nums text-white/35">
+              <span className="shrink-0 text-[11px] tabular-nums text-white/35">
                 {item.timestamp}
               </span>
             </li>

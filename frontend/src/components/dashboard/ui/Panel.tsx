@@ -48,10 +48,10 @@ export function PanelHeader({
   return (
     <div className={cn("flex items-start justify-between gap-4", className)}>
       <div className="min-w-0">
-        <h2 className="text-sm font-medium text-white">{title}</h2>
+        <h2 className="font-mono text-[13px] font-medium tracking-tight text-white">{title}</h2>
 
         {description && (
-          <p className="mt-1 text-xs leading-relaxed text-white/45">{description}</p>
+          <p className="mt-1 text-[11px] leading-relaxed text-white/45">{description}</p>
         )}
       </div>
 

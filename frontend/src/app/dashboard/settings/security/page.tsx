@@ -199,7 +199,7 @@ function ChangePasswordSection() {
               variant="white"
               size="sm"
               loading={form.formState.isSubmitting}
-              className="h-9"
+              className="h-8"
             >
               Update password
             </Button>
@@ -215,7 +215,7 @@ function ChangePasswordSection() {
             className="flex items-start gap-2.5 rounded-lg border border-red-500/20 bg-red-500/10 px-3.5 py-3"
           >
             <ShieldAlert className="mt-px size-4 shrink-0 text-red-400" />
-            <p className="text-[13px] leading-relaxed text-red-300">{formError}</p>
+            <p className="text-xs leading-relaxed text-red-300">{formError}</p>
           </div>
         )}
 
@@ -260,7 +260,7 @@ function ChangePasswordSection() {
               </div>
 
               <span
-                className={cn("w-16 text-right text-[11px] font-medium", strength.text)}
+                className={cn("w-16 text-right text-[10px] font-medium", strength.text)}
               >
                 {strength.label}
               </span>
@@ -297,7 +297,7 @@ function PasswordField({
 }) {
   return (
     <div className="space-y-2">
-      <label htmlFor={id} className="block text-[13px] font-medium text-white/70">
+      <label htmlFor={id} className="block text-xs font-medium text-white/70">
         {label}
       </label>
 
@@ -309,7 +309,7 @@ function PasswordField({
         {...registration}
       />
 
-      <p className="min-h-4 text-xs leading-4 text-red-400">{error}</p>
+      <p className="min-h-4 text-[11px] leading-4 text-red-400">{error}</p>
     </div>
   );
 }
@@ -339,8 +339,8 @@ function EmailVerificationSection() {
     >
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-white/7 bg-white/2 px-4 py-3">
         <div className="min-w-0">
-          <p className="truncate text-[13px] text-white/80">{email}</p>
-          <p className="mt-0.5 text-xs text-white/35">
+          <p className="truncate text-xs text-white/80">{email}</p>
+          <p className="mt-0.5 text-[11px] text-white/35">
             {isEmailVerified ? "Confirmed" : "Awaiting confirmation"}
           </p>
         </div>

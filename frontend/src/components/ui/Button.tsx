@@ -8,6 +8,7 @@ const buttonVariants = cva(
     [
         "inline-flex",
         "items-center",
+        "font-mono",
         "justify-center",
         "gap-2",
         "rounded-lg",
@@ -65,13 +66,13 @@ const buttonVariants = cva(
             },
 
             size: {
-                sm: "h-9 px-3 text-sm",
+                sm: "h-8 px-3 text-[11px]",
 
-                md: "h-10 px-4",
+                md: "h-9 px-3.5 text-xs",
 
-                lg: "h-11 px-8",
+                lg: "h-10 px-6 text-[13px]",
 
-                icon: "h-10 w-10 p-0",
+                icon: "h-9 w-9 p-0",
             },
         },
 

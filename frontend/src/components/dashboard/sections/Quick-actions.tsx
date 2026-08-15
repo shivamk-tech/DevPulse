@@ -99,7 +99,7 @@ function ActionRow({ action }: { action: QuickAction }) {
         <Icon className="size-3.5" />
       </span>
 
-      <span className="min-w-0 flex-1 truncate text-[13px] text-white/70 transition-colors group-hover:text-white">
+      <span className="min-w-0 flex-1 truncate text-xs text-white/70 transition-colors group-hover:text-white">
         {action.title}
       </span>
 

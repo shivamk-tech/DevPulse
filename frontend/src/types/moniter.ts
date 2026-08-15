@@ -2,7 +2,7 @@ export interface createMoniterData  {
     name: string;
     url : string; 
     method : "GET" | "HEAD";
-    intervel: number;
+    interval: number;
     timeout: number;
 }
 

@@ -1,67 +1,79 @@
 // components/dashboard/empty-state.tsx
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Radio } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
-import { Panel } from "@/components/dashboard/ui/Panel";
 
 interface EmptyStateProps {
   onCreateMonitor?: () => void;
 }
 
 /**
- * The main canvas while the workspace has no monitors. This is where the
- * monitor list will render once there's data, so it carries the visual weight
- * of a real content area — generous height, centered figure, one action.
+ * The main canvas while the workspace has no monitors — and the one place in
+ * the dashboard that gets to look like the marketing site.
+ *
+ * A photographic panel rather than another bordered box: it's the first thing
+ * a new account sees, it's where the monitor list will eventually live, and a
+ * flat empty rectangle is a poor first impression of a product whose landing
+ * page is cinematic. Once there's data this is replaced by a table, so the
+ * visual weight costs nothing long-term.
  */
 export function EmptyState({ onCreateMonitor }: EmptyStateProps) {
   return (
-    <Panel className="relative overflow-hidden px-6 py-14 text-center">
-      {/* Soft neutral wash from the top — the only lift on an otherwise flat panel */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]"
+    <section className="relative isolate overflow-hidden rounded-xl border border-white/10">
+      <Image
+        src="/auth/newBg.png"
+        alt=""
+        fill
+        sizes="(min-width: 1280px) 60vw, 100vw"
+        quality={90}
+        // Same night-coast frame as the landing hero, anchored right so the
+        // lighthouse and beam stay in view at this much wider aspect.
+        className="object-cover object-right saturate-[0.6]"
       />
 
-      <div className="relative flex flex-col items-center">
-        {/* Concentric pulse rings — a monitor waiting for its first signal */}
-        <div className="relative flex size-14 items-center justify-center">
-          <span
-            aria-hidden
-            className="absolute inset-0 rounded-2xl border border-white/10"
-          />
-          <span
-            aria-hidden
-            className="absolute inset-1.5 rounded-xl border border-white/20"
-          />
-          <span className="relative flex size-9 items-center justify-center rounded-lg bg-white/8 ring-1 ring-inset ring-white/20">
-            <Radio className="size-4 text-white/80" />
-          </span>
-        </div>
+      {/* Legibility stack — heaviest at the foot, where the copy sits. */}
+      <div aria-hidden className="absolute inset-0 bg-black/45" />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-linear-to-t from-black via-black/60 to-black/20"
+      />
 
-        <h2 className="mt-5 text-base font-medium text-white">No monitors yet</h2>
-
-        <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/45">
-          Add a website or API endpoint and Beacon starts checking it every minute,
-          alerting you the moment it goes down.
+      <div className="relative flex flex-col items-start px-7 py-16 sm:px-10 sm:py-20">
+        <p className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
+          <span aria-hidden className="size-1 rounded-full bg-white/50" />
+          No monitors yet
         </p>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <Button variant="white" size="sm" onClick={onCreateMonitor} className="h-9">
+        {/* Two-tone, tight-tracked, left-anchored — the hero's exact recipe at
+           a quarter of the size. */}
+        <h2 className="mt-4 max-w-md text-xl font-normal leading-tight tracking-[-0.03em] text-white sm:text-2xl">
+          Point Beacon at a URL{" "}
+          <span className="text-white/35">and it starts watching.</span>
+        </h2>
+
+        <p className="mt-4 max-w-sm text-[13px] leading-relaxed text-white/45">
+          Checks run every minute from multiple regions. You&apos;ll hear from us
+          the moment something stops responding.
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          <Button variant="white" size="sm" onClick={onCreateMonitor}>
             Create your first monitor
           </Button>
 
           <Link
             href="/dashboard/docs/monitoring"
-            className="group inline-flex items-center gap-1.5 text-sm text-white/50 transition-colors hover:text-white"
+            className="group inline-flex items-center gap-1.5 font-mono text-[11px] text-white/50 transition-colors hover:text-white"
           >
             How monitoring works
-            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+            <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>
-    </Panel>
+    </section>
   );
 }

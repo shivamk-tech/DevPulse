@@ -43,7 +43,7 @@ export function TopNavbar({ userName, userAvatarUrl }: TopNavbarProps) {
           <input
             type="text"
             placeholder="Search monitors, incidents, docs…"
-            className="h-9 w-full rounded-lg border border-white/7 bg-white/3 pl-9 pr-14 text-[13px] text-white/90 outline-none transition-colors placeholder:text-white/25 focus:border-white/15 focus:bg-white/5"
+            className="h-9 w-full rounded-lg border border-white/7 bg-white/3 pl-9 pr-14 text-xs text-white/90 outline-none transition-colors placeholder:text-white/25 focus:border-white/15 focus:bg-white/5"
           />
           <kbd className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 rounded border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] font-medium text-white/35">
             ⌘K
@@ -69,12 +69,12 @@ export function TopNavbar({ userName, userAvatarUrl }: TopNavbarProps) {
               {userAvatarUrl ? (
                 <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
               ) : (
-                <span className="flex size-full items-center justify-center text-[11px] font-semibold text-white">
+                <span className="flex size-full items-center justify-center text-[10px] font-semibold text-white">
                   {displayName.charAt(0).toUpperCase()}
                 </span>
               )}
             </span>
-            <span className="text-[13px] font-medium text-white/80">{displayName}</span>
+            <span className="text-xs font-medium text-white/80">{displayName}</span>
             <ChevronDown className="size-3.5 text-white/30" />
           </DropdownMenuTrigger>
 

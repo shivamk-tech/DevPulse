@@ -151,6 +151,32 @@ export function Sidebar({
       </button>
 
       <div data-lenis-prevent className="min-w-0 overflow-y-auto">
+        {/* Brand row. The sidebar previously opened on the user's avatar, which
+           meant the product's own mark appeared nowhere in the app — you could
+           sit in the dashboard all day and never see it. */}
+        <div
+          className={cn(
+            "flex h-14 items-center border-b border-white/7",
+            collapsed ? "justify-center px-0" : "px-4"
+          )}
+        >
+          <Link href="/dashboard" className="flex items-center gap-2.5">
+            <Image
+              src="/brand/beacon-mark.png"
+              alt=""
+              width={256}
+              height={256}
+              priority
+              className="size-6 w-auto mix-blend-screen"
+            />
+            {!collapsed && (
+              <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-white">
+                Beacon
+              </span>
+            )}
+          </Link>
+        </div>
+
         {/* Profile */}
         <div
           className={cn(
@@ -162,7 +188,7 @@ export function Sidebar({
             {userAvatarUrl ? (
               <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
             ) : (
-              <div className="flex size-full items-center justify-center text-sm font-semibold text-white">
+              <div className="flex size-full items-center justify-center text-[13px] font-semibold text-white">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
@@ -170,10 +196,10 @@ export function Sidebar({
 
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[10px] font-medium uppercase tracking-wider text-white/35">
+              <p className="truncate font-mono text-[10px] font-medium uppercase tracking-wider text-white/35">
                 {userRole}
               </p>
-              <p className="truncate text-sm font-medium text-white">{displayName}</p>
+              <p className="truncate text-[13px] font-medium text-white">{displayName}</p>
             </div>
           )}
         </div>
@@ -185,7 +211,7 @@ export function Sidebar({
             <div key={group.label} className="flex flex-col gap-0.5">
               <p
                 className={cn(
-                  "mb-1 text-[10px] font-medium uppercase tracking-wider text-white/25",
+                  "mb-1 font-mono text-[10px] font-medium uppercase tracking-wider text-white/25",
                   collapsed ? "text-center" : "px-2.5"
                 )}
               >
@@ -222,7 +248,7 @@ export function Sidebar({
           type="button"
           onClick={handleLogout}
           className={cn(
-            "group relative flex w-full items-center gap-3 rounded-lg py-2 text-[13px] text-white/50 transition-colors hover:bg-white/5 hover:text-white",
+            "group relative flex w-full items-center gap-3 rounded-lg py-2 font-mono text-xs tracking-tight text-white/50 transition-colors hover:bg-white/5 hover:text-white",
             collapsed ? "justify-center px-0" : "px-2.5"
           )}
         >
@@ -257,7 +283,7 @@ function NavRow({
     : pathname === item.href;
 
   const rowClass = cn(
-    "group relative flex w-full items-center gap-3 rounded-lg py-2 text-[13px] transition-colors",
+    "group relative flex w-full items-center gap-3 rounded-lg py-2 font-mono text-xs tracking-tight transition-colors",
     collapsed ? "justify-center px-0" : "px-2.5",
     isActive
       ? "bg-white/8 font-medium text-white"
@@ -348,7 +374,7 @@ function ChildLink({ child, pathname }: { child: NavChild; pathname: string }) {
     <Link
       href={child.href}
       className={cn(
-        "block truncate rounded-lg px-2.5 py-1.5 text-[13px] transition-colors",
+        "block truncate rounded-lg px-2.5 py-1.5 text-xs transition-colors",
         isActive
           ? "bg-white/8 font-medium text-white"
           : "text-white/45 hover:bg-white/4 hover:text-white/80"
@@ -376,7 +402,7 @@ function Tooltip({ label }: { label: string }) {
   return (
     <span
       role="tooltip"
-      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-xl shadow-black/50 transition-opacity duration-150 group-hover:opacity-100"
+      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black px-2.5 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-xl shadow-black/50 transition-opacity duration-150 group-hover:opacity-100"
     >
       {label}
     </span>
@@ -398,7 +424,7 @@ function FooterRow({
     <Link
       href={href}
       className={cn(
-        "group relative flex items-center gap-3 rounded-lg py-2 text-[13px] text-white/50 transition-colors hover:bg-white/4 hover:text-white/90",
+        "group relative flex items-center gap-3 rounded-lg py-2 font-mono text-xs tracking-tight text-white/50 transition-colors hover:bg-white/4 hover:text-white/90",
         collapsed ? "justify-center px-0" : "px-2.5"
       )}
     >

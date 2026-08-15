@@ -23,14 +23,14 @@ export function TipsCard({
                 <span className="flex size-6 items-center justify-center rounded-md bg-amber-500/10">
                     <Lightbulb className="size-3.5 text-amber-300" />
                 </span>
-                <h2 className="text-sm font-medium text-white">{title}</h2>
+                <h2 className="text-[13px] font-medium text-white">{title}</h2>
             </div>
 
-            <p className="mt-2.5 text-xs leading-relaxed text-white/45">{body}</p>
+            <p className="mt-2.5 text-[11px] leading-relaxed text-white/45">{body}</p>
 
             <Link
                 href={linkHref}
-                className="group mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-white/80 transition-colors hover:text-white"
+                className="group mt-3 inline-flex items-center gap-1.5 text-[11px] font-medium text-white/80 transition-colors hover:text-white"
             >
                 {linkLabel}
                 <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />

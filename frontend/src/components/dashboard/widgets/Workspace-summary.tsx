@@ -31,14 +31,14 @@ export function WorkspaceSummary({
             key={row.label}
             className="flex items-center justify-between gap-4 py-2.5 first:pt-0 last:pb-0"
           >
-            <dt className="shrink-0 text-xs text-white/40">{row.label}</dt>
+            <dt className="shrink-0 text-[11px] text-white/40">{row.label}</dt>
             <dd className="min-w-0">
               {row.isPill ? (
-                <span className="rounded-md bg-white/6 px-2 py-0.5 text-[11px] font-medium text-white/70">
+                <span className="rounded-md bg-white/6 px-2 py-0.5 text-[10px] font-medium text-white/70">
                   {row.value}
                 </span>
               ) : (
-                <span className="block truncate text-right text-[13px] text-white/80">
+                <span className="block truncate text-right text-xs text-white/80">
                   {row.value}
                 </span>
               )}

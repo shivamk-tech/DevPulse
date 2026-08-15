@@ -12,12 +12,18 @@ import { RecentActivity } from "@/components/dashboard/sections/Recent-activity"
 import { WorkspaceSummary } from "@/components/dashboard/widgets/Workspace-summary";
 import { TipsCard } from "@/components/dashboard/widgets/Tip-card";
 import { useState } from "react";
+import { moniterServices } from "@/services/moniter/moniters.service"
+import { createMoniterData } from "@/types/moniter";
 
 // The shell (sidebar + top bar) lives in dashboard/layout.tsx so every route
 // under /dashboard shares it. This file is just the index route's content.
 export default function DashboardPage() {
 
   const [createMoniterOpen, setCreateMoniterOpen] = useState(false)
+
+  const handleCreateMoniter = async (values: createMoniterData) => {
+    await moniterServices.Create(values)
+  }
 
   return (
     <div className="mx-auto max-w-350 space-y-6 p-6">
@@ -44,6 +50,7 @@ export default function DashboardPage() {
       <CreateMonitorDialog
         open={createMoniterOpen}
         onOpenChange={setCreateMoniterOpen}
+        onSubmit={handleCreateMoniter}
       />
     </div>
   );

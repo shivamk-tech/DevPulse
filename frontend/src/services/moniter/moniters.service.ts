@@ -5,11 +5,11 @@ import { Moniters } from "@/types/moniter"
 
 export const moniterServices = {
     Create(data: createMoniterData) {
-        return api.post<Moniters>("/moniters", data)
+        return api.post<Moniters>("/moniters/", data)
     },
 
     getAll(){
-        return api.get<Moniters[]>("/moniters")
+        return api.get<Moniters[]>("/moniters/")
     }
 }
 

@@ -22,8 +22,8 @@ export default function MonitorsPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-white">Monitors</h1>
-          <p className="mt-1 text-sm text-white/45">
+          <h1 className="text-lg font-semibold tracking-tight text-white">Monitors</h1>
+          <p className="mt-1 text-[13px] text-white/45">
             Endpoints Beacon checks on a schedule.
           </p>
         </div>
@@ -33,7 +33,7 @@ export default function MonitorsPage() {
           size="sm"
           leftSection={<Plus className="size-4" />}
           onClick={() => setCreateOpen(true)}
-          className="h-9"
+          className="h-8"
         >
           Create monitor
         </Button>
@@ -50,9 +50,9 @@ export default function MonitorsPage() {
             <Radio className="size-4 text-white/80" />
           </span>
 
-          <h2 className="mt-5 text-base font-medium text-white">No monitors yet</h2>
+          <h2 className="mt-5 text-sm font-medium text-white">No monitors yet</h2>
 
-          <p className="mt-2 max-w-sm text-sm leading-relaxed text-white/45">
+          <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-white/45">
             Add an endpoint to see its status, response time, and incident history here.
           </p>
 
@@ -60,7 +60,7 @@ export default function MonitorsPage() {
             variant="white"
             size="sm"
             onClick={() => setCreateOpen(true)}
-            className="mt-6 h-9"
+            className="mt-6 h-8"
           >
             Create your first monitor
           </Button>
