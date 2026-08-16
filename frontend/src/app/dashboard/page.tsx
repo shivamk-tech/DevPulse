@@ -11,15 +11,36 @@ import { RecentActivity } from "@/components/dashboard/sections/Recent-activity"
 
 import { WorkspaceSummary } from "@/components/dashboard/widgets/Workspace-summary";
 import { TipsCard } from "@/components/dashboard/widgets/Tip-card";
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import { moniterServices } from "@/services/moniter/moniters.service"
-import { createMoniterData } from "@/types/moniter";
+import { createMoniterData, Moniters } from "@/types/moniter";
+import { tr } from "zod/v4/locales";
 
 // The shell (sidebar + top bar) lives in dashboard/layout.tsx so every route
 // under /dashboard shares it. This file is just the index route's content.
 export default function DashboardPage() {
 
   const [createMoniterOpen, setCreateMoniterOpen] = useState(false)
+  const [monitors, setMonitors] = useState<Moniters[]>([])
+  const hasMoniters = monitors.length > 0
+  const [loadingMoniters, setLoadingMoniters] = useState(true)
+  const monitorsCount = monitors.length
+
+  useEffect(() => {
+    const loadMoniters = async () => {
+      try {
+        const response = await moniterServices.getAll()
+        setMonitors(response.data);
+        console.log(response.data)
+      } catch(error) {
+        console.log("Failed to fetch monitors", error)
+      } finally {
+        setLoadingMoniters(false)
+      }
+    }
+
+    loadMoniters();
+  })
 
   const handleCreateMoniter = async (values: createMoniterData) => {
     await moniterServices.Create(values)
@@ -31,11 +52,15 @@ export default function DashboardPage() {
 
       {/* Metrics first: the reader's question is "is anything broken?"
          and it gets answered above the fold, before any onboarding. */}
-      <StatRow />
+      <StatRow monitorsCount={monitorsCount} loading={loadingMoniters} />
 
       <div className="flex flex-col gap-6 xl:flex-row">
         <div className="min-w-0 flex-1 space-y-6">
-          <EmptyState onCreateMonitor={() => setCreateMoniterOpen(true)} />
+          <EmptyState
+            hasMoniters={hasMoniters}
+            loading={loadingMoniters}
+            onCreateMonitor={() => setCreateMoniterOpen(true)}
+          />
           <QuickStart />
           <RecentActivity />
         </div>

@@ -1,73 +1,120 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Radio } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { CreateMonitorDialog } from "@/components/monitors/Create-monitor-dialog";
-import { Panel } from "@/components/dashboard/ui/Panel";
+import { MonitorDetailPanel } from "@/components/monitors/Monitor-detail-panel";
+import { MonitorsPlayground } from "@/components/monitors/Monitors-playground";
 import { Button } from "@/components/ui";
+import type { Moniters } from "@/types/moniter";
+import { cn } from "@/lib/utils";
 
-/**
- * Host page for the Create Monitor dialog.
- *
- * Intentionally minimal — no monitor list, no data fetching, no API calls. Its
- * only job is to own the dialog's open state and give it a trigger, so the
- * form can be reviewed in place. The existing dashboard's "Create monitor"
- * buttons are untouched and still do nothing.
- */
+interface monitorProps { 
+  monitors: Moniters;
+}
+
 export default function MonitorsPage() {
   const [createOpen, setCreateOpen] = useState(false);
+  const [selected, setSelected] = useState<Moniters | null>(null);
+
+  // ---------------------------------------------------------------------
+  // INTEGRATION POINT — wire these two the same way the dashboard page does:
+  //
+  //   const [monitors, setMonitors] = useState<Moniters[]>([]);
+  //   const [loading, setLoading]   = useState(true);
+  //   useEffect(() => { ...moniterServices.getAll()... }, []);
+  //
+  // Everything below already reads from them; no other change is needed.
+  // ---------------------------------------------------------------------
+  const monitors: Moniters[] = [];
+  const loading = false;
+
+  const counts = {
+    all: monitors.length,
+    active: monitors.filter((m) => m.is_active).length,
+    paused: monitors.filter((m) => !m.is_active).length,
+  };
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-lg font-semibold tracking-tight text-white">Monitors</h1>
-          <p className="mt-1 text-[13px] text-white/45">
-            Endpoints Beacon checks on a schedule.
-          </p>
-        </div>
-
-        <Button
-          variant="white"
-          size="sm"
-          leftSection={<Plus className="size-4" />}
-          onClick={() => setCreateOpen(true)}
-          className="h-8"
-        >
-          Create monitor
-        </Button>
-      </header>
-
-      <Panel className="relative overflow-hidden px-6 py-14 text-center">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 -top-24 h-48 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.07),transparent_70%)]"
-        />
-
-        <div className="relative flex flex-col items-center">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-white/8 ring-1 ring-inset ring-white/20">
-            <Radio className="size-4 text-white/80" />
-          </span>
-
-          <h2 className="mt-5 text-sm font-medium text-white">No monitors yet</h2>
-
-          <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-white/45">
-            Add an endpoint to see its status, response time, and incident history here.
-          </p>
+    <div className="flex h-full flex-col">
+      <div className="flex min-h-0 flex-1 flex-col p-6">
+        <header className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">
+              <span aria-hidden className="size-1 rounded-full bg-white/45" />
+              Monitors
+            </p>
+            <h1 className="mt-3 text-xl font-normal leading-tight tracking-[-0.02em] text-white sm:text-2xl">
+              Everything you watch.{" "}
+              <span className="text-white/30">In one place.</span>
+            </h1>
+          </div>
 
           <Button
             variant="white"
             size="sm"
+            leftSection={<Plus className="size-3.5" />}
             onClick={() => setCreateOpen(true)}
-            className="mt-6 h-8"
           >
-            Create your first monitor
+            Create monitor
           </Button>
+        </header>
+
+        {/* Counts, not filters — they're derived from `is_active`, the only
+           state the API reports. Wire them to a filter once there's more than
+           one dimension worth slicing by. */}
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <Chip label="All" count={counts.all} />
+          <Chip label="Active" count={counts.active} tone="good" />
+          <Chip label="Paused" count={counts.paused} />
         </div>
-      </Panel>
+
+        {/* Canvas and inspector share a row on desktop, so selecting a node
+           narrows the canvas instead of covering it. Below lg the panel becomes
+           an overlay, since there's no room to sit beside anything. */}
+        <div className="mt-5 flex min-h-0 flex-1 gap-5">
+          <div className="min-w-0 flex-1">
+            <MonitorsPlayground
+              monitors={monitors}
+              loading={loading}
+              selectedId={selected?.id ?? null}
+              onSelect={setSelected}
+            />
+          </div>
+
+          <MonitorDetailPanel monitor={selected} onClose={() => setSelected(null)} />
+        </div>
+      </div>
 
       <CreateMonitorDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
+  );
+}
+
+function Chip({
+  label,
+  count,
+  tone = "neutral",
+}: {
+  label: string;
+  count: number;
+  tone?: "neutral" | "good";
+}) {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-sm border border-white/10 px-3 py-1.5">
+      {tone === "good" && (
+        <span aria-hidden className="size-1.5 rounded-full bg-[#0ca30c]" />
+      )}
+      <span className="font-mono text-[11px] text-white/60">{label}</span>
+      <span
+        className={cn(
+          "font-mono text-[11px] tabular-nums",
+          count > 0 ? "text-white" : "text-white/25"
+        )}
+      >
+        {count}
+      </span>
+    </span>
   );
 }

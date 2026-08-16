@@ -26,6 +26,9 @@ interface StatRowProps {
   uptime?: string | null;
   incidents?: number;
   responseTime?: string | null;
+  monitorsCount?: number
+  /** True while the counts are still being fetched. */
+  loading?: boolean;
 }
 
 export function StatRow({
@@ -33,13 +36,21 @@ export function StatRow({
   uptime = null,
   incidents = 0,
   responseTime = null,
+  monitorsCount = 0,
+  loading = false,
 }: StatRowProps) {
   const stats: Stat[] = [
     {
       id: "monitors",
       label: "Active monitors",
-      value: monitors,
-      hint: monitors === 0 ? "None configured yet" : "Checking every minute",
+      // A zero while the request is still in flight is a wrong answer, not an
+      // empty one — em-dash until the count is actually known.
+      value: loading ? "—" : monitorsCount,
+      hint: loading
+        ? "Loading…"
+        : monitorsCount === 0
+          ? "None configured yet"
+          : "Checking every minute",
       icon: Activity,
     },
     {
@@ -70,18 +81,18 @@ export function StatRow({
   return (
     <div className="grid grid-cols-2 gap-4 xl:grid-cols-4">
       {stats.map((stat) => (
-        <StatTile key={stat.id} stat={stat} />
+        <StatTile key={stat.id} stat={stat} loading={loading} />
       ))}
     </div>
   );
 }
 
-function StatTile({ stat }: { stat: Stat }) {
+function StatTile({ stat, loading = false }: { stat: Stat; loading?: boolean }) {
   const Icon = stat.icon;
   const isEmpty = stat.value === "—";
 
   return (
-    <Panel className="p-4">
+    <Panel className={cn("p-4", loading && "animate-pulse")}>
       <div className="flex items-center justify-between gap-2">
         <span className="truncate font-mono text-[11px] font-medium tracking-tight text-white/45">{stat.label}</span>
         <Icon className="size-3.5 shrink-0 text-white/25" />
