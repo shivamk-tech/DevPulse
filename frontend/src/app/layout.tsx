@@ -6,6 +6,7 @@ import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import { cn } from "@/lib/utils";
 import { ToastProvider } from "@/components/providers/ToasterProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 // One typeface for the whole app. Geist and Inter Tight were both being
 // downloaded on every page while only Inter Tight actually rendered — the
 // `body` rule in globals.css overrode the `font-sans` class on <html>.
@@ -48,7 +49,9 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         <ThemeProviders>
           <AuthProvider>
-            <SmoothScroll>{children}</SmoothScroll>
+            <QueryProvider>
+              <SmoothScroll>{children}</SmoothScroll>
+            </QueryProvider>
           </AuthProvider>
         </ThemeProviders>
 

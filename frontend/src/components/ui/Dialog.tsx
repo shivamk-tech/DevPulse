@@ -55,7 +55,7 @@ function DialogContent({
           // smaller" — but width is what buys height back. A wider field is a
           // shorter one, and the two-up row stops crowding, so the panel ends
           // up shorter overall and fits without the body scrolling.
-          "w-[calc(100vw-2rem)] max-w-xl max-h-[calc(100dvh-4rem)]",
+          "w-[calc(100vw_-_2rem)] max-w-xl max-h-[calc(100dvh_-_4rem)]",
           // `p-px` is the border: the rotating gradient below fills the panel,
           // and the opaque inner surface covers all of it except this 1px rim.
           "isolate overflow-hidden rounded-md p-px",

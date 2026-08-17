@@ -131,8 +131,8 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "relative flex h-screen shrink-0 flex-col justify-between border-r border-white/7 bg-black transition-[width] duration-200 ease-in-out",
-        collapsed ? "w-16" : "w-64"
+        "relative flex h-screen shrink-0 flex-col justify-between border-r border-white/10 bg-black transition-[width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
+        collapsed ? "w-16" : "w-66"
       )}
     >
       {/* Collapse handle — floats on the border so it reads as a seam control
@@ -141,7 +141,7 @@ export function Sidebar({
         type="button"
         onClick={toggle}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        className="absolute -right-3.5 top-6 z-20 flex size-7 items-center justify-center rounded-full border border-white/10 bg-black text-white/50 shadow-lg shadow-black/40 transition-colors hover:border-white/20 hover:text-white"
+        className="absolute -right-3 top-7 z-20 grid size-6 place-items-center rounded-sm border border-white/12 bg-black text-white/45 shadow-lg shadow-black/60 transition-colors hover:border-white/30 hover:bg-white/5 hover:text-white"
       >
         {collapsed ? (
           <ChevronRight className="size-4" />
@@ -156,7 +156,7 @@ export function Sidebar({
            sit in the dashboard all day and never see it. */}
         <div
           className={cn(
-            "flex h-14 items-center border-b border-white/7",
+            "flex h-16 items-center border-b border-white/10",
             collapsed ? "justify-center px-0" : "px-4"
           )}
         >
@@ -167,10 +167,10 @@ export function Sidebar({
               width={256}
               height={256}
               priority
-              className="size-6 w-auto mix-blend-screen"
+              className="size-7 w-auto mix-blend-screen"
             />
             {!collapsed && (
-              <span className="font-mono text-[11px] font-medium uppercase tracking-[0.2em] text-white">
+              <span className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-white">
                 Beacon
               </span>
             )}
@@ -178,17 +178,18 @@ export function Sidebar({
         </div>
 
         {/* Profile */}
+        <div className={cn("px-3 py-4", collapsed && "px-2")}>
         <div
           className={cn(
-            "flex items-center gap-3 px-4 py-5",
-            collapsed && "justify-center px-0"
+            "group flex items-center gap-3 rounded-sm border border-white/10 bg-white/[0.02] transition-colors hover:border-white/20 hover:bg-white/[0.05]",
+            collapsed ? "justify-center p-2" : "p-2.5"
           )}
         >
-          <div className="relative size-10 shrink-0 overflow-hidden rounded-full bg-white/10 ring-2 ring-white/20">
+          <div className="relative size-8 shrink-0 overflow-hidden rounded-sm bg-white/10 ring-1 ring-white/20">
             {userAvatarUrl ? (
               <Image src={userAvatarUrl} alt={displayName} fill className="object-cover" />
             ) : (
-              <div className="flex size-full items-center justify-center text-[13px] font-semibold text-white">
+              <div className="flex size-full items-center justify-center font-mono text-[11px] font-bold text-white">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
@@ -196,22 +197,29 @@ export function Sidebar({
 
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate font-mono text-[10px] font-medium uppercase tracking-wider text-white/35">
+              <p className="truncate font-mono text-[9px] font-semibold uppercase tracking-[0.18em] text-white/30">
                 {userRole}
               </p>
-              <p className="truncate text-[13px] font-medium text-white">{displayName}</p>
+              <p className="truncate text-[13px] font-semibold tracking-tight text-white">
+                {displayName}
+              </p>
             </div>
           )}
+
+          {!collapsed && (
+            <ChevronDown className="size-3.5 shrink-0 text-white/25 transition-colors group-hover:text-white/50" />
+          )}
+        </div>
         </div>
 
         <div className="mx-4 border-t border-white/7" />
 
-        <nav className="flex flex-col gap-5 px-3 py-4">
+        <nav className="flex flex-col gap-6 px-3 pb-4">
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="flex flex-col gap-0.5">
               <p
                 className={cn(
-                  "mb-1 font-mono text-[10px] font-medium uppercase tracking-wider text-white/25",
+                  "mb-2 font-mono text-[9px] font-semibold uppercase tracking-[0.2em] text-white/25",
                   collapsed ? "text-center" : "px-2.5"
                 )}
               >
@@ -236,7 +244,7 @@ export function Sidebar({
       </div>
 
       {/* Footer */}
-      <div className="border-t border-white/7 px-3 py-3">
+      <div className="border-t border-white/10 p-3">
         <FooterRow
           icon={HelpCircle}
           label="Help"
@@ -248,8 +256,8 @@ export function Sidebar({
           type="button"
           onClick={handleLogout}
           className={cn(
-            "group relative flex w-full items-center gap-3 rounded-lg py-2 font-mono text-xs tracking-tight text-white/50 transition-colors hover:bg-white/5 hover:text-white",
-            collapsed ? "justify-center px-0" : "px-2.5"
+            "group relative flex w-full items-center gap-3 rounded-sm py-2.5 font-mono text-xs font-medium tracking-tight text-white/45 transition-colors hover:bg-white/[0.04] hover:text-white",
+            collapsed ? "justify-center px-0" : "px-3"
           )}
         >
           <LogOut className="size-4.5 shrink-0" />
@@ -283,11 +291,11 @@ function NavRow({
     : pathname === item.href;
 
   const rowClass = cn(
-    "group relative flex w-full items-center gap-3 rounded-lg py-2 font-mono text-xs tracking-tight transition-colors",
-    collapsed ? "justify-center px-0" : "px-2.5",
+    "group relative flex w-full items-center gap-3 rounded-sm py-2.5 font-mono text-xs tracking-tight transition-all duration-200",
+    collapsed ? "justify-center px-0" : "px-3",
     isActive
-      ? "bg-white/8 font-medium text-white"
-      : "text-white/50 hover:bg-white/4 hover:text-white/90"
+      ? "bg-white/[0.07] font-semibold text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]"
+      : "font-medium text-white/45 hover:bg-white/[0.04] hover:text-white"
   );
 
   const iconEl = (
@@ -306,7 +314,7 @@ function NavRow({
         </Link>
 
         <Flyout>
-          <div className="min-w-44 rounded-xl border border-white/10 bg-black p-1.5 shadow-xl shadow-black/50">
+          <div className="min-w-44 rounded-sm border border-white/12 bg-black p-1.5 shadow-xl shadow-black/60">
             {item.children!.map((child) => (
               <ChildLink key={child.href} child={child} pathname={pathname} />
             ))}
@@ -374,10 +382,10 @@ function ChildLink({ child, pathname }: { child: NavChild; pathname: string }) {
     <Link
       href={child.href}
       className={cn(
-        "block truncate rounded-lg px-2.5 py-1.5 text-xs transition-colors",
+        "block truncate rounded-sm px-3 py-1.5 font-mono text-[11px] tracking-tight transition-colors",
         isActive
-          ? "bg-white/8 font-medium text-white"
-          : "text-white/45 hover:bg-white/4 hover:text-white/80"
+          ? "bg-white/[0.07] font-semibold text-white"
+          : "font-medium text-white/35 hover:bg-white/[0.04] hover:text-white/80"
       )}
     >
       {child.label}
@@ -402,7 +410,7 @@ function Tooltip({ label }: { label: string }) {
   return (
     <span
       role="tooltip"
-      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-black px-2.5 py-1.5 text-[11px] font-medium text-white opacity-0 shadow-xl shadow-black/50 transition-opacity duration-150 group-hover:opacity-100"
+      className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 -translate-y-1/2 whitespace-nowrap rounded-sm border border-white/12 bg-black px-2.5 py-1.5 font-mono text-[11px] font-medium text-white opacity-0 shadow-xl shadow-black/50 transition-opacity duration-150 group-hover:opacity-100"
     >
       {label}
     </span>
@@ -424,8 +432,8 @@ function FooterRow({
     <Link
       href={href}
       className={cn(
-        "group relative flex items-center gap-3 rounded-lg py-2 font-mono text-xs tracking-tight text-white/50 transition-colors hover:bg-white/4 hover:text-white/90",
-        collapsed ? "justify-center px-0" : "px-2.5"
+        "group relative flex items-center gap-3 rounded-sm py-2.5 font-mono text-xs font-medium tracking-tight text-white/45 transition-colors hover:bg-white/[0.04] hover:text-white",
+        collapsed ? "justify-center px-0" : "px-3"
       )}
     >
       <Icon className="size-4.5 shrink-0" />

@@ -9,6 +9,7 @@ export interface createMoniterData  {
 export interface Moniters {
     id: string;
     name: string;
+    url:string;
     method: "GET" | "HEAD";
     interval: number;
     timeout:number;
