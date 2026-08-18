@@ -72,16 +72,26 @@ export function CreateMonitorDialog({
   }, [open, form]);
 
   const handleSubmit = async (values: CreateMonitorFormData) => {
-    if (onSubmit) {
-      await onSubmit(values);
-    } else {
-      // NO API CALL. A short local delay so the submitting state is visible.
-      await new Promise((resolve) => setTimeout(resolve, 900));
+    form.clearErrors("root");
+
+    try {
+      if (onSubmit) {
+        await onSubmit(values);
+      } else {
+        await new Promise((resolve) => setTimeout(resolve, 900));
+      }
+
+      setSucceeded(true);
+
+      window.setTimeout(() => onOpenChange(false), SUCCESS_DWELL_MS);
+    } catch (error) {
+      console.error("Failed to create monitor:", error);
+
+      form.setError("root", {
+        type: "server",
+        message: "Couldn't create monitor. Please try again.",
+      });
     }
-
-    setSucceeded(true);
-
-    window.setTimeout(() => onOpenChange(false), SUCCESS_DWELL_MS);
   };
 
   return (

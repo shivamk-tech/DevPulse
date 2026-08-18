@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import { CreateMonitorDialog } from "@/components/monitors/Create-monitor-dialog";
@@ -9,28 +9,14 @@ import { MonitorsPlayground } from "@/components/monitors/Monitors-playground";
 import { Button } from "@/components/ui";
 import type { Moniters } from "@/types/moniter";
 import { cn } from "@/lib/utils";
-import { moniterServices } from "@/services/moniter/moniters.service";
+import { useMonitor } from "@/hooks/useMonitors";
 
 export default function MonitorsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [selected, setSelected] = useState<Moniters | null>(null);
+  const {data, isLoading } = useMonitor()
 
-    const [monitors, setMonitors] = useState<Moniters[]>([]);
-    const [loading, setLoading]   = useState(true);
-    useEffect(() => {
-      const loadMoniters = async () => {
-        try{
-          const response = await moniterServices.getAll()
-          setMonitors(response.data)
-        } catch(error) {
-          console.log("Failed to load moniters", error)
-        } finally {
-          setLoading(false);
-        }
-      }
-      loadMoniters();
-    }, []);
-  
+  const monitors = data?.data ?? [];  
   const counts = {
     all: monitors.length,
     active: monitors.filter((m) => m.is_active).length,
@@ -48,9 +34,10 @@ export default function MonitorsPage() {
       <div className="relative h-full min-w-0 flex-1">
         <MonitorsPlayground
           monitors={monitors}
-          loading={loading}
+          loading={isLoading}
           selectedId={selected?.id ?? null}
           onSelect={setSelected}
+          onDeselect={() => setSelected(null)}
           onCreate={() => setCreateOpen(true)}
         />
 

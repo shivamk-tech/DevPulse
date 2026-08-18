@@ -13,6 +13,8 @@ interface MonitorsPlaygroundProps {
   monitors: Moniters[];
   selectedId: string | null;
   onSelect: (monitor: Moniters) => void;
+  /** Called on Escape / clicking empty canvas, to clear the selection. */
+  onDeselect?: () => void;
   onCreate?: () => void;
   loading?: boolean;
 }
@@ -41,6 +43,7 @@ export function MonitorsPlayground({
   monitors,
   selectedId,
   onSelect,
+  onDeselect,
   onCreate,
   loading = false,
 }: MonitorsPlaygroundProps) {
@@ -58,6 +61,34 @@ export function MonitorsPlayground({
     setView(next);
   };
 
+  // Eased transition to a target view. Cancels any glide already running, so
+  // hammering the zoom button doesn't queue up a stutter. Skips straight to
+  // the target under reduced-motion.
+  const glideRaf = useRef<number | null>(null);
+  const glide = useCallback((target: { scale: number; x: number; y: number }, ms = 360) => {
+    if (glideRaf.current) cancelAnimationFrame(glideRaf.current);
+    if (reduce) { apply(target); return; }
+
+    const from = { ...viewRef.current };
+    const t0 = performance.now();
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3); // cubic out
+
+    const step = (now: number) => {
+      const t = Math.min(1, (now - t0) / ms);
+      const k = ease(t);
+      apply({
+        scale: from.scale + (target.scale - from.scale) * k,
+        x: from.x + (target.x - from.x) * k,
+        y: from.y + (target.y - from.y) * k,
+      });
+      if (t < 1) glideRaf.current = requestAnimationFrame(step);
+      else glideRaf.current = null;
+    };
+    glideRaf.current = requestAnimationFrame(step);
+  }, [reduce]);
+
+  useEffect(() => () => { if (glideRaf.current) cancelAnimationFrame(glideRaf.current); }, []);
+
   const [panning, setPanning] = useState(false);
 
   // Every active pointer, so one finger pans and two pinch. A Map rather than a
@@ -65,6 +96,7 @@ export function MonitorsPlayground({
   const pointers = useRef(new Map<number, { x: number; y: number }>());
   const gesture = useRef<{ dist: number; mx: number; my: number } | null>(null);
   const panStart = useRef({ x: 0, y: 0, ox: 0, oy: 0 });
+  const moved = useRef(false);
 
   /** Zoom about a point, keeping whatever sits under it pinned there. */
   const zoomAt = useCallback((nextScale: number, fx: number, fy: number) => {
@@ -121,6 +153,7 @@ export function MonitorsPlayground({
     if (pointers.current.size === 1) {
       const v = viewRef.current;
       setPanning(true);
+      moved.current = false;
       panStart.current = { x: event.clientX, y: event.clientY, ox: v.x, oy: v.y };
     } else if (pointers.current.size === 2) {
       setPanning(false);
@@ -164,6 +197,10 @@ export function MonitorsPlayground({
 
     if (!panning) return;
 
+    if (Math.hypot(event.clientX - panStart.current.x, event.clientY - panStart.current.y) > 4) {
+      moved.current = true;
+    }
+
     apply({
       scale: viewRef.current.scale,
       x: panStart.current.ox + (event.clientX - panStart.current.x),
@@ -172,8 +209,13 @@ export function MonitorsPlayground({
   };
 
   const onPointerUp = (event: React.PointerEvent) => {
+    const wasLonePress = pointers.current.size === 1 && !moved.current;
     pointers.current.delete(event.pointerId);
     gesture.current = null;
+
+    // A press-and-release on bare canvas is a click, and a click on nothing
+    // means "deselect" — the same contract as every design tool.
+    if (wasLonePress && selectedId !== null) onDeselect?.();
 
     if (pointers.current.size === 1) {
       // Lifting one finger of a pinch hands control back to panning, re-anchored
@@ -199,7 +241,69 @@ export function MonitorsPlayground({
     };
   }
 
-  const reset = () => apply({ scale: 1, x: 0, y: 0 });
+  const reset = () => glide({ scale: 1, x: 0, y: 0 }, 420);
+
+  /** ± one zoom step about the centre. Multiplicative, so each press feels the
+   * same size at any zoom level — additive 0.2 is huge at 40% and tiny at 200%. */
+  const zoomStep = (dir: 1 | -1) => {
+    const v = viewRef.current;
+    const next = Math.min(MAX_SCALE, Math.max(MIN_SCALE, v.scale * (dir > 0 ? 1.25 : 0.8)));
+    const k = next / v.scale;
+    glide({ scale: next, x: v.x * k, y: v.y * k }, 280);
+  };
+
+  // Container size, kept current with a ResizeObserver. The minimap draws the
+  // viewport rectangle from this, so it must track the inspector opening and
+  // closing, not just window resizes.
+  const [size, setSize] = useState({ w: 0, h: 0 });
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const ro = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      setSize({ w: width, h: height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  /** Centre the viewport on a world coordinate (minimap click / node jump). */
+  const centerOn = (wx: number, wy: number) => {
+    const v = viewRef.current;
+    glide({ scale: v.scale, x: -wx * v.scale, y: -wy * v.scale });
+  };
+
+  /** Bring a node into view — used when a card is selected. Only pans if the
+   * node is outside the visible area, so clicking a card that's already on
+   * screen doesn't yank the board around under the cursor. */
+  const revealNode = (index: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const { x, y } = worldPosition(index);
+    const v = viewRef.current;
+    const sx = x * v.scale + v.x; // node position relative to centre, in px
+    const sy = y * v.scale + v.y;
+    const halfW = el.clientWidth / 2 - 180;  // margins so a card is fully in
+    const halfH = el.clientHeight / 2 - 110;
+    if (Math.abs(sx) <= halfW && Math.abs(sy) <= halfH) return;
+    glide({ scale: v.scale, x: -x * v.scale, y: -y * v.scale }, 460);
+  };
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+      if (e.key === "Escape" && selectedId !== null) { onDeselect?.(); }
+      else if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomStep(1); }
+      else if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomStep(-1); }
+      else if (e.key === "0") { e.preventDefault(); reset(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
 
   const isEmpty = !loading && monitors.length === 0;
 
@@ -226,7 +330,6 @@ export function MonitorsPlayground({
           }}
         >
           <OrbitRings />
-          <BeamSweep reduce={Boolean(reduce)} />
           <BeaconCore reduce={Boolean(reduce)} />
 
           {!loading &&
@@ -240,12 +343,12 @@ export function MonitorsPlayground({
                   initial={reduce ? false : { opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: reduce ? 0 : index * 0.07 }}
-                  style={{ position: "absolute", left: x - 124, top: y - 44 }}
+                  style={{ position: "absolute", left: x - 144, top: y - 76 }}
                 >
                   <MonitorCard
                     monitor={monitor}
                     selected={monitor.id === selectedId}
-                    onSelect={() => onSelect(monitor)}
+                    onSelect={() => { onSelect(monitor); revealNode(index); }}
                   />
                 </motion.div>
               );
@@ -262,8 +365,8 @@ export function MonitorsPlayground({
             className="absolute bottom-4 left-4 flex items-center overflow-hidden rounded-sm border border-white/10 bg-black/80 backdrop-blur-md"
           >
             <ControlButton
-              label="Zoom out"
-              onClick={() => zoomAt(view.scale - 0.2, 0, 0)}
+              label="Zoom out (−)"
+              onClick={() => zoomStep(-1)}
               disabled={view.scale <= MIN_SCALE}
             >
               <Minus className="size-3.5" />
@@ -272,15 +375,15 @@ export function MonitorsPlayground({
             <button
               type="button"
               onClick={reset}
-              title="Reset view"
+              title="Reset view (0)"
               className="min-w-14 py-2 font-mono text-[11px] tabular-nums text-white/55 transition-colors hover:text-white"
             >
               {Math.round(view.scale * 100)}%
             </button>
 
             <ControlButton
-              label="Zoom in"
-              onClick={() => zoomAt(view.scale + 0.2, 0, 0)}
+              label="Zoom in (+)"
+              onClick={() => zoomStep(1)}
               disabled={view.scale >= MAX_SCALE}
             >
               <Plus className="size-3.5" />
@@ -290,6 +393,16 @@ export function MonitorsPlayground({
               <Maximize className="size-3.5" />
             </ControlButton>
           </div>
+        )}
+
+        {!isEmpty && !loading && size.w > 0 && (
+          <Minimap
+            monitors={monitors}
+            selectedId={selectedId}
+            view={view}
+            viewport={size}
+            onJump={centerOn}
+          />
         )}
       </div>
 
@@ -350,8 +463,22 @@ function CanvasBackdrop({
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       <div className="absolute inset-0 bg-black" />
 
+      {/* Photograph under everything, shown as-is. Anchored right so the
+         lighthouse stays in frame at any aspect. It's fixed to the viewport,
+         not the world layer — a backdrop that panned with the nodes would read
+         as the whole scene sliding, not the board moving over it. */}
+      <Image
+        src="/brand/monitors.png"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
+        quality={85}
+        className="object-cover object-right"
+      />
+
       <div
-        className="absolute inset-0 opacity-[0.55]"
+        className="absolute inset-0 opacity-30"
         style={{
           backgroundImage:
             "radial-gradient(circle at center, rgba(255,255,255,0.22) 0.6px, transparent 0.6px), radial-gradient(circle at center, rgba(255,255,255,0.10) 0.5px, transparent 0.5px)",
@@ -360,10 +487,6 @@ function CanvasBackdrop({
         }}
       />
 
-      {/* Two very low-opacity washes for depth. Violet is the only colour on
-         the canvas and it never exceeds 6%. */}
-      <div className="absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_45%,rgba(139,124,246,0.06),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_120%,rgba(255,255,255,0.04),transparent_70%)]" />
     </div>
   );
 }
@@ -371,7 +494,7 @@ function CanvasBackdrop({
 function OrbitRings() {
   return (
     <div aria-hidden className="pointer-events-none absolute">
-      {[560, 900, 1260].map((size) => (
+      {[680, 1200, 1720].map((size) => (
         <span
           key={size}
           className="absolute rounded-full border border-dashed border-white/[0.07]"
@@ -379,24 +502,6 @@ function OrbitRings() {
         />
       ))}
     </div>
-  );
-}
-
-/** Radar-style sweep from the origin. The mark's whole idea, made spatial. */
-function BeamSweep({ reduce }: { reduce: boolean }) {
-  if (reduce) return null;
-
-  return (
-    <motion.div
-      aria-hidden
-      className="pointer-events-none absolute -left-160 -top-160 size-320 rounded-full bg-[conic-gradient(from_0deg,rgba(255,255,255,0.055)_0deg,transparent_38deg,transparent_360deg)]"
-      animate={{ rotate: 360 }}
-      transition={{ duration: 26, repeat: Infinity, ease: "linear" }}
-      style={{
-        maskImage: "radial-gradient(circle, black 12%, transparent 72%)",
-        WebkitMaskImage: "radial-gradient(circle, black 12%, transparent 72%)",
-      }}
-    />
   );
 }
 
@@ -409,12 +514,16 @@ function BeaconCore({ reduce }: { reduce: boolean }) {
       transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
     >
       <span className="absolute inset-[-110%] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.14),transparent_62%)]" />
+      {/* `mix-blend-screen` hides the PNG's black matte on a black canvas but
+         shows it as a dark square over a photograph. Screen against a light
+         glow behind it, and give the mark a soft halo instead of a plate. */}
+      <span className="absolute inset-0 rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.32),transparent_60%)] blur-md" />
       <Image
         src="/brand/beacon-mark.png"
         alt=""
         width={256}
         height={256}
-        className="relative size-8 w-auto mix-blend-screen"
+        className="relative size-8 w-auto mix-blend-screen drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
       />
     </motion.div>
   );
@@ -503,18 +612,33 @@ function ControlButton({
  * identical on every render.
  */
 function worldPosition(index: number) {
-  const PER_RING = 6;
-  const ring = Math.floor(index / PER_RING);
-  const slot = index % PER_RING;
+  // Slots per ring grow with the ring, so spacing between neighbours stays
+  // roughly constant as circumference grows: 6, 10, 14, ...
+  let ring = 0;
+  let first = 0;
+  let per = 6;
+  while (index >= first + per) {
+    first += per;
+    ring += 1;
+    per += 4;
+  }
+  const slot = index - first;
 
-  const radius = 290 + ring * 190;
+  const radius = 340 + ring * 260;
+  // Offset each ring by half a slot so nodes never stack radially, and start
+  // at +30° so the tallest overhang lands on the sides, not the top edge.
   const angle =
-    (slot / PER_RING) * Math.PI * 2 + (ring * Math.PI) / PER_RING - Math.PI / 2;
+    (slot / per) * Math.PI * 2 + (ring * Math.PI) / per + Math.PI / 6;
 
   return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
 }
 
-/* -------------------------------------------------------------------------- */
+/** Outer radius occupied by `count` nodes — used to size the minimap. */
+function orbitExtent(count: number) {
+  let ring = 0, first = 0, per = 6;
+  while (count > first + per) { first += per; ring += 1; per += 4; }
+  return 340 + ring * 260;
+}
 
 function MonitorCard({
   monitor,
@@ -527,8 +651,8 @@ function MonitorCard({
   onSelect: () => void;
   fluid?: boolean;
 }) {
-  const url = monitor.url;
   const active = monitor.is_active;
+  const { pct, nextIn } = useCheckCycle(monitor.interval, monitor.updated_at, active);
 
   return (
     <button
@@ -537,62 +661,257 @@ function MonitorCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "group relative rounded-xl border p-3.5 text-left backdrop-blur-md",
-        "transition-[transform,border-color,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
-        fluid ? "w-full" : "w-62",
+        "group relative overflow-hidden rounded-xl border p-3.5 text-left",
+        "transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.99] active:duration-100",
+        // Dark glass with a violet bloom in the top-left — the reference's
+        // whole mood in two layers, kept well under the text.
+        "bg-[radial-gradient(120%_90%_at_0%_0%,rgba(139,124,246,0.22),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))]",
+        "backdrop-blur-md",
+        fluid ? "w-full" : "w-72",
         selected
-          ? "border-white/30 bg-white/[0.055] shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_18px_50px_-24px_rgba(139,124,246,0.55)]"
-          : "border-white/10 bg-white/[0.02] hover:-translate-y-0.5 hover:border-white/20 hover:bg-white/[0.04]"
+          ? "border-white/35 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_24px_60px_-24px_rgba(139,124,246,0.6)]"
+          : "border-white/12 hover:-translate-y-0.5 hover:border-white/25 hover:shadow-[0_18px_50px_-28px_rgba(139,124,246,0.5)]"
       )}
     >
-      <div className="flex items-start gap-3">
-        <span
-          className={cn(
-            "relative grid size-9 shrink-0 place-items-center rounded-lg border transition-colors duration-300",
-            selected
-              ? "border-white/20 bg-white/8"
-              : "border-white/10 bg-white/4 group-hover:border-white/15"
-          )}
-        >
-          <Globe className="size-4 text-white/60" />
-
-          {/* Status pip on the tile corner — glanceable without reading in. */}
-          <span
-            aria-hidden
-            className={cn(
-              "absolute -right-1 -top-1 size-2 rounded-full ring-2 ring-black",
-              active ? "bg-[#0ca30c]" : "bg-white/25"
-            )}
-          />
+      {/* Header: icon + name · ring · method pill */}
+      <div className="flex items-center gap-3">
+        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-white/8">
+          <Globe className="size-3.5 text-white/85" />
         </span>
 
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <p className="truncate text-[13px] font-medium text-white">
-              {monitor.name}
-            </p>
-            <span className="shrink-0 rounded-[3px] border border-white/12 px-1.5 py-px font-mono text-[9px] tracking-tight text-white/50">
-              {monitor.method}
-            </span>
-          </div>
+        <p className="min-w-0 flex-1 truncate text-[13px] font-medium tracking-tight text-white">
+          {monitor.name}
+        </p>
 
-          {url && (
-            <p className="mt-1 truncate font-mono text-[10px] text-white/35">{url}</p>
-          )}
+        <Ring pct={active ? pct : 0} label={active ? `${Math.round(pct)}%` : "—"} />
 
-          {/* Only what the payload actually contains. No uptime, no latency —
-             those would be fabrications on a monitoring product. */}
-          <p className="mt-2 flex items-center gap-2 font-mono text-[10px] text-white/45">
-            <span className={active ? "text-white/70" : "text-white/35"}>
-              {active ? "Active" : "Paused"}
-            </span>
-            <span aria-hidden className="text-white/15">·</span>
-            <span>every {cadence(monitor.interval)}</span>
-            <span aria-hidden className="text-white/15">·</span>
-            <span>{monitor.timeout}s timeout</span>
+        <span className="shrink-0 rounded-full border border-white/20 px-2 py-0.5 font-mono text-[9px] tracking-tight text-white/80">
+          {monitor.method}
+        </span>
+      </div>
+
+      {/* Two headline stats. Interval and timeout are the only quantities the
+         API gives us that deserve display size — both are real, both matter. */}
+      <div className="mt-3 flex items-end justify-between gap-4">
+        <div>
+          <p className="text-[10px] text-white/45">Interval</p>
+          <p className="mt-0.5 text-[20px] font-medium leading-none tracking-tight text-white">
+            {cadence(monitor.interval)}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[10px] text-white/45">Timeout</p>
+          <p className="mt-0.5 text-[20px] font-medium leading-none tracking-tight text-white">
+            {monitor.timeout}s
           </p>
         </div>
       </div>
+
+      {/* Progress through the current check cycle. Filled violet, a bright
+         knob at the head — the reference's slider, but it isn't draggable:
+         it's a clock, and pretending otherwise would be a lie. */}
+      <div className="relative mt-3 h-1.5 rounded-full bg-white/10">
+        <div
+          className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-violet-500/70 to-violet-300"
+          style={{ width: `${active ? pct : 0}%` }}
+        />
+        <span
+          aria-hidden
+          className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.15)]"
+          style={{ left: `${active ? pct : 0}%` }}
+        />
+      </div>
+
+      <div className="mt-2 grid grid-cols-3 text-[10px]">
+        <div>
+          <p className="text-white/40">Status</p>
+          <p className={cn("mt-0.5 font-medium", active ? "text-white" : "text-white/50")}>
+            {active ? "Active" : "Paused"}
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-white/40">Next check</p>
+          <p className="mt-0.5 font-mono font-medium text-white">
+            {active ? nextIn : "—"}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-white/40">Updated</p>
+          <p className="mt-0.5 font-medium text-white">{shortTime(monitor.updated_at)}</p>
+        </div>
+      </div>
+
+      {/* Footer: labelled rows with a violet rail, like the stops list. */}
+      <div className="mt-3 border-l-2 border-violet-400/70 pl-2.5">
+        <p className="truncate text-[11px] text-white">
+          <span className="mr-2 text-[9px] text-white/40">Endpoint</span>
+          {monitor.url}
+        </p>
+      </div>
     </button>
   );
+}
+
+/**
+ * Zoomed-out overview in the corner: every node as a dot, the current viewport
+ * as a rectangle. Click anywhere to jump there.
+ *
+ * World coordinates are mapped into the map with one uniform scale chosen so
+ * the outermost ring fits, so the map's geometry always matches the board's.
+ * `data-nopan` keeps a click here from starting a drag on the board beneath.
+ */
+function Minimap({
+  monitors,
+  selectedId,
+  view,
+  viewport,
+  onJump,
+}: {
+  monitors: Moniters[];
+  selectedId: string | null;
+  view: { scale: number; x: number; y: number };
+  viewport: { w: number; h: number };
+  onJump: (wx: number, wy: number) => void;
+}) {
+  const W = 176;
+  const H = 120;
+
+  // World extent to show: the outermost occupied ring plus a card's worth of
+  // margin, so nothing sits on the edge of the map.
+  const outer = orbitExtent(monitors.length);
+  const extent = outer + 200; // half a card of margin past the last ring
+  const k = Math.min(W, H) / (extent * 2);
+  const ringRadii = Array.from({ length: Math.floor((outer - 340) / 260) + 1 }, (_, i) => 340 + i * 260);
+
+  const toMap = (wx: number, wy: number) => ({
+    x: W / 2 + wx * k,
+    y: H / 2 + wy * k,
+  });
+
+  // Viewport rectangle in world space → map space. Board transform is
+  // translate(view.x, view.y) then scale(view.scale) about the container centre,
+  // so world (0,0) sits at (view.x, view.y) from centre.
+  const vw = viewport.w / view.scale;
+  const vh = viewport.h / view.scale;
+  const vx = -view.x / view.scale;
+  const vy = -view.y / view.scale;
+  const tl = toMap(vx - vw / 2, vy - vh / 2);
+
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const mx = event.clientX - rect.left;
+    const my = event.clientY - rect.top;
+    onJump((mx - W / 2) / k, (my - H / 2) / k);
+  };
+
+  return (
+    <div
+      data-nopan
+      role="img"
+      aria-label="Overview map of monitors"
+      onClick={handleClick}
+      style={{ width: W, height: H }}
+      className="absolute bottom-4 right-4 cursor-crosshair overflow-hidden rounded-sm border border-white/12 bg-black/85 backdrop-blur-md"
+    >
+      {/* Faint rings, same as the board */}
+      {ringRadii.map((r) => {
+        const d = r * 2 * k;
+        return (
+          <span
+            key={r}
+            aria-hidden
+            className="absolute rounded-full border border-dashed border-white/10"
+            style={{ width: d, height: d, left: W / 2 - d / 2, top: H / 2 - d / 2 }}
+          />
+        );
+      })}
+
+      {/* Origin */}
+      <span
+        aria-hidden
+        className="absolute size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/60"
+        style={{ left: W / 2, top: H / 2 }}
+      />
+
+      {/* Nodes */}
+      {monitors.map((m, i) => {
+        const { x, y } = worldPosition(i);
+        const pt = toMap(x, y);
+        const sel = m.id === selectedId;
+        return (
+          <span
+            key={m.id}
+            aria-hidden
+            className={cn(
+              "absolute -translate-x-1/2 -translate-y-1/2 rounded-full",
+              sel ? "size-2.5 bg-white ring-2 ring-white/30" : m.is_active ? "size-2 bg-[#0ca30c]" : "size-2 bg-white/35"
+            )}
+            style={{ left: pt.x, top: pt.y }}
+          />
+        );
+      })}
+
+      {/* Viewport */}
+      <span
+        aria-hidden
+        className="absolute rounded-[2px] border border-white/60 bg-white/6"
+        style={{
+          left: Math.max(0, tl.x),
+          top: Math.max(0, tl.y),
+          width: Math.min(W, vw * k),
+          height: Math.min(H, vh * k),
+        }}
+      />
+    </div>
+  );
+}
+
+/** Small circular progress ring, SVG-drawn so it stays crisp at any zoom. */
+function Ring({ pct, label }: { pct: number; label: string }) {
+  const r = 14;
+  const c = 2 * Math.PI * r;
+  return (
+    <span className="relative grid size-8 shrink-0 place-items-center">
+      <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90">
+        <circle cx="18" cy="18" r={r} fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="2" />
+        <circle
+          cx="18" cy="18" r={r} fill="none"
+          stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)}
+          className="transition-[stroke-dashoffset] duration-500"
+        />
+      </svg>
+      <span className="relative font-mono text-[8px] text-white/80">{label}</span>
+    </span>
+  );
+}
+
+/**
+ * Where we are in the current check cycle, derived from interval + last update.
+ * Ticks once a second. It's the one piece of live motion the card has, and it's
+ * honest: it says "the next check is due in N seconds", not "the site is up".
+ */
+function useCheckCycle(intervalSec: number, since: string, active: boolean) {
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    if (!active) return;
+    const id = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(id);
+  }, [active]);
+
+  const start = new Date(since).getTime();
+  const period = Math.max(1, intervalSec) * 1000;
+  const elapsed = Number.isFinite(start) ? (now - start) % period : 0;
+  const pct = Math.min(100, Math.max(0, (elapsed / period) * 100));
+  const remaining = Math.ceil((period - elapsed) / 1000);
+
+  return { pct, nextIn: `${remaining}s` };
+}
+
+function shortTime(iso: string) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? "—"
+    : d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }

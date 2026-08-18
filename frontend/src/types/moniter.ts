@@ -1,4 +1,4 @@
-export interface createMoniterData  {
+export interface createMonitorData  {
     name: string;
     url : string; 
     method : "GET" | "HEAD";

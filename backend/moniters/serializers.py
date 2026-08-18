@@ -24,3 +24,19 @@ class MonitersSerializers(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+class MonitorEditSerializer(serializers.Serializer):
+    name = serializers.CharField(
+        min_length=1
+    )
+
+    url = serializers.URLField()
+
+    method = serializers.ChoiceField(
+        choices = ["GET", "PUT", "PATCH", "POST", "HEAD", "DELETE"]
+    )
+
+    interval = serializers.IntegerField()
+
+    timeout = serializers.IntegerField()
+

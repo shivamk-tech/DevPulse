@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ExternalLink,
@@ -46,6 +46,13 @@ export function MonitorDetailPanel({
   const reduce = useReducedMotion();
   const [tab, setTab] = useState<(typeof TABS)[number]>("Overview");
 
+  useEffect(() => {
+    if (!monitor) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [monitor, onClose]);
+
   return (
     <AnimatePresence>
       {monitor && (
@@ -63,7 +70,11 @@ export function MonitorDetailPanel({
             initial={reduce ? { opacity: 0 } : { x: "100%" }}
             animate={reduce ? { opacity: 1 } : { x: 0 }}
             exit={reduce ? { opacity: 0 } : { x: "100%" }}
-            transition={{ duration: 0.35, ease: EASE }}
+            transition={
+              reduce
+                ? { duration: 0.15 }
+                : { type: "spring", stiffness: 380, damping: 38, mass: 0.9 }
+            }
             className={cn(
               "fixed inset-y-0 right-0 z-50 flex w-full max-w-sm flex-col border-l border-white/10 bg-black",
               "lg:relative lg:inset-auto lg:z-auto lg:h-full lg:w-96 lg:max-w-none lg:shrink-0"
@@ -78,8 +89,12 @@ export function MonitorDetailPanel({
               <X className="size-4" />
             </button>
 
-            <div
+            <motion.div
+              key={monitor.id}
               data-lenis-prevent
+              initial={reduce ? false : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.28, ease: EASE, delay: 0.05 }}
               className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-5 lg:overflow-hidden"
             >
               {/* Identity */}
@@ -181,6 +196,14 @@ export function MonitorDetailPanel({
                 </div>
               </div>
 
+              <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={tab}
+                initial={reduce ? false : { opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? undefined : { opacity: 0, y: -4 }}
+                transition={{ duration: 0.18, ease: EASE }}
+              >
               {tab === "Overview" ? (
                 <div className="mt-4 space-y-3">
                   <div className="grid grid-cols-2 rounded-sm border border-white/10">
@@ -225,7 +248,9 @@ export function MonitorDetailPanel({
                   </p>
                 </div>
               )}
-            </div>
+              </motion.div>
+              </AnimatePresence>
+            </motion.div>
           </motion.aside>
         </>
       )}
@@ -255,7 +280,7 @@ function ActionButton({
       // looks live and does nothing is worse than one that admits it can't.
       title={onClick ? label : `${label} — not available yet`}
       className={cn(
-        "flex h-9 items-center justify-center gap-2 rounded-sm text-xs font-medium transition-colors",
+        "flex h-9 items-center justify-center gap-2 rounded-sm text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98]",
         "disabled:cursor-not-allowed disabled:opacity-40",
         primary
           ? "bg-white text-black enabled:hover:bg-white/90"
