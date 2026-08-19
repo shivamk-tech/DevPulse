@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
-  hasMoniters: boolean;
+  hasMonitors: boolean;
   /** True while monitors are still being fetched. */
   loading?: boolean;
   onCreateMonitor?: () => void;
@@ -25,7 +25,7 @@ interface EmptyStateProps {
  * page is cinematic. Once there's data this is replaced by a table, so the
  * visual weight costs nothing long-term.
  */
-export function EmptyState({ hasMoniters, loading = false, onCreateMonitor }: EmptyStateProps) {
+export function EmptyState({ hasMonitors, loading = false, onCreateMonitor }: EmptyStateProps) {
   return (
     <section className="relative isolate overflow-hidden rounded-xl border border-white/10">
       <Image
@@ -80,7 +80,7 @@ export function EmptyState({ hasMoniters, loading = false, onCreateMonitor }: Em
       <div
         className={cn(
           "relative flex flex-col items-start px-7 sm:px-10",
-          hasMoniters ? "py-8 sm:py-10" : "py-16 sm:py-20"
+          hasMonitors ? "py-8 sm:py-10" : "py-16 sm:py-20"
         )}
       >
         <p className="flex items-center gap-2.5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/40">
@@ -90,10 +90,10 @@ export function EmptyState({ hasMoniters, loading = false, onCreateMonitor }: Em
               "size-1 rounded-full",
               // A live dot once something is actually being watched; a plain
               // grey one while nothing is.
-              hasMoniters ? "bg-[#0ca30c]" : "bg-white/50"
+              hasMonitors ? "bg-[#0ca30c]" : "bg-white/50"
             )}
           />
-          {hasMoniters ? "Monitoring active" : "No monitors yet"}
+          {hasMonitors ? "Monitoring active" : "No monitors yet"}
         </p>
 
         {/* Two-tone, tight-tracked, left-anchored — the hero's exact recipe at
@@ -101,10 +101,10 @@ export function EmptyState({ hasMoniters, loading = false, onCreateMonitor }: Em
         <h2
           className={cn(
             "mt-4 max-w-md font-normal leading-tight tracking-[-0.03em] text-white",
-            hasMoniters ? "text-base sm:text-lg" : "text-xl sm:text-2xl"
+            hasMonitors ? "text-base sm:text-lg" : "text-xl sm:text-2xl"
           )}
         >
-          {hasMoniters ? (
+          {hasMonitors ? (
             <>
               Your endpoints are being watched.{" "}
               <span className="text-white/35">Add another any time.</span>
@@ -119,7 +119,7 @@ export function EmptyState({ hasMoniters, loading = false, onCreateMonitor }: Em
 
         {/* The explainer only earns its place before the first monitor — after
            that the reader already knows what the product does. */}
-        {!hasMoniters && (
+        {!hasMonitors && (
           <p className="mt-4 max-w-sm text-[13px] leading-relaxed text-white/45">
             Checks run every minute from multiple regions. You&apos;ll hear from
             us the moment something stops responding.
@@ -129,26 +129,26 @@ export function EmptyState({ hasMoniters, loading = false, onCreateMonitor }: Em
         <div
           className={cn(
             "flex flex-wrap items-center gap-3",
-            hasMoniters ? "mt-5" : "mt-8"
+            hasMonitors ? "mt-5" : "mt-8"
           )}
         >
           <Button
             // Solid white is the one loud action on an otherwise empty page;
             // with monitors on screen the list is the subject and this drops to
             // an outline so it stops competing.
-            variant={hasMoniters ? "outline" : "white"}
+            variant={hasMonitors ? "outline" : "white"}
             size="sm"
             onClick={onCreateMonitor}
             className={
-              hasMoniters
+              hasMonitors
                 ? "border-white/15 bg-transparent text-white hover:bg-white/5"
                 : undefined
             }
           >
-            {hasMoniters ? "Add monitor" : "Create your first monitor"}
+            {hasMonitors ? "Add monitor" : "Create your first monitor"}
           </Button>
 
-          {!hasMoniters && (
+          {!hasMonitors && (
             <Link
               href="/dashboard/docs/monitoring"
               className="group inline-flex items-center gap-1.5 font-mono text-[11px] text-white/50 transition-colors hover:text-white"

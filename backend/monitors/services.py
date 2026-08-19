@@ -1,8 +1,8 @@
-from .models import Moniters
+from .models import Monitor
 
 
-def create_moniters(*, user, validated_data):
-    return Moniters.objects.create(
+def create_monitor(*, user, validated_data):
+    return Monitor.objects.create(
         owner = user,
         **validated_data,
     )
@@ -10,11 +10,11 @@ def create_moniters(*, user, validated_data):
 
 def update_monitors(monitor_id, user, validated_data):
     try:
-        monitor = Moniters.objects.get(
+        monitor = Monitor.objects.get(
             id=monitor_id,
             user=user
         )
-    except Moniters.DoesNotExist:
+    except Monitor.DoesNotExist:
         return None;
     for field, value in validated_data.items():
         setattr(monitor, field, value)

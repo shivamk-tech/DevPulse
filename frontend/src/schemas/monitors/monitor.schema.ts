@@ -3,7 +3,7 @@ import { z } from "zod";
 /**
  * Frontend-only validation for the Create Monitor form.
  *
- * Field names, bounds, and defaults mirror the existing Moniters model so the
+ * Field names, bounds, and defaults mirror the existing Monitor model so the
  * payload lines up when this is wired to the API later — `url` is capped at 100
  * to match the model's max_length, and the method choices are exactly the two
  * the model allows. Nothing here talks to the backend; the server remains the

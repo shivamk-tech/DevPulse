@@ -48,7 +48,7 @@ export function Features() {
           className="flex items-center gap-2.5 font-mono text-[11px] tracking-[0.14em] text-white/45"
         >
           <span className="size-1.5 rounded-full bg-white/50" />
-          Introducing monitering 
+          Introducing monitoring 
         </motion.p>
 
         {/* Two-tone headline: the first clause carries the point in full white,

@@ -1,4 +1,7 @@
-### Current User
+PATCH http://localhost:8000/api/monitors/15/
+Content-Type: application/json
 
-POST http://localhost:8000/api/auth/refresh/
-
+{
+    "name": "John Doe",
+    "email": "john@example.com"
+}

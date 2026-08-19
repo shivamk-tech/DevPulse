@@ -6,13 +6,13 @@ import { motion, useReducedMotion } from "motion/react";
 import { Globe, Maximize, Minus, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui";
-import type { Moniters } from "@/types/moniter";
+import type { Monitor } from "@/types/monitor";
 import { cn } from "@/lib/utils";
 
 interface MonitorsPlaygroundProps {
-  monitors: Moniters[];
+  monitors: Monitor[];
   selectedId: string | null;
-  onSelect: (monitor: Moniters) => void;
+  onSelect: (monitor: Monitor) => void;
   /** Called on Escape / clicking empty canvas, to clear the selection. */
   onDeselect?: () => void;
   onCreate?: () => void;
@@ -329,7 +329,6 @@ export function MonitorsPlayground({
             transform: `translate3d(${view.x}px, ${view.y}px, 0) scale(${view.scale})`,
           }}
         >
-          <OrbitRings />
           <BeaconCore reduce={Boolean(reduce)} />
 
           {!loading &&
@@ -340,9 +339,13 @@ export function MonitorsPlayground({
                 <motion.div
                   key={monitor.id}
                   data-node
-                  initial={reduce ? false : { opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: reduce ? 0 : index * 0.07 }}
+                  initial={reduce ? false : { opacity: 0, scale: 0.92, y: 12 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={
+                    reduce
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 300, damping: 26, delay: index * 0.06 }
+                  }
                   style={{ position: "absolute", left: x - 144, top: y - 76 }}
                 >
                   <MonitorCard
@@ -355,7 +358,21 @@ export function MonitorsPlayground({
             })}
         </div>
 
-        {loading && <CanvasMessage>Loading monitors</CanvasMessage>}
+        {loading && (
+          <div className="absolute left-1/2 top-1/2">
+            {[0, 1, 2].map((i) => {
+              const { x, y } = worldPosition(i);
+              return (
+                <div
+                  key={i}
+                  aria-hidden
+                  style={{ position: "absolute", left: x - 144, top: y - 76 }}
+                  className="h-38 w-72 animate-pulse rounded-xl border border-white/8 bg-white/[0.03]"
+                />
+              );
+            })}
+          </div>
+        )}
         {isEmpty && <EmptyCanvas onCreate={onCreate} reduce={Boolean(reduce)} />}
 
         {/* Zoom controls — hidden when there's nothing to navigate. */}
@@ -491,20 +508,6 @@ function CanvasBackdrop({
   );
 }
 
-function OrbitRings() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute">
-      {[680, 1200, 1720].map((size) => (
-        <span
-          key={size}
-          className="absolute rounded-full border border-dashed border-white/[0.07]"
-          style={{ width: size, height: size, left: -size / 2, top: -size / 2 }}
-        />
-      ))}
-    </div>
-  );
-}
-
 function BeaconCore({ reduce }: { reduce: boolean }) {
   return (
     <motion.div
@@ -526,16 +529,6 @@ function BeaconCore({ reduce }: { reduce: boolean }) {
         className="relative size-8 w-auto mix-blend-screen drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]"
       />
     </motion.div>
-  );
-}
-
-function CanvasMessage({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="pointer-events-none absolute inset-0 grid place-items-center">
-      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-white/25">
-        {children}
-      </p>
-    </div>
   );
 }
 
@@ -646,7 +639,7 @@ function MonitorCard({
   onSelect,
   fluid = false,
 }: {
-  monitor: Moniters;
+  monitor: Monitor;
   selected: boolean;
   onSelect: () => void;
   fluid?: boolean;
@@ -661,92 +654,93 @@ function MonitorCard({
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        "group relative overflow-hidden rounded-xl border p-3.5 text-left",
-        "transition-[transform,border-color,box-shadow] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] active:scale-[0.99] active:duration-100",
-        // Dark glass with a violet bloom in the top-left — the reference's
-        // whole mood in two layers, kept well under the text.
-        "bg-[radial-gradient(120%_90%_at_0%_0%,rgba(139,124,246,0.22),transparent_55%),linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))]",
-        "backdrop-blur-md",
+        "group relative overflow-hidden rounded-lg text-left",
+        // Solid surface. One flat fill, one border, one shadow — depth comes from
+        // the shadow against the photograph, not from transparency. Opaque also
+        // means the card is legible over any part of the image, including the
+        // lamp, which glass never quite managed.
+        "bg-[#101013] shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_10px_30px_-12px_rgba(0,0,0,0.8)]",
+        "transition-[transform,border-color,box-shadow] duration-200 ease-out active:scale-[0.99]",
         fluid ? "w-full" : "w-72",
         selected
-          ? "border-white/35 shadow-[0_0_0_1px_rgba(255,255,255,0.08),0_24px_60px_-24px_rgba(139,124,246,0.6)]"
-          : "border-white/12 hover:-translate-y-0.5 hover:border-white/25 hover:shadow-[0_18px_50px_-28px_rgba(139,124,246,0.5)]"
+          ? "border border-white/40 shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_16px_40px_-16px_rgba(0,0,0,0.9)]"
+          : "border border-white/[0.09] hover:-translate-y-px hover:border-white/20"
       )}
     >
-      {/* Header: icon + name · ring · method pill */}
-      <div className="flex items-center gap-3">
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-white/8">
-          <Globe className="size-3.5 text-white/85" />
+      {/* Header strip — slightly lighter band, hairline underneath. A real
+         card has a header you can point at, not just a first row. */}
+      <div className="flex items-center gap-2.5 border-b border-white/[0.07] bg-white/[0.025] px-3.5 py-2.5">
+        <span className="grid size-6 shrink-0 place-items-center rounded-[5px] border border-white/10 bg-[#17171b]">
+          <Globe className="size-3 text-white/75" />
         </span>
 
-        <p className="min-w-0 flex-1 truncate text-[13px] font-medium tracking-tight text-white">
+        <p className="min-w-0 flex-1 truncate text-[13px] font-semibold tracking-tight text-white">
           {monitor.name}
         </p>
 
-        <Ring pct={active ? pct : 0} label={active ? `${Math.round(pct)}%` : "—"} />
-
-        <span className="shrink-0 rounded-full border border-white/20 px-2 py-0.5 font-mono text-[9px] tracking-tight text-white/80">
+        <span className="shrink-0 rounded-[4px] border border-white/12 bg-[#17171b] px-1.5 py-[3px] font-mono text-[9px] font-medium tracking-tight text-white/70">
           {monitor.method}
+        </span>
+
+        {/* Status pill: dot + word. Colour never carries the state alone. */}
+        <span
+          className={cn(
+            "inline-flex shrink-0 items-center gap-1.5 rounded-[4px] px-1.5 py-[3px] font-mono text-[9px] font-medium tracking-tight",
+            active ? "bg-[#0ca30c]/12 text-[#7bd67b]" : "bg-white/6 text-white/50"
+          )}
+        >
+          <span aria-hidden className={cn("size-1.5 rounded-full", active ? "bg-[#0ca30c]" : "bg-white/35")} />
+          {active ? "Active" : "Paused"}
         </span>
       </div>
 
-      {/* Two headline stats. Interval and timeout are the only quantities the
-         API gives us that deserve display size — both are real, both matter. */}
-      <div className="mt-3 flex items-end justify-between gap-4">
-        <div>
-          <p className="text-[10px] text-white/45">Interval</p>
-          <p className="mt-0.5 text-[20px] font-medium leading-none tracking-tight text-white">
-            {cadence(monitor.interval)}
-          </p>
+      <div className="px-3.5 pb-3.5 pt-3">
+        {/* Two stats, separated by a hairline rather than by whitespace alone —
+           it reads as two cells, which is what they are. */}
+        <div className="grid grid-cols-2 divide-x divide-white/[0.07]">
+          <div className="pr-3">
+            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">Interval</p>
+            <p className="mt-1 text-[19px] font-semibold leading-none tracking-tight text-white">
+              {cadence(monitor.interval)}
+            </p>
+          </div>
+          <div className="pl-3">
+            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">Timeout</p>
+            <p className="mt-1 text-[19px] font-semibold leading-none tracking-tight text-white">
+              {monitor.timeout}s
+            </p>
+          </div>
         </div>
-        <div className="text-right">
-          <p className="text-[10px] text-white/45">Timeout</p>
-          <p className="mt-0.5 text-[20px] font-medium leading-none tracking-tight text-white">
-            {monitor.timeout}s
-          </p>
-        </div>
-      </div>
 
-      {/* Progress through the current check cycle. Filled violet, a bright
-         knob at the head — the reference's slider, but it isn't draggable:
-         it's a clock, and pretending otherwise would be a lie. */}
-      <div className="relative mt-3 h-1.5 rounded-full bg-white/10">
-        <div
-          className="absolute inset-y-0 left-0 rounded-full bg-linear-to-r from-violet-500/70 to-violet-300"
-          style={{ width: `${active ? pct : 0}%` }}
-        />
-        <span
-          aria-hidden
-          className="absolute top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_0_3px_rgba(255,255,255,0.15)]"
-          style={{ left: `${active ? pct : 0}%` }}
-        />
-      </div>
+        {/* Cycle progress: a plain track and a solid fill. No knob — that read
+           as a slider you could drag, and this is a clock. */}
+        <div className="mt-3.5">
+          <div className="flex items-center justify-between font-mono text-[9px] tracking-tight text-white/40">
+            <span>Next check</span>
+            {/* Time-derived: server and client compute a different second, so
+               React must not try to reconcile the first paint. */}
+            <span suppressHydrationWarning className="text-white/70">
+              {active ? nextIn : "—"}
+            </span>
+          </div>
+          <div className="mt-1.5 h-1 overflow-hidden rounded-[2px] bg-white/[0.08]">
+            <div
+              suppressHydrationWarning
+              className={cn("h-full rounded-[2px]", active ? "bg-white/70" : "bg-white/20")}
+              style={{ width: `${active ? pct : 0}%` }}
+            />
+          </div>
+        </div>
 
-      <div className="mt-2 grid grid-cols-3 text-[10px]">
-        <div>
-          <p className="text-white/40">Status</p>
-          <p className={cn("mt-0.5 font-medium", active ? "text-white" : "text-white/50")}>
-            {active ? "Active" : "Paused"}
-          </p>
+        {/* Endpoint row: label left, value right, like a settings row. */}
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-2.5">
+          <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">
+            Endpoint
+          </span>
+          <span className="min-w-0 truncate font-mono text-[10px] text-white/75">
+            {monitor.url.replace(/^https?:\/\//, "")}
+          </span>
         </div>
-        <div className="text-center">
-          <p className="text-white/40">Next check</p>
-          <p className="mt-0.5 font-mono font-medium text-white">
-            {active ? nextIn : "—"}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-white/40">Updated</p>
-          <p className="mt-0.5 font-medium text-white">{shortTime(monitor.updated_at)}</p>
-        </div>
-      </div>
-
-      {/* Footer: labelled rows with a violet rail, like the stops list. */}
-      <div className="mt-3 border-l-2 border-violet-400/70 pl-2.5">
-        <p className="truncate text-[11px] text-white">
-          <span className="mr-2 text-[9px] text-white/40">Endpoint</span>
-          {monitor.url}
-        </p>
       </div>
     </button>
   );
@@ -767,7 +761,7 @@ function Minimap({
   viewport,
   onJump,
 }: {
-  monitors: Moniters[];
+  monitors: Monitor[];
   selectedId: string | null;
   view: { scale: number; x: number; y: number };
   viewport: { w: number; h: number };
@@ -781,7 +775,6 @@ function Minimap({
   const outer = orbitExtent(monitors.length);
   const extent = outer + 200; // half a card of margin past the last ring
   const k = Math.min(W, H) / (extent * 2);
-  const ringRadii = Array.from({ length: Math.floor((outer - 340) / 260) + 1 }, (_, i) => 340 + i * 260);
 
   const toMap = (wx: number, wy: number) => ({
     x: W / 2 + wx * k,
@@ -813,18 +806,6 @@ function Minimap({
       style={{ width: W, height: H }}
       className="absolute bottom-4 right-4 cursor-crosshair overflow-hidden rounded-sm border border-white/12 bg-black/85 backdrop-blur-md"
     >
-      {/* Faint rings, same as the board */}
-      {ringRadii.map((r) => {
-        const d = r * 2 * k;
-        return (
-          <span
-            key={r}
-            aria-hidden
-            className="absolute rounded-full border border-dashed border-white/10"
-            style={{ width: d, height: d, left: W / 2 - d / 2, top: H / 2 - d / 2 }}
-          />
-        );
-      })}
 
       {/* Origin */}
       <span
@@ -866,26 +847,6 @@ function Minimap({
   );
 }
 
-/** Small circular progress ring, SVG-drawn so it stays crisp at any zoom. */
-function Ring({ pct, label }: { pct: number; label: string }) {
-  const r = 14;
-  const c = 2 * Math.PI * r;
-  return (
-    <span className="relative grid size-8 shrink-0 place-items-center">
-      <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90">
-        <circle cx="18" cy="18" r={r} fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="2" />
-        <circle
-          cx="18" cy="18" r={r} fill="none"
-          stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round"
-          strokeDasharray={c} strokeDashoffset={c * (1 - pct / 100)}
-          className="transition-[stroke-dashoffset] duration-500"
-        />
-      </svg>
-      <span className="relative font-mono text-[8px] text-white/80">{label}</span>
-    </span>
-  );
-}
-
 /**
  * Where we are in the current check cycle, derived from interval + last update.
  * Ticks once a second. It's the one piece of live motion the card has, and it's
@@ -909,9 +870,3 @@ function useCheckCycle(intervalSec: number, since: string, active: boolean) {
   return { pct, nextIn: `${remaining}s` };
 }
 
-function shortTime(iso: string) {
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? "—"
-    : d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
-}

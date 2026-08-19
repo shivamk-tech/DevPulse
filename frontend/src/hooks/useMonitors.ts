@@ -2,12 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { moniterServices } from "@/services/moniter/moniters.service"
+import { monitorServices } from "@/services/monitor/monitors.service"
 
 export function useMonitor(){
     return useQuery({
         queryKey: ["monitors"],
-        queryFn : () => moniterServices.getAll()
+        queryFn : () => monitorServices.getAll()
     });
 }
 

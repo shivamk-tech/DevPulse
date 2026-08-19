@@ -6,7 +6,7 @@ export interface createMonitorData  {
     timeout: number;
 }
 
-export interface Moniters {
+export interface Monitor {
     id: string;
     name: string;
     url:string;

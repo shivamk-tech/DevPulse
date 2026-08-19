@@ -1,11 +1,11 @@
 from rest_framework import serializers
-from .models import Moniters
+from .models import Monitor
 
 
-class MonitersSerializers(serializers.ModelSerializer):
+class MonitorSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Moniters
+        model = Monitor
 
         fields = [
             "id",

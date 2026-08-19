@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Moniters',
+            name='Monitor',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100)),
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='moniters', to=settings.AUTH_USER_MODEL)),
+                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='monitors', to=settings.AUTH_USER_MODEL)),
             ],
         ),
     ]

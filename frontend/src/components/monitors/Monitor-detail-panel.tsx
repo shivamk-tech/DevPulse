@@ -12,16 +12,16 @@ import {
   X,
 } from "lucide-react";
 
-import type { Moniters } from "@/types/moniter";
+import type { Monitor } from "@/types/monitor";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 interface MonitorDetailPanelProps {
-  monitor: Moniters | null;
+  monitor: Monitor | null;
   onClose: () => void;
   /** Wire these when the endpoints exist; the buttons disable without them. */
-  onTogglePause?: (monitor: Moniters) => void;
-  onEdit?: (monitor: Moniters) => void;
+  onTogglePause?: (monitor: Monitor) => void;
+  onEdit?: (monitor: Monitor) => void;
 }
 
 const TABS = ["Overview", "Checks", "Incidents", "Settings"] as const;

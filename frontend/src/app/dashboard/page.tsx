@@ -12,13 +12,13 @@ import { useState } from "react";
 import { WorkspaceSummary } from "@/components/dashboard/widgets/Workspace-summary";
 import { TipsCard } from "@/components/dashboard/widgets/Tip-card";
 import { useMonitor } from "@/hooks/useMonitors";
-import { moniterServices } from "@/services/moniter/moniters.service";
-import { createMonitorData } from "@/types/moniter";
+import { monitorServices } from "@/services/monitor/monitors.service";
+import { createMonitorData } from "@/types/monitor";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function DashboardPage() {
 
-  const [createMoniterOpen, setCreateMoniterOpen] = useState(false)
+  const [createMonitorOpen, setCreateMonitorOpen] = useState(false)
   const {
     data,
     isLoading,
@@ -36,10 +36,10 @@ export default function DashboardPage() {
   const hasMonitors = monitors.length > 0
   const monitorsCount = monitors.length
 
-  const handleCreateMoniter = async (
+  const handleCreateMonitor = async (
     values: createMonitorData
   ) => {
-    await moniterServices.Create(values);
+    await monitorServices.Create(values);
 
     await queryClient.invalidateQueries({
       queryKey: ["monitors"],
@@ -48,7 +48,7 @@ export default function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-350 space-y-6 p-6">
-      <WelcomeBanner onCreateMonitor={() => setCreateMoniterOpen(true)} />
+      <WelcomeBanner onCreateMonitor={() => setCreateMonitorOpen(true)} />
 
       {/* Metrics first: the reader's question is "is anything broken?"
          and it gets answered above the fold, before any onboarding. */}
@@ -57,9 +57,9 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-6 xl:flex-row">
         <div className="min-w-0 flex-1 space-y-6">
           <EmptyState
-            hasMoniters={hasMonitors}
+            hasMonitors={hasMonitors}
             loading={isLoading}
-            onCreateMonitor={() => setCreateMoniterOpen(true)}
+            onCreateMonitor={() => setCreateMonitorOpen(true)}
           />
           <QuickStart />
           <RecentActivity />
@@ -73,9 +73,9 @@ export default function DashboardPage() {
       </div>
 
       <CreateMonitorDialog
-        open={createMoniterOpen}
-        onOpenChange={setCreateMoniterOpen}
-        onSubmit={handleCreateMoniter}
+        open={createMonitorOpen}
+        onOpenChange={setCreateMonitorOpen}
+        onSubmit={handleCreateMonitor}
       />
     </div>
   );

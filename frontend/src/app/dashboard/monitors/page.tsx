@@ -7,13 +7,13 @@ import { CreateMonitorDialog } from "@/components/monitors/Create-monitor-dialog
 import { MonitorDetailPanel } from "@/components/monitors/Monitor-detail-panel";
 import { MonitorsPlayground } from "@/components/monitors/Monitors-playground";
 import { Button } from "@/components/ui";
-import type { Moniters } from "@/types/moniter";
+import type { Monitor } from "@/types/monitor";
 import { cn } from "@/lib/utils";
 import { useMonitor } from "@/hooks/useMonitors";
 
 export default function MonitorsPage() {
   const [createOpen, setCreateOpen] = useState(false);
-  const [selected, setSelected] = useState<Moniters | null>(null);
+  const [selected, setSelected] = useState<Monitor | null>(null);
   const {data, isLoading } = useMonitor()
 
   const monitors = data?.data ?? [];  

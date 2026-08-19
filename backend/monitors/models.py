@@ -5,7 +5,7 @@ from django.conf import settings
 from django.db import models
 
 
-class Moniters(models.Model):
+class Monitor(models.Model):
 
     class HttpMethod(models.TextChoices):
         GET = "GET", "GET"
@@ -14,7 +14,7 @@ class Moniters(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="moniters"
+        related_name="monitors"
     )
 
     name = models.CharField(
