@@ -9,19 +9,23 @@ import { MonitorsPlayground } from "@/components/monitors/Monitors-playground";
 import { Button } from "@/components/ui";
 import type { Monitor } from "@/types/monitor";
 import { cn } from "@/lib/utils";
-import { useMonitor } from "@/hooks/useMonitors";
+import { useMonitor, useUpdateMonitor } from "@/hooks/useMonitors";
+import { monitorServices } from "@/services/monitor/monitors.service";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function MonitorsPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [selected, setSelected] = useState<Monitor | null>(null);
-  const {data, isLoading } = useMonitor()
-
-  const monitors = data?.data ?? [];  
+  const { data, isLoading } = useMonitor()
+  const [editing, setEditing] = useState<Monitor | null>(null);
+  const updateMonitor = useUpdateMonitor();
+  const monitors = data?.data ?? [];
   const counts = {
     all: monitors.length,
     active: monitors.filter((m) => m.is_active).length,
     paused: monitors.filter((m) => !m.is_active).length,
   };
+  const queryClient = useQueryClient();
 
   return (
     <div className="flex h-full w-full overflow-hidden">
@@ -77,9 +81,24 @@ export default function MonitorsPage() {
         </div>
       </div>
 
-      <MonitorDetailPanel monitor={selected} onClose={() => setSelected(null)} />
+      <MonitorDetailPanel monitor={selected} onClose={() => setSelected(null)} onEdit={(m) => { setEditing(m); setCreateOpen(true); }} />
 
-      <CreateMonitorDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <CreateMonitorDialog
+        open={createOpen}
+        onOpenChange={(open) => { setCreateOpen(open); if (!open) setEditing(null); }}
+        monitor={editing}
+        onSubmit={async (values) => {
+          if (editing) {
+            const res = await updateMonitor.mutateAsync({ id: editing.id, data: values });
+            setSelected(res.data);      // panel shows fresh values immediately
+          } else {
+            await monitorServices.Create(values);
+            await queryClient.invalidateQueries({
+              queryKey : ["monitors"],
+            })
+          }
+        }}
+      />
     </div>
   );
 }

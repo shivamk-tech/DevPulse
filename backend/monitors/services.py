@@ -12,7 +12,7 @@ def update_monitors(monitor_id, user, validated_data):
     try:
         monitor = Monitor.objects.get(
             id=monitor_id,
-            user=user
+            owner=user
         )
     except Monitor.DoesNotExist:
         return None;

@@ -27,15 +27,12 @@ import {
 } from "@/schemas/monitors/monitor.schema";
 import { transition } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { Monitor } from "@/types/monitor";
 
 interface CreateMonitorDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /**
-   * Submission hook for later. Leave it unset and the form runs a local no-op
-   * that exercises the loading and success visuals without any network call —
-   * there is deliberately no API wiring in this component.
-   */
+  monitor?:Monitor | null;
   onSubmit?: (values: CreateMonitorFormData) => Promise<void>;
 }
 
@@ -44,6 +41,7 @@ const SUCCESS_DWELL_MS = 1400;
 
 export function CreateMonitorDialog({
   open,
+  monitor,
   onOpenChange,
   onSubmit,
 }: CreateMonitorDialogProps) {
@@ -71,6 +69,18 @@ export function CreateMonitorDialog({
     return () => window.clearTimeout(timer);
   }, [open, form]);
 
+  useEffect(() => {
+    if (open && monitor) {
+      form.reset({
+        name:monitor.name,
+        url:monitor.url,
+        method:monitor.method,
+        interval:monitor.interval,
+        timeout:monitor.timeout,
+      })
+    }
+  }, [open, monitor, form])
+
   const handleSubmit = async (values: CreateMonitorFormData) => {
     form.clearErrors("root");
 
@@ -89,7 +99,7 @@ export function CreateMonitorDialog({
 
       form.setError("root", {
         type: "server",
-        message: "Couldn't create monitor. Please try again.",
+        message: `Couldn't ${monitor ? "update" : "create"} monitor. Please try again.`,
       });
     }
   };
@@ -142,9 +152,9 @@ export function CreateMonitorDialog({
               initial={false}
             >
               <DialogHeader>
-                <DialogTitle className="text-base">Create a new monitor</DialogTitle>
+                <DialogTitle className="text-base">{monitor ? "Edit monitor" : "Create a new monitor"}</DialogTitle>
                 <DialogDescription className="text-xs">
-                  Add a website or API endpoint to start monitoring.
+                  {monitor ? "Update how Beacon checks this endpoint." : "Add a website or API endpoint to start monitoring"}
                 </DialogDescription>
               </DialogHeader>
 
@@ -341,7 +351,7 @@ export function CreateMonitorDialog({
                   loading={form.formState.isSubmitting}
                   className="h-9 rounded-sm px-5"
                 >
-                  {form.formState.isSubmitting ? "Creating..." : "Create monitor"}
+                  {form.formState.isSubmitting ? (monitor ? "Saving..." : "Creating...") : (monitor ? "Save changes" : "Create monitor")}
                 </Button>
               </DialogFooter>
             </motion.form>

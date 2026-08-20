@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, useReducedMotion } from "motion/react";
-import { Globe, Maximize, Minus, Plus } from "lucide-react";
+import { ArrowUpRight, Clock, Globe, Maximize, Minus, Plus, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui";
 import type { Monitor } from "@/types/monitor";
@@ -647,6 +647,12 @@ function MonitorCard({
   const active = monitor.is_active;
   const { pct, nextIn } = useCheckCycle(monitor.interval, monitor.updated_at, active);
 
+  // Deterministic monogram from the hostname — gives each card an identity at
+  // a glance without fetching favicons (external hosts are a config burden and
+  // a layout shift). Falls back to a globe when the URL doesn't parse.
+  const host = monitor.url.replace(/^https?:\/\//, "").replace(/\/.*$/, "");
+  const initial = /^[a-z0-9]/i.test(host) ? host[0].toUpperCase() : null;
+
   return (
     <button
       type="button"
@@ -655,23 +661,40 @@ function MonitorCard({
       aria-pressed={selected}
       className={cn(
         "group relative overflow-hidden rounded-lg text-left",
-        // Solid surface. One flat fill, one border, one shadow — depth comes from
-        // the shadow against the photograph, not from transparency. Opaque also
-        // means the card is legible over any part of the image, including the
-        // lamp, which glass never quite managed.
+        // Solid surface. One flat fill, one border, one shadow — depth comes
+        // from the shadow against the photograph, not from transparency.
         "bg-[#101013] shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_10px_30px_-12px_rgba(0,0,0,0.8)]",
         "transition-[transform,border-color,box-shadow] duration-200 ease-out active:scale-[0.99]",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-2 focus-visible:ring-offset-black",
         fluid ? "w-full" : "w-72",
         selected
           ? "border border-white/40 shadow-[0_0_0_1px_rgba(255,255,255,0.12),0_16px_40px_-16px_rgba(0,0,0,0.9)]"
-          : "border border-white/[0.09] hover:-translate-y-px hover:border-white/20"
+          : "border border-white/[0.09] hover:-translate-y-px hover:border-white/25 hover:shadow-[0_16px_44px_-16px_rgba(0,0,0,0.9)]"
       )}
     >
-      {/* Header strip — slightly lighter band, hairline underneath. A real
-         card has a header you can point at, not just a first row. */}
+      {/* Selection rail: a 2px accent along the left edge. Border alone reads
+         as "hovered"; the rail reads as "chosen". */}
+      <span
+        aria-hidden
+        className={cn(
+          "absolute inset-y-0 left-0 w-0.5 transition-opacity duration-200",
+          selected ? "bg-white/80 opacity-100" : "opacity-0"
+        )}
+      />
+
+      {/* Header strip — slightly lighter band, hairline underneath. */}
       <div className="flex items-center gap-2.5 border-b border-white/[0.07] bg-white/[0.025] px-3.5 py-2.5">
-        <span className="grid size-6 shrink-0 place-items-center rounded-[5px] border border-white/10 bg-[#17171b]">
-          <Globe className="size-3 text-white/75" />
+        {/* Identity tile: hostname monogram at rest, an arrow on hover — the
+           tile itself is the "open me" affordance. */}
+        <span className="relative grid size-6 shrink-0 place-items-center overflow-hidden rounded-[5px] border border-white/10 bg-[#17171b] transition-colors duration-200 group-hover:border-white/20 group-hover:bg-[#1c1c21]">
+          <span className="grid place-items-center transition-[opacity,transform] duration-200 group-hover:-translate-y-1 group-hover:opacity-0">
+            {initial ? (
+              <span className="font-mono text-[10px] font-semibold text-white/80">{initial}</span>
+            ) : (
+              <Globe className="size-3 text-white/75" />
+            )}
+          </span>
+          <ArrowUpRight className="absolute size-3 translate-y-1 text-white opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-y-0 group-hover:opacity-100" />
         </span>
 
         <p className="min-w-0 flex-1 truncate text-[13px] font-semibold tracking-tight text-white">
@@ -682,63 +705,90 @@ function MonitorCard({
           {monitor.method}
         </span>
 
-        {/* Status pill: dot + word. Colour never carries the state alone. */}
+        {/* Status pill: dot + word. Colour never carries the state alone; the
+           ping is the "this is live right now" cue and costs one composited
+           layer. */}
         <span
           className={cn(
             "inline-flex shrink-0 items-center gap-1.5 rounded-[4px] px-1.5 py-[3px] font-mono text-[9px] font-medium tracking-tight",
             active ? "bg-[#0ca30c]/12 text-[#7bd67b]" : "bg-white/6 text-white/50"
           )}
         >
-          <span aria-hidden className={cn("size-1.5 rounded-full", active ? "bg-[#0ca30c]" : "bg-white/35")} />
+          <span aria-hidden className="relative flex size-1.5">
+            {active && (
+              <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#0ca30c]/60 motion-reduce:hidden" />
+            )}
+            <span className={cn("relative inline-flex size-1.5 rounded-full", active ? "bg-[#0ca30c]" : "bg-white/35")} />
+          </span>
           {active ? "Active" : "Paused"}
         </span>
       </div>
 
       <div className="px-3.5 pb-3.5 pt-3">
-        {/* Two stats, separated by a hairline rather than by whitespace alone —
-           it reads as two cells, which is what they are. */}
+        {/* Two stats split by a hairline — two cells, labeled with the icon
+           that matches their meaning so they scan without reading. */}
         <div className="grid grid-cols-2 divide-x divide-white/[0.07]">
           <div className="pr-3">
-            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">Interval</p>
+            <p className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">
+              <Timer aria-hidden className="size-2.5" />
+              Interval
+            </p>
             <p className="mt-1 text-[19px] font-semibold leading-none tracking-tight text-white">
               {cadence(monitor.interval)}
             </p>
           </div>
           <div className="pl-3">
-            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">Timeout</p>
+            <p className="flex items-center gap-1 font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">
+              <Clock aria-hidden className="size-2.5" />
+              Timeout
+            </p>
             <p className="mt-1 text-[19px] font-semibold leading-none tracking-tight text-white">
               {monitor.timeout}s
             </p>
           </div>
         </div>
 
-        {/* Cycle progress: a plain track and a solid fill. No knob — that read
-           as a slider you could drag, and this is a clock. */}
+        {/* Cycle progress: track with quarter ticks so the bar reads as a
+           clock face, and a brighter leading edge so the fill has a "now". */}
         <div className="mt-3.5">
           <div className="flex items-center justify-between font-mono text-[9px] tracking-tight text-white/40">
             <span>Next check</span>
             {/* Time-derived: server and client compute a different second, so
                React must not try to reconcile the first paint. */}
-            <span suppressHydrationWarning className="text-white/70">
+            <span suppressHydrationWarning className={cn("tabular-nums", active ? "text-white/70" : "text-white/40")}>
               {active ? nextIn : "—"}
             </span>
           </div>
-          <div className="mt-1.5 h-1 overflow-hidden rounded-[2px] bg-white/[0.08]">
+          <div className="relative mt-1.5 h-1 overflow-hidden rounded-[2px] bg-white/[0.08]">
             <div
               suppressHydrationWarning
-              className={cn("h-full rounded-[2px]", active ? "bg-white/70" : "bg-white/20")}
+              className={cn("relative h-full rounded-[2px]", active ? "bg-white/60" : "bg-white/20")}
               style={{ width: `${active ? pct : 0}%` }}
-            />
+            >
+              <span aria-hidden className="absolute inset-y-0 right-0 w-1 rounded-[2px] bg-white" />
+            </div>
+            {/* Quarter marks sit above the fill: dark ticks over the lit part,
+               faint ones over the unlit part. */}
+            <span aria-hidden className="absolute inset-y-0 left-1/4 w-px bg-black/50" />
+            <span aria-hidden className="absolute inset-y-0 left-1/2 w-px bg-black/50" />
+            <span aria-hidden className="absolute inset-y-0 left-3/4 w-px bg-black/50" />
           </div>
         </div>
 
-        {/* Endpoint row: label left, value right, like a settings row. */}
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/[0.07] pt-2.5">
+        {/* Endpoint row. At rest: label + host. On hover the host yields to an
+           explicit "Inspect" hint — the card finally says what a click does. */}
+        <div className="mt-3 flex h-5 items-center justify-between gap-3 border-t border-white/[0.07] pt-2.5">
           <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-white/40">
             Endpoint
           </span>
-          <span className="min-w-0 truncate font-mono text-[10px] text-white/75">
-            {monitor.url.replace(/^https?:\/\//, "")}
+          <span className="relative min-w-0 flex-1 text-right">
+            <span className="block truncate font-mono text-[10px] text-white/75 transition-opacity duration-200 group-hover:opacity-0">
+              {host}
+            </span>
+            <span className="absolute inset-y-0 right-0 inline-flex items-center gap-1 font-mono text-[10px] text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              Inspect
+              <ArrowUpRight className="size-3" />
+            </span>
           </span>
         </div>
       </div>

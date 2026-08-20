@@ -10,6 +10,9 @@ export const monitorServices = {
 
     getAll(){
         return api.get<Monitor[]>("/monitors/")
+    },
+    update(id: string, data: Partial<createMonitorData>){
+        return api.patch<Monitor>(`/monitors/${id}/`, data)
     }
 }
 
