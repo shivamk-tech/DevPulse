@@ -23,3 +23,16 @@ def update_monitors(monitor_id, user, validated_data):
 
     return monitor
 
+def delete_monitor(monitor_id, user):
+    try:
+        monitor = Monitor.objects.get(
+            id=monitor_id,
+            owner=user
+        )
+        monitor.delete()
+        return True
+    
+    except Monitor.DoesNotExist:
+        return None;
+
+    

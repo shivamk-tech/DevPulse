@@ -39,4 +39,5 @@ class MonitorEditSerializer(serializers.Serializer):
     interval = serializers.IntegerField()
 
     timeout = serializers.IntegerField()
+    
 
