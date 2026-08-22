@@ -67,20 +67,17 @@ class MonitorDetailView(APIView):
             MonitorSerializer(monitor).data
         ,status=status.HTTP_200_OK)
 
-class MonitorDeleteView(APIView):
-
-    permission_classes=[IsAuthenticated]
 
     def delete(self, request, monitor_id):
-
-        result = delete_monitor(monitor_id=monitor_id, user=request.user)
-
-        if result is None:
-            return Response ({
-                "details": "Monitor not found"
-            },status=status.HTTP_404_NOT_FOUND)
-
-        return Response(
-            status=status.HTTP_200_OK
-        )
+    
+            result = delete_monitor(monitor_id=monitor_id, user=request.user)
+    
+            if result is None:
+                return Response ({
+                    "details": "Monitor not found"
+                },status=status.HTTP_404_NOT_FOUND)
+    
+            return Response(
+                status=status.HTTP_200_OK
+            )
     

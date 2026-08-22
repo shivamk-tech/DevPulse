@@ -8,11 +8,15 @@ export const monitorServices = {
         return api.post<Monitor>("/monitors/", data)
     },
 
-    getAll(){
+    getAll() {
         return api.get<Monitor[]>("/monitors/")
     },
-    update(id: string, data: Partial<createMonitorData>){
+    update(id: string, data: Partial<createMonitorData>) {
         return api.patch<Monitor>(`/monitors/${id}/`, data)
+    },
+
+    delete(id: string) {
+        return api.delete<void>(`/monitors/${id}/`)
     }
 }
 

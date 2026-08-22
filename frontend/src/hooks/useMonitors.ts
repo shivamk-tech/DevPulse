@@ -17,7 +17,15 @@ export function useMonitor() {
 export function useUpdateMonitor() {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: Partial<createMonitorData> }) =>  monitorServices.update(id, data),
+        mutationFn: ({ id, data }: { id: string; data: Partial<createMonitorData> }) => monitorServices.update(id, data),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["monitors"] }),
+    })
+}
+
+export function useDeleteMonitor() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => monitorServices.delete(id),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ["monitors"] }),
     })
 }

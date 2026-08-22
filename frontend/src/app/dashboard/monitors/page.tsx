@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import { CreateMonitorDialog } from "@/components/monitors/Create-monitor-dialog";
+import { DeleteMonitorDialog } from "@/components/monitors/Delete-monitor-dialog";
 import { MonitorDetailPanel } from "@/components/monitors/Monitor-detail-panel";
 import { MonitorsPlayground } from "@/components/monitors/Monitors-playground";
 import { Button } from "@/components/ui";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { useMonitor, useUpdateMonitor } from "@/hooks/useMonitors";
 import { monitorServices } from "@/services/monitor/monitors.service";
 import { useQueryClient } from "@tanstack/react-query";
+import { useDeleteMonitor } from "@/hooks/useMonitors";
 
 export default function MonitorsPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -26,6 +28,9 @@ export default function MonitorsPage() {
     paused: monitors.filter((m) => !m.is_active).length,
   };
   const queryClient = useQueryClient();
+  const deleteMonitor = useDeleteMonitor();
+  const [deleteTarget, setDeleteTarget] = useState<Monitor | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <div className="flex h-full w-full overflow-hidden">
@@ -81,7 +86,22 @@ export default function MonitorsPage() {
         </div>
       </div>
 
-      <MonitorDetailPanel monitor={selected} onClose={() => setSelected(null)} onEdit={(m) => { setEditing(m); setCreateOpen(true); }} />
+      <MonitorDetailPanel
+        monitor={selected}
+        onClose={() => setSelected(null)}
+        onEdit={(m) => { setEditing(m); setCreateOpen(true); }}
+        onDelete={(m) => { setDeleteTarget(m); setDeleteOpen(true); }}
+      />
+
+      <DeleteMonitorDialog
+        monitor={deleteTarget}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={async (m) => {
+          await deleteMonitor.mutateAsync(m.id);
+          setSelected(null);
+        }}
+      />
 
       <CreateMonitorDialog
         open={createOpen}

@@ -15,13 +15,14 @@ import {
 import type { Monitor } from "@/types/monitor";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 
 interface MonitorDetailPanelProps {
   monitor: Monitor | null;
   onClose: () => void;
-  /** Wire these when the endpoints exist; the buttons disable without them. */
   onTogglePause?: (monitor: Monitor) => void;
   onEdit?: (monitor: Monitor) => void;
+  onDelete?: (monitor: Monitor) => void;
 }
 
 const TABS = ["Overview", "Checks", "Incidents", "Settings"] as const;
@@ -42,6 +43,7 @@ export function MonitorDetailPanel({
   onClose,
   onTogglePause,
   onEdit,
+  onDelete,
 }: MonitorDetailPanelProps) {
   const reduce = useReducedMotion();
   const [tab, setTab] = useState<(typeof TABS)[number]>("Overview");
@@ -158,6 +160,11 @@ export function MonitorDetailPanel({
                   onClick={onEdit && (() => onEdit(monitor))}
                 />
                 <ActionButton icon={MoreHorizontal} label="More" />
+                <ActionButton
+                  icon={Trash2}
+                  label="Delete"
+                  onClick={onDelete && (() => onDelete(monitor))}
+                />
               </div>
 
               {/* Tabs */}
@@ -197,58 +204,58 @@ export function MonitorDetailPanel({
               </div>
 
               <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={tab}
-                initial={reduce ? false : { opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={reduce ? undefined : { opacity: 0, y: -4 }}
-                transition={{ duration: 0.18, ease: EASE }}
-              >
-              {tab === "Overview" ? (
-                <div className="mt-4 space-y-3">
-                  <div className="grid grid-cols-2 rounded-sm border border-white/10">
-                    <Cell
-                      label="Status"
-                      value={monitor.is_active ? "Active" : "Paused"}
-                      accent={monitor.is_active}
-                    />
-                    <Cell label="Method" value={monitor.method} />
-                    <Cell label="Check interval" value={`Every ${monitor.interval}s`} />
-                    <Cell label="Timeout" value={`${monitor.timeout}s`} />
-                    <Cell label="Created" value={formatDate(monitor.created_at)} />
-                    <Cell label="Last updated" value={formatDate(monitor.updated_at)} />
-                  </div>
+                <motion.div
+                  key={tab}
+                  initial={reduce ? false : { opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={reduce ? undefined : { opacity: 0, y: -4 }}
+                  transition={{ duration: 0.18, ease: EASE }}
+                >
+                  {tab === "Overview" ? (
+                    <div className="mt-4 space-y-3">
+                      <div className="grid grid-cols-2 rounded-sm border border-white/10">
+                        <Cell
+                          label="Status"
+                          value={monitor.is_active ? "Active" : "Paused"}
+                          accent={monitor.is_active}
+                        />
+                        <Cell label="Method" value={monitor.method} />
+                        <Cell label="Check interval" value={`Every ${monitor.interval}s`} />
+                        <Cell label="Timeout" value={`${monitor.timeout}s`} />
+                        <Cell label="Created" value={formatDate(monitor.created_at)} />
+                        <Cell label="Last updated" value={formatDate(monitor.updated_at)} />
+                      </div>
 
-                  {/* Structure kept, data honestly absent. */}
-                  <Card title="Response time (24h)" badge="No data">
-                    <NoSeries>
-                      Beacon isn&apos;t recording check results yet, so there&apos;s
-                      nothing to plot.
-                    </NoSeries>
-                  </Card>
+                      {/* Structure kept, data honestly absent. */}
+                      <Card title="Response time (24h)" badge="No data">
+                        <NoSeries>
+                          Beacon isn&apos;t recording check results yet, so there&apos;s
+                          nothing to plot.
+                        </NoSeries>
+                      </Card>
 
-                  <Card title="Recent checks">
-                    <NoSeries>
-                      Individual checks appear here once the checker starts running.
-                    </NoSeries>
-                  </Card>
-                </div>
-              ) : (
-                <div className="mt-8 px-2 text-center">
-                  <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
-                    Coming soon
-                  </p>
-                  <p className="mx-auto mt-3 max-w-64 text-[13px] leading-relaxed text-white/40">
-                    {tab === "Checks" &&
-                      "Every check result for this monitor, with status code and latency."}
-                    {tab === "Incidents" &&
-                      "Downtime periods, with start and recovery times."}
-                    {tab === "Settings" &&
-                      "Edit the URL, interval, and timeout without leaving this panel."}
-                  </p>
-                </div>
-              )}
-              </motion.div>
+                      <Card title="Recent checks">
+                        <NoSeries>
+                          Individual checks appear here once the checker starts running.
+                        </NoSeries>
+                      </Card>
+                    </div>
+                  ) : (
+                    <div className="mt-8 px-2 text-center">
+                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
+                        Coming soon
+                      </p>
+                      <p className="mx-auto mt-3 max-w-64 text-[13px] leading-relaxed text-white/40">
+                        {tab === "Checks" &&
+                          "Every check result for this monitor, with status code and latency."}
+                        {tab === "Incidents" &&
+                          "Downtime periods, with start and recovery times."}
+                        {tab === "Settings" &&
+                          "Edit the URL, interval, and timeout without leaving this panel."}
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
               </AnimatePresence>
             </motion.div>
           </motion.aside>
