@@ -18,5 +18,8 @@ export const monitorServices = {
     delete(id: string) {
         return api.delete<void>(`/monitors/${id}/`)        
     }
+
+
+    
 }
 
