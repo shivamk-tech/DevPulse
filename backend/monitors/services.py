@@ -35,4 +35,18 @@ def delete_monitor(monitor_id, user):
     except Monitor.DoesNotExist:
         return None;
 
-    
+def toggle_monitor(monitor_id, user):
+    try:
+        monitor = Monitor.objects.get(
+            monitor_id,
+            user
+        )
+
+        monitor.is_active = not monitor.is_active
+        monitor.save()
+
+        return True
+    except Monitor.DoesNotExist:
+        return False
+
+
