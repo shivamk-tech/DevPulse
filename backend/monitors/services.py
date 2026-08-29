@@ -31,6 +31,7 @@ def delete_monitor(monitor_id, user):
         )
         monitor.delete()
         return True
+
     
     except Monitor.DoesNotExist:
         return None;
