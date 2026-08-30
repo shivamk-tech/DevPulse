@@ -16,6 +16,7 @@ def update_monitors(monitor_id, user, validated_data):
         )
     except Monitor.DoesNotExist:
         return None;
+
     for field, value in validated_data.items():
         setattr(monitor, field, value)
 
