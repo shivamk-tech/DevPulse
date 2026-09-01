@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import { useMonitor, useUpdateMonitor } from "@/hooks/useMonitors";
 import { monitorServices } from "@/services/monitor/monitors.service";
 import { useQueryClient } from "@tanstack/react-query";
-import { useDeleteMonitor } from "@/hooks/useMonitors";
+import { useDeleteMonitor, useToggleMonitor } from "@/hooks/useMonitors";
 
 export default function MonitorsPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -29,6 +29,7 @@ export default function MonitorsPage() {
   };
   const queryClient = useQueryClient();
   const deleteMonitor = useDeleteMonitor();
+  const toggleMonitor = useToggleMonitor();
   const [deleteTarget, setDeleteTarget] = useState<Monitor | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -89,6 +90,10 @@ export default function MonitorsPage() {
       <MonitorDetailPanel
         monitor={selected}
         onClose={() => setSelected(null)}
+        onTogglePause={async (m) => {
+          const res = await toggleMonitor.mutateAsync(m.id);
+          setSelected(res.data);   // panel flips Pause <-> Resume immediately
+        }}
         onEdit={(m) => { setEditing(m); setCreateOpen(true); }}
         onDelete={(m) => { setDeleteTarget(m); setDeleteOpen(true); }}
       />

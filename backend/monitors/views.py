@@ -9,6 +9,7 @@ from .services import create_monitor
 from .serializers import MonitorEditSerializer
 from .services import update_monitors
 from .services import delete_monitor
+from .services import toggle_monitor
 
 # Create your views here.
 class MonitorListCreateView(APIView):
@@ -80,4 +81,19 @@ class MonitorDetailView(APIView):
             return Response(
                 status=status.HTTP_200_OK
             )
+
+class MonitorToggleView(APIView):
+    def post(self, request, monitor_id):
+            monitor = toggle_monitor(
+                monitor_id=monitor_id,
+                user=request.user
+            )
     
+            if monitor is None:
+                return Response(
+                    {"details" : "Monitor is not found"}
+                ,status=status.HTTP_404_NOT_FOUND)
+    
+            return Response(
+                MonitorSerializer(monitor).data
+            ,status=status.HTTP_200_OK)

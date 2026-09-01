@@ -29,3 +29,11 @@ export function useDeleteMonitor() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ["monitors"] }),
     })
 }
+
+export function useToggleMonitor() {
+    const queryClient = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => monitorServices.toggle(id),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ["monitors"] }),
+    })
+}

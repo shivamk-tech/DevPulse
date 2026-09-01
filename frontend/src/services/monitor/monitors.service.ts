@@ -17,6 +17,12 @@ export const monitorServices = {
 
     delete(id: string) {
         return api.delete<void>(`/monitors/${id}/`)        
+    },
+
+    // No body: the server flips is_active itself and returns the updated row,
+    // so the client never has to guess the new state.
+    toggle(id: string) {
+        return api.post<Monitor>(`/monitors/${id}/toggle/`)
     }    
 }
 
