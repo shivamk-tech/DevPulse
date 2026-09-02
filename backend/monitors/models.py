@@ -55,3 +55,32 @@ class Monitor(models.Model):
 
     def __str__(self):
         return self.name
+
+class CheckRessult(models.Model):
+    monitor = models.ForeignKey(
+        Monitor,
+        on_delete=models.CASCADE,
+        related_name="check_result"
+    )
+
+    status_code=models.PositiveIntegerField(
+        null=True,
+        blank=True
+    )
+
+    response_time = models.FloatField(
+        null=True,
+        blank=True
+    )
+
+    success = models.BooleanField()
+
+
+    error = models.TextField(
+        null=True,
+        blank=True
+    )
+
+    checked_at = models.DateTimeField(
+        auto_now_add=True
+    )
