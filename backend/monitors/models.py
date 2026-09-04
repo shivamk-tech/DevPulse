@@ -56,7 +56,7 @@ class Monitor(models.Model):
     def __str__(self):
         return self.name
 
-class CheckRessult(models.Model):
+class CheckResult(models.Model):
     monitor = models.ForeignKey(
         Monitor,
         on_delete=models.CASCADE,
