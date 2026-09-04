@@ -53,6 +53,11 @@ class Monitor(models.Model):
         auto_now=True,
     )
 
+    last_checked_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
     def __str__(self):
         return self.name
 
