@@ -1,6 +1,7 @@
 from .models import Monitor, CheckResult
 import requests
 import time 
+from django.utils import timezone
 
 def create_monitor(*, user, validated_data):
     return Monitor.objects.create(
@@ -75,6 +76,9 @@ def check_monitor(monitor):
             error=None,
         )
 
+        monitor.last_checked_at = timezone.now()
+        monitor.save(update_fields=["last_checked_at"])
+
         return check_result
 
     except requests.RequestException as error:
@@ -91,5 +95,7 @@ def check_monitor(monitor):
             error=str(error),
         )
 
-        return check_result
+        monitor.last_checked_at = timezone.now()
+        monitor.save(update_fields=["last_checked_at"])
 
+        return check_result

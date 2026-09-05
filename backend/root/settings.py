@@ -179,3 +179,10 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
 CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_BEAT_SCHEDULE = {
+    "schedule-monitor-checks": {
+        "task": "monitors.tasks.schedule_monitor_checks",
+        "schedule": 10.0,
+    },
+}
