@@ -18,3 +18,13 @@ export interface Monitor {
     created_at: string
 }
 
+export interface MonitorStats {
+  total_checks: number;
+  successful_checks: number;
+  failed_checks: number;
+  uptime_percentage: number;
+  average_response_time: number | null;
+  min_response_time: number | null;
+  max_response_time: number | null;
+  last_checked_at: string | null;
+}

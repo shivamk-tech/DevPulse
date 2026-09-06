@@ -1,7 +1,3 @@
-PATCH http://localhost:8000/api/monitors/15/
+GET http://localhost:8000/api/monitors/5/checks/
 Content-Type: application/json
-
-{
-    "name": "John Doe",
-    "email": "john@example.com"
-}
+Cookie: access_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzg4NzM2MDY3LCJpYXQiOjE3ODg3MzUxNjksImp0aSI6Ijk4ZDMwYjFlYTgwZjRlNDVhOTM1ODdmZDU1NzMzOTE0IiwidXNlcl9pZCI6IjEzIn0.t_-XTR2pOEEB-nOJhuES3Jm6fVV0kquxHmK3vSERmH4; refresh_token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc4ODkzMjIxMCwiaWF0IjoxNzg4MzI3NDEwLCJqdGkiOiI5NjcxNTgwNzZlYjU0NjkxODMzOGNhOGFlZmI2ZWNlMyIsInVzZXJfaWQiOiIxMyJ9.HQRHfyoRZxifz_GReD3S58pjx-ekDANhVw0GhrEbdW0

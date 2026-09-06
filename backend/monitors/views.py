@@ -10,6 +10,9 @@ from .serializers import MonitorEditSerializer
 from .services import update_monitors
 from .services import delete_monitor
 from .services import toggle_monitor
+from .services import get_monitor_stats
+from .services import get_monitor_checks
+from .serializers import CheckResultSerializer
 
 # Create your views here.
 class MonitorListCreateView(APIView):
@@ -97,3 +100,57 @@ class MonitorToggleView(APIView):
             return Response(
                 MonitorSerializer(monitor).data
             ,status=status.HTTP_200_OK)
+
+class MonitorStatsView(APIView):
+     permission_classes = [IsAuthenticated]
+
+     def get(self, request, monitor_id):
+
+        monitor = Monitor.objects.filter(
+            id=monitor_id,
+            owner=request.user
+        ).first()
+
+        if monitor is None:
+
+            return Response (
+                {"details" : "Monitor not found"}
+            ,status=status.HTTP_404_NOT_FOUND)
+
+        stats = get_monitor_stats(monitor)
+
+        return Response (
+             stats
+        ,status=status.HTTP_200_OK)
+
+class MonitorCheckView(APIView):
+
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request, monitor_id):
+
+        monitor = Monitor.objects.get(
+            id=monitor_id,
+            owner=request.user
+        )
+
+        if monitor is None:
+            return Response(
+                {"details" : "Monitor not found"}
+            ,status=status.HTTP_404_NOT_FOUND)
+
+        checks = get_monitor_checks(monitor, limit=50)
+
+        serializer = CheckResultSerializer(
+            checks,
+            many=True,
+        )
+
+        return Response(
+            serializer.data
+        ,status=status.HTTP_200_OK)
+
+    
+    
+     
+

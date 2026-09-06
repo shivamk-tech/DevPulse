@@ -16,6 +16,9 @@ import type { Monitor } from "@/types/monitor";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
+import { monitorServices } from "@/services/monitor/monitors.service";
+import { MonitorStats } from "@/types/monitor";
+import { useQuery } from "@tanstack/react-query";
 
 interface MonitorDetailPanelProps {
   monitor: Monitor | null;
@@ -54,6 +57,13 @@ export function MonitorDetailPanel({
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [monitor, onClose]);
+
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["monitor-stats", monitor?.id],
+    queryFn: () => monitorServices.stats(monitor!.id),
+    enabled: !!monitor,
+    refetchInterval: 30_000,
+  });
 
   return (
     <AnimatePresence>
@@ -213,6 +223,38 @@ export function MonitorDetailPanel({
                 >
                   {tab === "Overview" ? (
                     <div className="mt-4 space-y-3">
+
+                      <div className="grid grid-cols-3 rounded-sm border border-white/10">
+                        <StatCell
+                          label="Uptime"
+                          value={
+                            statsLoading
+                              ? "—"
+                              : `${stats?.uptime_percentage?.toFixed(2) ?? "0.00"}%`
+                          }
+                        />
+
+                        <StatCell
+                          label="Checks"
+                          value={
+                            statsLoading
+                              ? "—"
+                              : `${stats?.total_checks ?? 0}`
+                          }
+                        />
+
+                        <StatCell
+                          label="Avg response"
+                          value={
+                            statsLoading
+                              ? "—"
+                              : stats?.average_response_time != null
+                                ? `${Math.round(stats.average_response_time)}ms`
+                                : "—"
+                          }
+                        />
+                      </div>
+
                       <div className="grid grid-cols-2 rounded-sm border border-white/10">
                         <Cell
                           label="Status"
@@ -319,6 +361,26 @@ function Cell({
           accent ? "text-[#4ade80]" : "text-white"
         )}
       >
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function StatCell({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="border-r border-white/8 px-3.5 py-3 last:border-r-0">
+      <p className="text-[10px] text-white/40">
+        {label}
+      </p>
+
+      <p className="mt-1 text-sm font-semibold text-white">
         {value}
       </p>
     </div>

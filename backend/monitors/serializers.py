@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Monitor
-
+from .models import CheckResult
 
 class MonitorSerializer(serializers.ModelSerializer):
 
@@ -41,3 +41,16 @@ class MonitorEditSerializer(serializers.Serializer):
     timeout = serializers.IntegerField()
     
 
+class CheckResultSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CheckResult
+        fields=[
+            "id",
+            "status_code",
+            "response_time",
+            "success",
+            "error",
+            "checked_at",
+        ]
+
+        

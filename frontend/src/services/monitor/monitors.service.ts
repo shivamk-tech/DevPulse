@@ -1,7 +1,7 @@
 import { createMonitorData } from "@/types/monitor"
 import { api } from "@/lib/api"
 import { Monitor } from "@/types/monitor"
-
+import { MonitorStats } from "@/types/monitor"
 
 export const monitorServices = {
     Create(data: createMonitorData) {
@@ -23,6 +23,11 @@ export const monitorServices = {
     // so the client never has to guess the new state.
     toggle(id: string) {
         return api.post<Monitor>(`/monitors/${id}/toggle/`)
-    }    
+    },    
+    async stats(id : string){
+
+        const response = await api.get<MonitorStats>(`/monitors/${id}/stats/`)
+        return response.data
+    }
 }
 

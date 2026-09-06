@@ -2,6 +2,7 @@ from .models import Monitor, CheckResult
 import requests
 import time 
 from django.utils import timezone
+from django.db.models import Avg,Min,Max
 
 def create_monitor(*, user, validated_data):
     return Monitor.objects.create(
@@ -99,3 +100,41 @@ def check_monitor(monitor):
         monitor.save(update_fields=["last_checked_at"])
 
         return check_result
+
+def get_monitor_stats(monitor):
+    results = monitor.check_result.all()
+
+    total_checks = results.count()
+    successful_checks = results.filter(success=True).count()
+    failed_checks = results.filter(success=False).count()
+
+    if total_checks > 0 :
+        uptime_percentage = (
+            successful_checks / total_checks
+        ) * 100
+
+    else:
+        uptime_percentage = 0
+
+    response_stats = results.filter(
+        response_time__isnull=False
+    ).aggregate(
+        average=Avg("response_time"),
+        minimum=Min("response_time"),
+        maximum=Max("response_time"),
+    )
+
+    return {
+        "total_checks": total_checks,
+        "successful_checks": successful_checks,
+        "failed_checks": failed_checks,
+        "uptime_percentage": round(uptime_percentage, 2),
+        "average_response_time": response_stats["average"],
+        "min_response_time": response_stats["minimum"],
+        "max_response_time": response_stats["maximum"],
+        "last_checked_at": monitor.last_checked_at,
+    }
+
+def get_monitor_checks(monitor, limit=50):
+    return monitor.check_result.order_by("-checked_at")[:limit]
+
