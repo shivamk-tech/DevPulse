@@ -12,12 +12,11 @@ import {
   X,
 } from "lucide-react";
 
-import type { Monitor } from "@/types/monitor";
+import type { Monitor, CheckResult } from "@/types/monitor";
 import { EASE } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { Trash2 } from "lucide-react";
 import { monitorServices } from "@/services/monitor/monitors.service";
-import { MonitorStats } from "@/types/monitor";
 import { useQuery } from "@tanstack/react-query";
 
 interface MonitorDetailPanelProps {
@@ -65,6 +64,15 @@ export function MonitorDetailPanel({
     refetchInterval: 30_000,
   });
 
+  const {
+    data: checks,
+    isLoading: checksLoading,
+  } = useQuery({
+    queryKey: ["monitor-checks", monitor?.id],
+    queryFn: () => monitorServices.checks(monitor!.id),
+    enabled: !!monitor,
+  })
+
   return (
     <AnimatePresence>
       {monitor && (
@@ -107,7 +115,7 @@ export function MonitorDetailPanel({
               initial={reduce ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.28, ease: EASE, delay: 0.05 }}
-              className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-5 lg:overflow-hidden"
+              className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-5"
             >
               {/* Identity */}
               <div className="flex items-start gap-3.5 pr-10">
@@ -282,20 +290,25 @@ export function MonitorDetailPanel({
                         </NoSeries>
                       </Card>
                     </div>
+                  ) : tab === "Checks" ? (
+                    <ChecksTab
+                      checks={checks ?? []}
+                      loading={checksLoading}
+                    />
                   ) : (
-                    <div className="mt-8 px-2 text-center">
-                      <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
-                        Coming soon
-                      </p>
-                      <p className="mx-auto mt-3 max-w-64 text-[13px] leading-relaxed text-white/40">
-                        {tab === "Checks" &&
-                          "Every check result for this monitor, with status code and latency."}
-                        {tab === "Incidents" &&
-                          "Downtime periods, with start and recovery times."}
-                        {tab === "Settings" &&
-                          "Edit the URL, interval, and timeout without leaving this panel."}
-                      </p>
-                    </div>
+                  <div className="mt-8 px-2 text-center">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
+                      Coming soon
+                    </p>
+
+                    <p className="mx-auto mt-3 max-w-64 text-[13px] leading-relaxed text-white/40">
+                      {tab === "Incidents" &&
+                        "Downtime periods, with start and recovery times."}
+
+                      {tab === "Settings" &&
+                        "Edit the URL, interval, and timeout without leaving this panel."}
+                    </p>
+                  </div>
                   )}
                 </motion.div>
               </AnimatePresence>
@@ -363,6 +376,132 @@ function Cell({
       >
         {value}
       </p>
+    </div>
+  );
+}
+
+function formatCheckTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return date.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+}
+
+function ChecksTab({
+  checks,
+  loading,
+}: {
+  checks: CheckResult[];
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <div className="mt-4 space-y-2">
+        {[1, 2, 3, 4, 5].map((item) => (
+          <div
+            key={item}
+            className="h-12 animate-pulse rounded-sm border border-white/8 bg-white/[0.02]"
+          />
+        ))}
+      </div>
+    );
+  }
+
+  if (checks.length === 0) {
+    return (
+      <div className="mt-8 px-2 text-center">
+        <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/30">
+          No checks
+        </p>
+
+        <p className="mx-auto mt-3 max-w-64 text-[13px] leading-relaxed text-white/40">
+          This monitor hasn't produced any check results yet.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-4 space-y-2">
+      {checks.map((check) => (
+        <CheckRow key={check.id} check={check} />
+      ))}
+    </div>
+  );
+}
+
+function CheckRow({
+  check,
+}: {
+  check: CheckResult;
+}) {
+  const responseTime =
+    check.response_time != null
+      ? `${Math.round(check.response_time)}ms`
+      : "—";
+
+  return (
+    <div className="flex items-center gap-3 rounded-sm border border-white/8 px-3 py-2.5">
+      {/* Status */}
+      <span
+        className={cn(
+          "grid size-6 shrink-0 place-items-center rounded-full",
+          check.success
+            ? "bg-[#22c55e]/10"
+            : "bg-red-500/10"
+        )}
+      >
+        <span
+          className={cn(
+            "size-1.5 rounded-full",
+            check.success
+              ? "bg-[#22c55e]"
+              : "bg-red-400"
+          )}
+        />
+      </span>
+
+      {/* Main information */}
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              "font-mono text-xs font-medium",
+              check.success
+                ? "text-white"
+                : "text-red-300"
+            )}
+          >
+            {check.success
+              ? check.status_code ?? "OK"
+              : check.error?.includes("timed out")
+                ? "TIMEOUT"
+                : check.status_code ?? "FAILED"}
+          </span>
+
+          <span className="text-[10px] text-white/25">
+            {responseTime}
+          </span>
+        </div>
+
+        {!check.success && check.error && (
+          <p className="mt-0.5 truncate text-[10px] text-white/30">
+            {check.error}
+          </p>
+        )}
+      </div>
+
+      {/* Timestamp */}
+      <span className="shrink-0 text-[10px] text-white/30">
+        {formatCheckTime(check.checked_at)}
+      </span>
     </div>
   );
 }

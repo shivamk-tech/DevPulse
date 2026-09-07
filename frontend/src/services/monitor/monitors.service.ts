@@ -19,14 +19,17 @@ export const monitorServices = {
         return api.delete<void>(`/monitors/${id}/`)        
     },
 
-    // No body: the server flips is_active itself and returns the updated row,
-    // so the client never has to guess the new state.
     toggle(id: string) {
         return api.post<Monitor>(`/monitors/${id}/toggle/`)
-    },    
-    async stats(id : string){
+    },  
 
+    async stats(id : string){
         const response = await api.get<MonitorStats>(`/monitors/${id}/stats/`)
+        return response.data
+    },
+
+    async checks(id: string) {
+        const response = await api.get(`/monitors/${id}/checks/`)
         return response.data
     }
 }
